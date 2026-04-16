@@ -1,0 +1,285 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'Poppins', sans-serif;
+  background: #FFFFFF;
+  overflow-x: hidden;
+}
+
+/* =========================================
+   PAGE LAYOUT
+   ========================================= */
+.page {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* =========================================
+   LEFT PANEL
+   ========================================= */
+.left-panel {
+  flex: 1;
+  background-color: #D1EAFA;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 80px;
+  overflow: hidden;
+}
+
+.left-content {
+  margin-top: -200px;
+  z-index: 10;
+  position: relative;
+}
+
+.left-title {
+  font-size: 58px;
+  font-weight: 800;
+  color: #38556D;
+  line-height: 1.15;
+  margin-bottom: 24px;
+  letter-spacing: -1.5px;
+}
+
+.highlight {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* .highlight::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 12px;
+  height: 8px;
+  background-color: #3B82F6;
+  z-index: -1;
+} */
+
+.highlight::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 4px;
+  height: 8px;
+  background-color: #F8D3A8;
+  z-index: -1;
+}
+
+.left-subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  color: #8AA4BC;
+  line-height: 1.5;
+  max-width: 480px;
+}
+
+.books-illustration {
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  width: 600px;
+  max-width: 90%;
+  /* height: 220px; */
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* =========================================
+   RIGHT PANEL (FORM)
+   ========================================= */
+.right-panel {
+  flex: 1;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
+}
+
+.form-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Brand / Logo */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 44px;
+}
+
+.brand-text {
+  font-size: 28px;
+  font-weight: 900;
+  color: #353337;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+/* Form headings */
+.form-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #444;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #808080;
+  margin-bottom: 36px;
+}
+
+.form-subtitle a {
+  color: #353337;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.form-subtitle a:hover {
+  text-decoration: underline;
+}
+
+/* Input groups */
+.input-group {
+  margin-bottom: 24px;
+}
+
+.input-group label,
+.label-row label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #555358;
+  margin-bottom: 8px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
+.forgot-link {
+  font-size: 12px;
+  color: #A0A0A0;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover {
+  color: #353337;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #4D4B50;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  color: #353337;
+  background: #FFFFFF;
+  transition: border-color 0.2s, border-width 0.1s;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #3B82F6;
+  border-width: 2px;
+  padding: 13px 15px;
+}
+
+/* Submit button */
+.login-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 16px;
+  background-color: #F8DBB5;
+  color: #353337;
+  border: 2px solid #353337;
+  border-radius: 20px;
+  box-shadow: 4px 4px 0px #353337;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+}
+
+.login-btn:hover {
+  background-color: #F0D0A5;
+}
+
+.login-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #353337;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 900px) {
+  .page {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .left-panel {
+    padding: 50px 30px;
+    min-height: 400px;
+  }
+
+  .left-content {
+    margin-top: -60px;
+  }
+
+  .left-title {
+    font-size: 44px;
+  }
+
+  .books-illustration {
+    width: 100%;
+    left: 0;
+    height: 180px;
+  }
+
+  .right-panel {
+    padding: 60px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .left-title {
+    font-size: 36px;
+  }
+
+  .form-title {
+    font-size: 26px;
+  }
+}
