@@ -26,59 +26,253 @@
             ::-webkit-scrollbar-track { background: #f1f1f1; }
             ::-webkit-scrollbar-thumb { background: #c5a96b; border-radius: 3px; }
 
-            /* Animations */
+            /* ===== KEYFRAME ANIMATIONS ===== */
             @keyframes float {
                 0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
+                50% { transform: translateY(-12px); }
+            }
+            @keyframes floatSlow {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                33% { transform: translateY(-8px) rotate(2deg); }
+                66% { transform: translateY(-14px) rotate(-1deg); }
             }
             @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(30px); }
+                from { opacity: 0; transform: translateY(40px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeInDown {
+                from { opacity: 0; transform: translateY(-20px); }
                 to { opacity: 1; transform: translateY(0); }
             }
             @keyframes slideInLeft {
-                from { opacity: 0; transform: translateX(-40px); }
+                from { opacity: 0; transform: translateX(-50px); }
                 to { opacity: 1; transform: translateX(0); }
             }
             @keyframes slideInRight {
-                from { opacity: 0; transform: translateX(40px); }
+                from { opacity: 0; transform: translateX(50px); }
                 to { opacity: 1; transform: translateX(0); }
             }
+            @keyframes scaleIn {
+                from { opacity: 0; transform: scale(0.85); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes pulse-ring {
+                0% { transform: scale(1); opacity: 0.6; }
+                100% { transform: scale(1.8); opacity: 0; }
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+            @keyframes ticker-scroll {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+            @keyframes particle-rise {
+                0% { transform: translateY(0) scale(1); opacity: 0.7; }
+                100% { transform: translateY(-120px) scale(0.3); opacity: 0; }
+            }
+            @keyframes shimmer {
+                0% { background-position: -200% center; }
+                100% { background-position: 200% center; }
+            }
+            @keyframes spin-slow {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            @keyframes bounce-in {
+                0% { transform: scale(0.3); opacity: 0; }
+                50% { transform: scale(1.1); }
+                70% { transform: scale(0.95); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            /* ===== UTILITY ANIMATION CLASSES ===== */
             .animate-float { animation: float 4s ease-in-out infinite; }
-            .animate-fade-up { animation: fadeInUp 0.8s ease forwards; }
-            .animate-slide-left { animation: slideInLeft 0.8s ease forwards; }
-            .animate-slide-right { animation: slideInRight 0.8s ease forwards; }
+            .animate-float-slow { animation: floatSlow 6s ease-in-out infinite; }
+            .animate-fade-up { animation: fadeInUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+            .animate-fade-down { animation: fadeInDown 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+            .animate-slide-left { animation: slideInLeft 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+            .animate-slide-right { animation: slideInRight 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+            .animate-scale-in { animation: scaleIn 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+            .animate-spin-slow { animation: spin-slow 12s linear infinite; }
 
-            /* Review card tilt effects */
-            .review-card:nth-child(1) { transform: rotate(-3deg); }
-            .review-card:nth-child(2) { transform: rotate(2deg) translateY(20px); }
-            .review-card:nth-child(3) { transform: rotate(-1.5deg) translateY(-10px); }
-            .review-card:nth-child(4) { transform: rotate(3.5deg) translateY(30px); }
-            .review-card:nth-child(5) { transform: rotate(-2deg) translateY(10px); }
-            .review-card:hover { transform: rotate(0) translateY(-5px) scale(1.02); z-index: 10; }
+            /* ===== SCROLL REVEAL ===== */
+            .reveal {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal.revealed {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .reveal-left {
+                opacity: 0;
+                transform: translateX(-40px);
+                transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal-left.revealed {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .reveal-right {
+                opacity: 0;
+                transform: translateX(40px);
+                transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal-right.revealed {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            .reveal-scale {
+                opacity: 0;
+                transform: scale(0.9);
+                transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+            }
+            .reveal-scale.revealed {
+                opacity: 1;
+                transform: scale(1);
+            }
 
-            /* Tag pill hover */
-            .tag-pill { transition: all 0.2s ease; }
-            .tag-pill:hover { transform: translateY(-2px); }
+            /* ===== SCROLL PROGRESS ===== */
+            #scroll-progress {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                width: 0%;
+                background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
+                background-size: 200% 100%;
+                animation: shimmer 2s linear infinite;
+                z-index: 100;
+                transition: width 0.1s linear;
+            }
 
-            /* Step card hover */
-            .step-card { transition: all 0.3s ease; }
-            .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+            /* ===== TYPEWRITER ===== */
+            .typewriter-cursor {
+                display: inline-block;
+                width: 3px;
+                height: 0.9em;
+                background: #f59e0b;
+                vertical-align: middle;
+                margin-left: 2px;
+                animation: blink 1s ease infinite;
+            }
 
-            /* Nav link hover underline */
+            /* ===== TICKER TAPE ===== */
+            .ticker-wrapper {
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            .ticker-inner {
+                display: inline-flex;
+                gap: 0;
+                animation: ticker-scroll 24s linear infinite;
+            }
+            .ticker-inner:hover { animation-play-state: paused; }
+
+            /* ===== PARTICLES ===== */
+            .particle {
+                position: absolute;
+                border-radius: 50%;
+                pointer-events: none;
+                animation: particle-rise var(--dur, 3s) ease-out forwards;
+            }
+
+            /* ===== REVIEW CARDS ===== */
+            .review-card {
+                transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            }
+            .review-card:hover {
+                transform: rotate(0deg) translateY(-8px) scale(1.04) !important;
+                z-index: 10;
+                box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            }
+
+            /* ===== TAG PILLS ===== */
+            .tag-pill { transition: all 0.25s cubic-bezier(0.16,1,0.3,1); cursor: pointer; }
+            .tag-pill:hover { transform: translateY(-3px) scale(1.05); }
+            .tag-pill.active {
+                background: #111827;
+                color: #fff;
+                border-color: #111827;
+            }
+
+            /* ===== STEP CARDS ===== */
+            .step-card { transition: all 0.35s cubic-bezier(0.16,1,0.3,1); }
+            .step-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 16px 36px rgba(0,0,0,0.1);
+            }
+
+            /* ===== FEATURE GRID CARDS ===== */
+            .feature-grid-card {
+                transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+                cursor: default;
+            }
+            .feature-grid-card:hover {
+                transform: translateY(-6px) scale(1.02);
+                box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+            }
+
+            /* ===== NAV LINK ===== */
             .nav-link::after {
                 content: '';
                 position: absolute;
                 width: 0;
                 height: 2px;
-                background: #1a1a1a;
+                background: #f59e0b;
                 bottom: -2px;
                 left: 0;
-                transition: width 0.3s ease;
+                transition: width 0.3s cubic-bezier(0.16,1,0.3,1);
             }
             .nav-link:hover::after { width: 100%; }
+
+            /* ===== BLOB PARALLAX ===== */
+            .parallax-blob {
+                will-change: transform;
+                transition: transform 0.1s linear;
+            }
+
+            /* ===== PULSE BUTTON ===== */
+            .pulse-btn::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                background: #fbbf24;
+                animation: pulse-ring 1.8s ease-out infinite;
+            }
+
+            /* ===== STATS COUNTER ===== */
+            .stat-number {
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* ===== MOBILE MENU TRANSITION ===== */
+            #mobile-menu {
+                transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            }
+            #mobile-menu.hidden-menu {
+                opacity: 0;
+                transform: scale(0.97);
+                pointer-events: none;
+                display: flex !important;
+            }
+            #mobile-menu.visible-menu {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: all;
+            }
         </style>
     </head>
     <body class="bg-white text-gray-900 overflow-x-hidden">
+        <!-- Scroll Progress Bar -->
+        <div id="scroll-progress"></div>
 
         <!-- =================== NAVBAR =================== -->
         <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -128,48 +322,94 @@
         </nav>
 
         <!-- =================== HERO SECTION =================== -->
-        <section class="min-h-screen bg-white pt-16 relative overflow-hidden">
-            <!-- Subtle background decoration -->
-            <div class="absolute top-20 right-0 w-96 h-96 bg-amber-50 rounded-full blur-3xl opacity-60 pointer-events-none"></div>
-            <div class="absolute bottom-20 left-0 w-64 h-64 bg-sky-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <section class="min-h-screen bg-white pt-16 relative overflow-hidden" id="hero-section">
+            <!-- Animated parallax blobs -->
+            <div id="blob1" class="parallax-blob absolute top-20 right-0 w-96 h-96 bg-amber-50 rounded-full blur-3xl opacity-70 pointer-events-none" data-speed="0.04"></div>
+            <div id="blob2" class="parallax-blob absolute bottom-20 left-0 w-72 h-72 bg-sky-50 rounded-full blur-3xl opacity-60 pointer-events-none" data-speed="0.06"></div>
+            <div id="blob3" class="parallax-blob absolute top-1/2 left-1/3 w-48 h-48 bg-violet-50 rounded-full blur-2xl opacity-40 pointer-events-none" data-speed="0.03"></div>
+
+            <!-- Floating particle canvas -->
+            <canvas id="particle-canvas" class="absolute inset-0 pointer-events-none" style="opacity:0.5"></canvas>
+
+            <!-- Spinning ring decoration -->
+            <div class="animate-spin-slow absolute top-32 right-1/4 w-20 h-20 border-2 border-dashed border-amber-200 rounded-full pointer-events-none hidden lg:block"></div>
 
             <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
                     <!-- Left: Text Content -->
-                    <div class="animate-fade-up">
-                        <!-- Small decorative element -->
-                        <div class="flex items-center gap-2 mb-6">
-                            <div class="w-2 h-2 bg-sky-400 rounded-full"></div>
-                            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                    <div>
+                        <!-- Animated badge -->
+                        <div class="reveal flex items-center gap-2 mb-6" style="transition-delay: 0.1s">
+                            <div class="relative flex">
+                                <div class="w-2.5 h-2.5 bg-sky-400 rounded-full"></div>
+                                <div class="absolute inset-0 w-2.5 h-2.5 bg-sky-400 rounded-full animate-ping opacity-60"></div>
+                            </div>
+                            <div class="relative flex">
+                                <div class="w-2.5 h-2.5 bg-amber-400 rounded-full"></div>
+                                <div class="absolute inset-0 w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping opacity-60" style="animation-delay:0.5s"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-gray-400 tracking-widest uppercase ml-1">Platform Buku Komunitas</span>
                         </div>
 
-                        <h1 class="text-7xl lg:text-8xl font-black tracking-tighter text-gray-900 leading-none mb-6">
+                        <h1 class="reveal text-7xl lg:text-8xl font-black tracking-tighter text-gray-900 leading-none mb-4" style="transition-delay:0.15s">
                             Alinea
                         </h1>
 
-                        <p class="text-gray-500 text-base leading-relaxed max-w-sm mb-8">
-                            Alinea menghubungkan para pembaca. Pinjam buku dari sesama, bagikan ulasan jujur, dan temukan buku favorit berikutnya bersama komunitas di sekitarmu.
+                        <!-- Typewriter subtitle -->
+                        <div class="reveal mb-6" style="transition-delay:0.25s">
+                            <p class="text-amber-500 font-bold text-lg">
+                                <span id="typewriter-text"></span><span class="typewriter-cursor"></span>
+                            </p>
+                        </div>
+
+                        <p class="reveal text-gray-500 text-base leading-relaxed max-w-sm mb-8" style="transition-delay:0.35s">
+                            Alinea menghubungkan para pembaca. Pinjam buku dari sesama, bagikan ulasan jujur, dan temukan buku favorit berikutmu bersama komunitas di sekitarmu.
                         </p>
 
-                        <div class="flex items-center gap-4">
-                            <a href="#" id="hero-cta" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border-2 border-amber-500">
-                                <span>GET STARTED</span>
-                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <div class="reveal flex items-center gap-4" style="transition-delay:0.45s">
+                            <a href="#" id="hero-cta" class="relative inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-amber-500 overflow-hidden group">
+                                <span class="relative z-10">GET STARTED</span>
+                                <svg class="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 7h10M8 3l4 4-4 4"/>
                                 </svg>
+                                <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
                             </a>
+                            <a href="#fitur" class="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors flex items-center gap-1.5">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 2v10M2 7l5 5 5-5"/></svg>
+                                Pelajari lebih lanjut
+                            </a>
+                        </div>
+
+                        <!-- Animated Stats Row -->
+                        <div class="reveal flex items-center gap-8 mt-12 pt-8 border-t border-gray-100" style="transition-delay:0.55s">
+                            <div>
+                                <p class="stat-number text-3xl font-black" data-count="2400" data-suffix="+">0</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Koleksi Buku</p>
+                            </div>
+                            <div class="w-px h-8 bg-gray-100"></div>
+                            <div>
+                                <p class="stat-number text-3xl font-black" data-count="1200" data-suffix="+">0</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Pembaca Aktif</p>
+                            </div>
+                            <div class="w-px h-8 bg-gray-100"></div>
+                            <div>
+                                <p class="stat-number text-3xl font-black" data-count="98" data-suffix="%">0</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Kepuasan</p>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Right: Bookshelf Illustration -->
-                    <div class="relative animate-slide-right hidden lg:block">
-                        <div class="animate-float">
+                    <div class="reveal-right hidden lg:block" style="transition-delay:0.2s">
+                        <div class="animate-float relative">
                             <img
                                 src="{{ asset('img/bookshelf.png') }}"
                                 alt="Rak buku Alinea"
                                 class="w-full max-w-lg ml-auto rounded-2xl shadow-2xl object-cover"
                                 style="max-height: 500px; object-position: center top;"
                             >
+                            <!-- Glow effect behind image -->
+                            <div class="absolute -inset-4 bg-amber-200 rounded-3xl opacity-20 blur-2xl -z-10"></div>
                         </div>
                         <!-- Floating decorative badge -->
                         <div class="absolute -bottom-4 -left-8 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 animate-float" style="animation-delay: 1s;">
@@ -181,67 +421,107 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Second floating badge -->
+                        <div class="absolute -top-6 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 animate-float" style="animation-delay: 2s;">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-lg">⭐</div>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-900">4.9 / 5.0</p>
+                                    <p class="text-xs text-gray-500">Rating komunitas</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-fade-down" style="animation-delay:1s; opacity:0">
+                <span class="text-xs text-gray-400 font-medium tracking-widest uppercase">Scroll</span>
+                <div class="w-5 h-8 border-2 border-gray-300 rounded-full flex items-start justify-center p-1">
+                    <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
                 </div>
             </div>
         </section>
 
+        <!-- =================== TICKER TAPE =================== -->
+        <div class="bg-amber-400 border-y-2 border-amber-500 py-2.5 overflow-hidden">
+            <div class="ticker-wrapper">
+                <div class="ticker-inner text-gray-900 font-bold text-xs tracking-widest uppercase">
+                    <span class="px-8">📚 Pinjam Buku</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">✍️ Tulis Ulasan</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🔥 Buku Trending</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🤝 Komunitas Baca</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🌟 Buku Pilihan</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">💬 Diskusi Seru</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">📚 Pinjam Buku</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">✍️ Tulis Ulasan</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🔥 Buku Trending</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🤝 Komunitas Baca</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">🌟 Buku Pilihan</span><span class="px-2 opacity-40">✦</span>
+                    <span class="px-8">💬 Diskusi Seru</span><span class="px-2 opacity-40">✦</span>
+                </div>
+            </div>
+        </div>
+
         <!-- =================== SECTION 2: BORROW, READ, GIVE BACK =================== -->
         <section id="fitur" class="bg-sky-100 py-20 lg:py-28 relative overflow-hidden">
-            <!-- Decorative circles -->
-            <div class="absolute -top-20 -right-20 w-64 h-64 bg-sky-200 rounded-full opacity-40 pointer-events-none"></div>
-            <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-sky-200 rounded-full opacity-30 pointer-events-none"></div>
+            <!-- Decorative circles with animation -->
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-sky-200 rounded-full opacity-40 pointer-events-none animate-float-slow"></div>
+            <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-sky-200 rounded-full opacity-30 pointer-events-none animate-float-slow" style="animation-delay:2s"></div>
 
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="grid lg:grid-cols-2 gap-16 items-center">
                     <!-- Left: Book Image -->
-                    <div class="relative order-2 lg:order-1">
-                        <div class="relative">
+                    <div class="reveal-left relative order-2 lg:order-1">
+                        <div class="relative group">
                             <img
                                 src="{{ asset('img/books_stack.png') }}"
                                 alt="Tumpukan buku"
-                                class="w-full max-w-md rounded-2xl shadow-2xl object-cover"
+                                class="w-full max-w-md rounded-2xl shadow-2xl object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                                 style="max-height: 420px;"
                             >
+                            <!-- Image glow -->
+                            <div class="absolute -inset-3 bg-sky-300 rounded-3xl opacity-20 blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-40"></div>
                             <!-- Label overlay -->
-                            <div class="absolute top-4 left-4 bg-amber-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
+                            <div class="absolute top-4 left-4 bg-amber-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-float" style="animation-delay:0.5s">
                                 📖 Perpustakaan Komunitas
                             </div>
                         </div>
                     </div>
 
                     <!-- Right: Content -->
-                    <div class="order-1 lg:order-2">
+                    <div class="reveal-right order-1 lg:order-2" style="transition-delay:0.1s">
                         <!-- Badge -->
-                        <div class="inline-flex items-center gap-2 bg-amber-300 border-2 border-amber-400 text-gray-800 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
+                        <div class="reveal inline-flex items-center gap-2 bg-amber-300 border-2 border-amber-400 text-gray-800 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
                             ✨ Fitur Utama
                         </div>
 
-                        <h2 class="text-4xl lg:text-5xl font-black text-gray-900 leading-tight mb-5">
+                        <h2 class="reveal text-4xl lg:text-5xl font-black text-gray-900 leading-tight mb-5" style="transition-delay:0.1s">
                             Borrow, Read,<br>Give Back.
                         </h2>
 
-                        <p class="text-gray-600 text-sm leading-relaxed mb-8 max-w-md">
+                        <p class="reveal text-gray-600 text-sm leading-relaxed mb-8 max-w-md" style="transition-delay:0.2s">
                             Platform ini dibangun di atas nilai gotong royong. Pinjam buku dari anggota komunitas di sekitarmu dengan mudah, baca sepuasnya, lalu kembalikan dan bantu orang lain menikmatinya.
                         </p>
 
-                        <!-- Steps -->
+                        <!-- Steps with stagger -->
                         <div class="space-y-4 mb-8">
-                            <div class="step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4">
-                                <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 font-bold text-sm shrink-0">01</div>
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.3s">
+                                <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 font-bold text-sm shrink-0 transition-transform duration-300 group-hover:scale-110">01</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900 mb-0.5">Cari Buku</p>
                                     <p class="text-xs text-gray-500">Temukan buku yang tersedia di komunitas dekat kamu dengan pencarian cerdas.</p>
                                 </div>
                             </div>
-                            <div class="step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4">
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.4s">
                                 <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold text-sm shrink-0">02</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900 mb-0.5">Pinjam</p>
                                     <p class="text-xs text-gray-500">Ajukan peminjaman langsung ke pemilik buku dan atur jadwal pengambilan.</p>
                                 </div>
                             </div>
-                            <div class="step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4">
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.5s">
                                 <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 font-bold text-sm shrink-0">03</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900 mb-0.5">Kembalikan & Ulas</p>
@@ -250,9 +530,12 @@
                             </div>
                         </div>
 
-                        <a href="#" id="pinjam-cta" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-                            Mulai Meminjam →
-                        </a>
+                        <div class="reveal" style="transition-delay:0.6s">
+                            <a href="#" id="pinjam-cta" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                                <span>Mulai Meminjam</span>
+                                <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -260,14 +543,14 @@
 
         <!-- =================== SECTION 3: TWITTER TAPI UNTUK BUKU =================== -->
         <section id="komunitas" class="bg-amber-100 py-20 lg:py-28 relative overflow-hidden">
-            <!-- Decorative blobs -->
-            <div class="absolute top-10 right-10 w-40 h-40 bg-amber-200 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
-            <div class="absolute bottom-10 left-20 w-56 h-56 bg-orange-200 rounded-full opacity-40 blur-2xl pointer-events-none"></div>
+            <!-- Decorative blobs with animation -->
+            <div class="absolute top-10 right-10 w-40 h-40 bg-amber-200 rounded-full opacity-50 blur-2xl pointer-events-none animate-float-slow"></div>
+            <div class="absolute bottom-10 left-20 w-56 h-56 bg-orange-200 rounded-full opacity-40 blur-2xl pointer-events-none animate-float-slow" style="animation-delay:3s"></div>
 
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="grid lg:grid-cols-2 gap-16 items-center">
                     <!-- Left: Content -->
-                    <div>
+                    <div class="reveal-left">
                         <!-- Badge -->
                         <div class="inline-flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider shadow-sm">
                             🐦 Fitur Komunitas
@@ -281,23 +564,23 @@
                             Bagikan progres bacaan kamu, komentari kutipan favorit, ikuti pembaca lain yang punya selera senada. Alinea adalah timeline membacamu yang hidup dan interaktif.
                         </p>
 
-                        <!-- Tag pills -->
+                        <!-- Tag pills (interactive) -->
                         <div class="flex flex-wrap gap-2 mb-8" id="tag-pills">
-                            <span class="tag-pill bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-900 hover:text-white hover:border-gray-900 shadow-sm">#FiksiIlmiah</span>
-                            <span class="tag-pill bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-700 shadow-sm">#SastraIndonesia</span>
-                            <span class="tag-pill bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-900 hover:text-white hover:border-gray-900 shadow-sm">#NonFiksi</span>
-                            <span class="tag-pill bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-900 hover:text-white hover:border-gray-900 shadow-sm">#Sejarah</span>
-                            <br>
-                            <span class="tag-pill bg-white border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-900 hover:text-white hover:border-gray-900 shadow-sm">#Gabung</span>
+                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#FiksiIlmiah</span>
+                            <span class="tag-pill active text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">#SastraIndonesia</span>
+                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#NonFiksi</span>
+                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#Sejarah</span>
+                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#Gabung</span>
                         </div>
 
-                        <a href="#" id="timeline-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-                            Lihat Timeline →
+                        <a href="#" id="timeline-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                            <span>Lihat Timeline</span>
+                            <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                         </a>
                     </div>
 
                     <!-- Right: Phone Mockup / Timeline Preview -->
-                    <div class="relative">
+                    <div class="reveal-right relative" style="transition-delay:0.15s">
                         <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto border border-gray-100">
                             <!-- Phone-style header -->
                             <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
@@ -363,23 +646,23 @@
 
                 <!-- Feature grid below -->
                 <div class="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-100 hover:shadow-md transition-shadow cursor-default">
-                        <div class="text-2xl mb-2">📖</div>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.1s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">📖</div>
                         <p class="font-bold text-sm text-gray-900 mb-1">Bagikan Bacaan</p>
                         <p class="text-xs text-gray-500 leading-relaxed">Ceritakan perjalanan bacaanmu ke komunitas</p>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-100 hover:shadow-md transition-shadow cursor-default">
-                        <div class="text-2xl mb-2">✍️</div>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.2s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">✍️</div>
                         <p class="font-bold text-sm text-gray-900 mb-1">Catat Highlight</p>
                         <p class="text-xs text-gray-500 leading-relaxed">Simpan kutipan favorit dan bagikan inspirasi</p>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-100 hover:shadow-md transition-shadow cursor-default">
-                        <div class="text-2xl mb-2">🎯</div>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.3s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">🎯</div>
                         <p class="font-bold text-sm text-gray-900 mb-1">Ikuti Pembaca</p>
                         <p class="text-xs text-gray-500 leading-relaxed">Temukan teman baca dengan selera yang sama</p>
                     </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-amber-100 hover:shadow-md transition-shadow cursor-default">
-                        <div class="text-2xl mb-2">🔥</div>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.4s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">🔥</div>
                         <p class="font-bold text-sm text-gray-900 mb-1">Buku Trending</p>
                         <p class="text-xs text-gray-500 leading-relaxed">Pantau buku yang lagi ramai dibicarakan</p>
                     </div>
@@ -391,7 +674,7 @@
         <section id="ulasan" class="bg-white py-20 lg:py-28 relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <!-- Header -->
-                <div class="text-center mb-16">
+                <div class="reveal text-center mb-16">
                     <h2 class="text-4xl lg:text-6xl font-black text-gray-900 mb-4">
                         Baca. Ulas. Pamer!
                     </h2>
@@ -400,12 +683,11 @@
                     </p>
                 </div>
 
-                <!-- Review Cards (scattered layout) -->
+                <!-- Review Cards with reveal-scale -->
                 <div class="relative" style="min-height: 500px;">
-                    <!-- Grid for desktop scattered look -->
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 px-4">
 
-                        <div class="review-card bg-white rounded-2xl p-5 shadow-lg border border-gray-100 cursor-pointer transition-all duration-300" style="transform: rotate(-2deg);">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-lg border border-gray-100 cursor-pointer" style="transform: rotate(-2deg); transition-delay:0.05s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">P</div>
                                 <div>
@@ -419,7 +701,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Atomic Habits</p>
                         </div>
 
-                        <div class="review-card bg-amber-50 rounded-2xl p-5 shadow-lg border border-amber-100 cursor-pointer transition-all duration-300" style="transform: rotate(2.5deg) translateY(24px);">
+                        <div class="reveal-scale review-card bg-amber-50 rounded-2xl p-5 shadow-lg border border-amber-100 cursor-pointer" style="transform: rotate(2.5deg) translateY(24px); transition-delay:0.1s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">A</div>
                                 <div>
@@ -433,7 +715,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Bumi Manusia</p>
                         </div>
 
-                        <div class="review-card bg-sky-50 rounded-2xl p-5 shadow-lg border border-sky-100 cursor-pointer transition-all duration-300 col-span-2 lg:col-span-1" style="transform: rotate(-1.5deg) translateY(-12px);">
+                        <div class="reveal-scale review-card bg-sky-50 rounded-2xl p-5 shadow-lg border border-sky-100 cursor-pointer col-span-2 lg:col-span-1" style="transform: rotate(-1.5deg) translateY(-12px); transition-delay:0.15s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm">R</div>
                                 <div>
@@ -447,7 +729,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Sapiens</p>
                         </div>
 
-                        <div class="review-card bg-green-50 rounded-2xl p-5 shadow-lg border border-green-100 cursor-pointer transition-all duration-300" style="transform: rotate(3deg) translateY(16px);">
+                        <div class="reveal-scale review-card bg-green-50 rounded-2xl p-5 shadow-lg border border-green-100 cursor-pointer" style="transform: rotate(3deg) translateY(16px); transition-delay:0.2s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm">S</div>
                                 <div>
@@ -461,7 +743,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">The Alchemist</p>
                         </div>
 
-                        <div class="review-card bg-rose-50 rounded-2xl p-5 shadow-lg border border-rose-100 cursor-pointer transition-all duration-300" style="transform: rotate(-2.5deg) translateY(8px);">
+                        <div class="reveal-scale review-card bg-rose-50 rounded-2xl p-5 shadow-lg border border-rose-100 cursor-pointer" style="transform: rotate(-2.5deg) translateY(8px); transition-delay:0.25s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">B</div>
                                 <div>
@@ -475,7 +757,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Educated</p>
                         </div>
 
-                        <div class="review-card bg-violet-50 rounded-2xl p-5 shadow-lg border border-violet-100 cursor-pointer transition-all duration-300 hidden lg:block" style="transform: rotate(1.5deg) translateY(28px);">
+                        <div class="reveal-scale review-card bg-violet-50 rounded-2xl p-5 shadow-lg border border-violet-100 cursor-pointer hidden lg:block" style="transform: rotate(1.5deg) translateY(28px); transition-delay:0.3s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm">M</div>
                                 <div>
@@ -493,9 +775,10 @@
                 </div>
 
                 <!-- CTA -->
-                <div class="text-center mt-16">
-                    <a href="#" id="ulasan-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-                        Tulis Ulasanmu Sekarang →
+                <div class="reveal text-center mt-16">
+                    <a href="#" id="ulasan-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
+                        <span>Tulis Ulasanmu Sekarang</span>
+                        <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                     </a>
                 </div>
             </div>
@@ -573,8 +856,8 @@
         </footer>
 
         <!-- =================== MOBILE NAV MENU =================== -->
-        <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex-col items-center justify-center text-center">
-            <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100" aria-label="Tutup Menu">
+        <div id="mobile-menu" class="hidden-menu fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex flex-col items-center justify-center text-center">
+            <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Tutup Menu">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <path d="M4 4l12 12M16 4L4 16"/>
                 </svg>
@@ -589,66 +872,239 @@
         </div>
 
         <script>
-            // Mobile menu
+            /* =========================================================
+               SCROLL PROGRESS BAR
+            ========================================================= */
+            const progressBar = document.getElementById('scroll-progress');
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                if (progressBar) progressBar.style.width = progress + '%';
+            }, { passive: true });
+
+            /* =========================================================
+               MOBILE MENU (animated)
+            ========================================================= */
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
 
             mobileMenuBtn?.addEventListener('click', () => {
-                mobileMenu.classList.remove('hidden');
-                mobileMenu.classList.add('flex');
+                mobileMenu.classList.remove('hidden-menu');
+                mobileMenu.classList.add('visible-menu');
             });
 
             closeMobileMenuBtn?.addEventListener('click', closeMobileMenu);
 
             function closeMobileMenu() {
-                mobileMenu.classList.add('hidden');
-                mobileMenu.classList.remove('flex');
+                mobileMenu.classList.remove('visible-menu');
+                mobileMenu.classList.add('hidden-menu');
             }
 
-            // Smooth scroll for nav links
+            /* =========================================================
+               SMOOTH SCROLL
+            ========================================================= */
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
                     if (href === '#' || !href) return;
                     e.preventDefault();
                     const el = document.querySelector(href);
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    closeMobileMenu();
                 });
             });
 
-            // Scroll reveal with IntersectionObserver
-            const observerOptions = {
-                threshold: 0.15,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
+            /* =========================================================
+               SCROLL REVEAL (IntersectionObserver)
+            ========================================================= */
+            const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = entry.target.dataset.transform || 'translateY(0)';
+                        entry.target.classList.add('revealed');
+                        revealObserver.unobserve(entry.target);
                     }
                 });
-            }, observerOptions);
+            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-            // Observe sections
-            document.querySelectorAll('section').forEach(section => {
-                observer.observe(section);
+            document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+                revealObserver.observe(el);
             });
 
-            // Review cards interactive tilt on hover
+            /* =========================================================
+               TYPEWRITER EFFECT
+            ========================================================= */
+            const phrases = [
+                'Pinjam. Baca. Bagikan.',
+                'Temukan Buku Favoritmu.',
+                'Komunitas Pembaca Indonesia.',
+                'Explore. Review. Repeat.'
+            ];
+            let phraseIndex = 0, charIndex = 0, isDeleting = false;
+            const typeEl = document.getElementById('typewriter-text');
+
+            function typeWriter() {
+                if (!typeEl) return;
+                const current = phrases[phraseIndex];
+                if (isDeleting) {
+                    typeEl.textContent = current.substring(0, charIndex--);
+                    if (charIndex < 0) {
+                        isDeleting = false;
+                        phraseIndex = (phraseIndex + 1) % phrases.length;
+                        setTimeout(typeWriter, 400);
+                        return;
+                    }
+                    setTimeout(typeWriter, 50);
+                } else {
+                    typeEl.textContent = current.substring(0, charIndex++);
+                    if (charIndex > current.length) {
+                        isDeleting = true;
+                        setTimeout(typeWriter, 1800);
+                        return;
+                    }
+                    setTimeout(typeWriter, 80);
+                }
+            }
+            setTimeout(typeWriter, 800);
+
+            /* =========================================================
+               ANIMATED COUNTERS
+            ========================================================= */
+            function animateCounter(el) {
+                const target = parseInt(el.dataset.count);
+                const suffix = el.dataset.suffix || '';
+                const duration = 1800;
+                const step = target / (duration / 16);
+                let current = 0;
+                const timer = setInterval(() => {
+                    current = Math.min(current + step, target);
+                    el.textContent = Math.floor(current).toLocaleString('id-ID') + suffix;
+                    if (current >= target) clearInterval(timer);
+                }, 16);
+            }
+
+            const counterObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        counterObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+            /* =========================================================
+               TAG PILLS TOGGLE
+            ========================================================= */
+            document.querySelectorAll('.tag-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    document.querySelectorAll('.tag-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                });
+            });
+
+            /* =========================================================
+               PARALLAX BLOBS
+            ========================================================= */
+            const blobs = document.querySelectorAll('.parallax-blob');
+            window.addEventListener('mousemove', (e) => {
+                const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+                const dx = (e.clientX - cx) / cx;
+                const dy = (e.clientY - cy) / cy;
+                blobs.forEach(blob => {
+                    const speed = parseFloat(blob.dataset.speed || 0.04);
+                    blob.style.transform = `translate(${dx * speed * 80}px, ${dy * speed * 80}px)`;
+                });
+            }, { passive: true });
+
+            /* =========================================================
+               PARTICLE CANVAS
+            ========================================================= */
+            const canvas = document.getElementById('particle-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+
+                function resizeCanvas() {
+                    const hero = document.getElementById('hero-section');
+                    if (!hero) return;
+                    canvas.width = hero.offsetWidth;
+                    canvas.height = hero.offsetHeight;
+                }
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas, { passive: true });
+
+                function createParticle() {
+                    return {
+                        x: Math.random() * canvas.width,
+                        y: canvas.height + 10,
+                        r: Math.random() * 3 + 1,
+                        vy: -(Math.random() * 0.6 + 0.2),
+                        vx: (Math.random() - 0.5) * 0.4,
+                        life: 1,
+                        decay: Math.random() * 0.004 + 0.003,
+                        color: Math.random() > 0.5 ? '#fbbf24' : '#7dd3fc'
+                    };
+                }
+
+                for (let i = 0; i < 30; i++) {
+                    const p = createParticle();
+                    p.y = Math.random() * canvas.height;
+                    p.life = Math.random();
+                    particles.push(p);
+                }
+
+                function drawParticles() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach((p, i) => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.life -= p.decay;
+                        if (p.life <= 0) particles[i] = createParticle();
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.life * 0.5;
+                        ctx.fill();
+                    });
+                    ctx.globalAlpha = 1;
+                    requestAnimationFrame(drawParticles);
+                }
+                drawParticles();
+            }
+
+            /* =========================================================
+               REVIEW CARD TILT EFFECT (mouse parallax)
+            ========================================================= */
             document.querySelectorAll('.review-card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    card.style.transition = 'all 0.3s ease';
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    const rx = ((e.clientY - cy) / (rect.height / 2)) * 4;
+                    const ry = -((e.clientX - cx) / (rect.width / 2)) * 4;
+                    card.style.transform = `rotate(0deg) translateY(-8px) scale(1.04) rotateX(${rx}deg) rotateY(${ry}deg)`;
                     card.style.zIndex = '10';
                 });
                 card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
                     card.style.zIndex = '1';
                 });
             });
+
+            /* =========================================================
+               NAVBAR SCROLL SHRINK
+            ========================================================= */
+            const navbar = document.querySelector('nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 60) {
+                    navbar.classList.add('shadow-md');
+                } else {
+                    navbar.classList.remove('shadow-md');
+                }
+            }, { passive: true });
         </script>
     </body>
 </html>
