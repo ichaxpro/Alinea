@@ -16,7 +16,7 @@
 
         <style>
             body {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Poppins', sans-serif;
             }
             .font-display {
                 font-family: 'Playfair Display', serif;
@@ -154,7 +154,7 @@
                 display: inline-block;
                 width: 3px;
                 height: 0.9em;
-                background: #f59e0b;
+                background: #c7e7ff;
                 vertical-align: middle;
                 margin-left: 2px;
                 animation: blink 1s ease infinite;
@@ -247,7 +247,7 @@
 
             /* ===== STATS COUNTER ===== */
             .stat-number {
-                background: linear-gradient(135deg, #f59e0b, #d97706);
+                background: linear-gradient(135deg, #c7e7ff, #d4f6ff);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -279,13 +279,10 @@
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo -->
-                    <a href="#" class="flex items-center gap-2 group">
-                        <div class="w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 12V3C2 2.45 2.45 2 3 2H11C11.55 2 12 2.45 12 3V12L7 10L2 12Z" fill="white"/>
-                            </svg>
+                    <a href="#" class="flex items-center gap-2 group py-16">
+                        <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <img fill="none" src="img/alinealogo.svg">
                         </div>
-                        <span class="text-xl font-bold tracking-tight text-gray-900">Alinea</span>
                     </a>
 
                     <!-- Nav Links (Desktop) -->
@@ -301,7 +298,7 @@
                     <div class="flex items-center gap-3">
                         @if (Route::has('login'))
                             @auth
-                                <a href="{{ url('/dashboard') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Dashboard</a>
+                                <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-gray-900 transition-colors">Dashboard</a>
                             @else
                                 <a href="{{ route('login') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Masuk</a>
                             @endauth
@@ -331,8 +328,6 @@
             <!-- Floating particle canvas -->
             <canvas id="particle-canvas" class="absolute inset-0 pointer-events-none" style="opacity:0.5"></canvas>
 
-            <!-- Spinning ring decoration -->
-            <div class="animate-spin-slow absolute top-32 right-1/4 w-20 h-20 border-2 border-dashed border-amber-200 rounded-full pointer-events-none hidden lg:block"></div>
 
             <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
@@ -341,33 +336,31 @@
                         <!-- Animated badge -->
                         <div class="reveal flex items-center gap-2 mb-6" style="transition-delay: 0.1s">
                             <div class="relative flex">
-                                <div class="w-2.5 h-2.5 bg-sky-400 rounded-full"></div>
-                                <div class="absolute inset-0 w-2.5 h-2.5 bg-sky-400 rounded-full animate-ping opacity-60"></div>
+                                <div class="w-2.5 h-2.5 bg-primary rounded-full"></div>
+                                <div class="absolute inset-0 w-2.5 h-2.5 bg-secondary rounded-full animate-ping opacity-60"></div>
                             </div>
                             <div class="relative flex">
-                                <div class="w-2.5 h-2.5 bg-amber-400 rounded-full"></div>
-                                <div class="absolute inset-0 w-2.5 h-2.5 bg-amber-400 rounded-full animate-ping opacity-60" style="animation-delay:0.5s"></div>
+                                <div class="w-2.5 h-2.5 bg-accent rounded-full"></div>
+                                <div class="absolute inset-0 w-2.5 h-2.5 bg-accent rounded-full animate-ping opacity-60" style="animation-delay:0.5s"></div>
                             </div>
                             <span class="text-xs font-semibold text-gray-400 tracking-widest uppercase ml-1">Platform Buku Komunitas</span>
                         </div>
-
-                        <h1 class="reveal text-7xl lg:text-8xl font-black tracking-tighter text-gray-900 leading-none mb-4" style="transition-delay:0.15s">
-                            Alinea
-                        </h1>
-
+                        <div class="reveal" style="transition-delay:0.15s">
+                            <img src="images/logo_landing.svg" class="w-110"/>
+                        </div>
+                        
                         <!-- Typewriter subtitle -->
                         <div class="reveal mb-6" style="transition-delay:0.25s">
-                            <p class="text-amber-500 font-bold text-lg">
+                            <p class="text-text opacity-70 font-bold text-lg">
                                 <span id="typewriter-text"></span><span class="typewriter-cursor"></span>
                             </p>
                         </div>
 
-                        <p class="reveal text-gray-500 text-base leading-relaxed max-w-sm mb-8" style="transition-delay:0.35s">
-                            Alinea menghubungkan para pembaca. Pinjam buku dari sesama, bagikan ulasan jujur, dan temukan buku favorit berikutmu bersama komunitas di sekitarmu.
+                        <p class="reveal text-gray-500 text-base leading-relaxed max-w-sm mb-8 font-poppins" style="transition-delay:0.35s">
+                            Borrow books from neighbors, share your reviews, and become part of a city-wide reading movement. Free, local, and beautifully simple.                        
                         </p>
-
                         <div class="reveal flex items-center gap-4" style="transition-delay:0.45s">
-                            <a href="#" id="hero-cta" class="relative inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-amber-500 overflow-hidden group">
+                            <a href="#" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
                                 <span class="relative z-10">GET STARTED</span>
                                 <svg class="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 7h10M8 3l4 4-4 4"/>
@@ -403,33 +396,13 @@
                     <div class="reveal-right hidden lg:block" style="transition-delay:0.2s">
                         <div class="animate-float relative">
                             <img
-                                src="{{ asset('img/bookshelf.png') }}"
+                                src="{{ asset('images/Bookshelf_landing.svg') }}"
                                 alt="Rak buku Alinea"
-                                class="w-full max-w-lg ml-auto rounded-2xl shadow-2xl object-cover"
+                                class="w-full max-w-lg ml-autoobject-cover"
                                 style="max-height: 500px; object-position: center top;"
                             >
                             <!-- Glow effect behind image -->
-                            <div class="absolute -inset-4 bg-amber-200 rounded-3xl opacity-20 blur-2xl -z-10"></div>
-                        </div>
-                        <!-- Floating decorative badge -->
-                        <div class="absolute -bottom-4 -left-8 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 animate-float" style="animation-delay: 1s;">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-lg">📚</div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-900">2,400+ Buku</p>
-                                    <p class="text-xs text-gray-500">Tersedia di kotamu</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Second floating badge -->
-                        <div class="absolute -top-6 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100 animate-float" style="animation-delay: 2s;">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-sky-100 rounded-full flex items-center justify-center text-lg">⭐</div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-900">4.9 / 5.0</p>
-                                    <p class="text-xs text-gray-500">Rating komunitas</p>
-                                </div>
-                            </div>
+                            <div class="absolute -inset-4 bg-primary rounded-3xl opacity-50 blur-2xl -z-10"></div>
                         </div>
                     </div>
                 </div>
@@ -444,31 +417,13 @@
             </div>
         </section>
 
-        <!-- =================== TICKER TAPE =================== -->
-        <div class="bg-amber-400 border-y-2 border-amber-500 py-2.5 overflow-hidden">
-            <div class="ticker-wrapper">
-                <div class="ticker-inner text-gray-900 font-bold text-xs tracking-widest uppercase">
-                    <span class="px-8">📚 Pinjam Buku</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">✍️ Tulis Ulasan</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🔥 Buku Trending</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🤝 Komunitas Baca</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🌟 Buku Pilihan</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">💬 Diskusi Seru</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">📚 Pinjam Buku</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">✍️ Tulis Ulasan</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🔥 Buku Trending</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🤝 Komunitas Baca</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">🌟 Buku Pilihan</span><span class="px-2 opacity-40">✦</span>
-                    <span class="px-8">💬 Diskusi Seru</span><span class="px-2 opacity-40">✦</span>
-                </div>
-            </div>
-        </div>
+       
 
         <!-- =================== SECTION 2: BORROW, READ, GIVE BACK =================== -->
-        <section id="fitur" class="bg-sky-100 py-20 lg:py-28 relative overflow-hidden">
+        <section id="fitur" class="bg-primary py-20 lg:py-28 relative overflow-hidden">
             <!-- Decorative circles with animation -->
-            <div class="absolute -top-20 -right-20 w-64 h-64 bg-sky-200 rounded-full opacity-40 pointer-events-none animate-float-slow"></div>
-            <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-sky-200 rounded-full opacity-30 pointer-events-none animate-float-slow" style="animation-delay:2s"></div>
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-secondary rounded-full opacity-40 pointer-events-none animate-float-slow"></div>
+            <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-secondary rounded-full opacity-30 pointer-events-none animate-float-slow" style="animation-delay:2s"></div>
 
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="grid lg:grid-cols-2 gap-16 items-center">
@@ -482,47 +437,43 @@
                                 style="max-height: 420px;"
                             >
                             <!-- Image glow -->
-                            <div class="absolute -inset-3 bg-sky-300 rounded-3xl opacity-20 blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-40"></div>
-                            <!-- Label overlay -->
-                            <div class="absolute top-4 left-4 bg-amber-400 text-gray-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-float" style="animation-delay:0.5s">
-                                📖 Perpustakaan Komunitas
-                            </div>
+                            <div class="absolute -inset-3 bg-accent rounded-3xl opacity-20 blur-xl -z-10 transition-opacity duration-300 group-hover:opacity-40"></div>
                         </div>
                     </div>
 
                     <!-- Right: Content -->
                     <div class="reveal-right order-1 lg:order-2" style="transition-delay:0.1s">
                         <!-- Badge -->
-                        <div class="reveal inline-flex items-center gap-2 bg-amber-300 border-2 border-amber-400 text-gray-800 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider">
-                            ✨ Fitur Utama
+                        <div class="reveal inline-flex items-center gap-2 bg-[#fff176] border-2 border-text text-gray-800 text-xs font-bold px-5 py-1 shadow-pop rounded-full mb-5 tracking-wider">
+                            Ayo Pinjam
                         </div>
 
-                        <h2 class="reveal text-4xl lg:text-5xl font-black text-gray-900 leading-tight mb-5" style="transition-delay:0.1s">
+                        <h2 class="reveal text-4xl lg:text-5xl font-black text-text leading-tight mb-5" style="transition-delay:0.1s">
                             Borrow, Read,<br>Give Back.
                         </h2>
 
-                        <p class="reveal text-gray-600 text-sm leading-relaxed mb-8 max-w-md" style="transition-delay:0.2s">
+                        <p class="reveal text-text !opacity-50 font-semibold text-sm leading-relaxed mb-8 max-w-md" style="transition-delay:0.2s">
                             Platform ini dibangun di atas nilai gotong royong. Pinjam buku dari anggota komunitas di sekitarmu dengan mudah, baca sepuasnya, lalu kembalikan dan bantu orang lain menikmatinya.
                         </p>
 
                         <!-- Steps with stagger -->
                         <div class="space-y-4 mb-8">
-                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.3s">
-                                <div class="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center text-sky-600 font-bold text-sm shrink-0 transition-transform duration-300 group-hover:scale-110">01</div>
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-pop2 cursor-default flex items-start gap-4" style="transition-delay:0.3s">
+                                <div class="w-10 h-10 bg-accent text-text rounded-xl flex items-center justify-center font-bold text-sm shrink-0 transition-transform duration-300 group-hover:scale-110">01</div>
                                 <div>
-                                    <p class="font-bold text-sm text-gray-900 mb-0.5">Cari Buku</p>
-                                    <p class="text-xs text-gray-500">Temukan buku yang tersedia di komunitas dekat kamu dengan pencarian cerdas.</p>
+                                    <p class="font-bold text-sm text-text mb-0.5">Cari Buku</p>
+                                    <p class="text-xs text-text">Temukan buku yang tersedia di komunitas dekat kamu dengan pencarian cerdas.</p>
                                 </div>
                             </div>
-                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.4s">
-                                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 font-bold text-sm shrink-0">02</div>
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-pop2 cursor-default flex items-start gap-4" style="transition-delay:0.4s">
+                                <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-text font-bold text-sm shrink-0">02</div>
                                 <div>
-                                    <p class="font-bold text-sm text-gray-900 mb-0.5">Pinjam</p>
-                                    <p class="text-xs text-gray-500">Ajukan peminjaman langsung ke pemilik buku dan atur jadwal pengambilan.</p>
+                                    <p class="font-bold text-sm text-text mb-0.5">Pinjam</p>
+                                    <p class="text-xs text-text">Ajukan peminjaman langsung ke pemilik buku dan atur jadwal pengambilan.</p>
                                 </div>
                             </div>
-                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-sm cursor-default flex items-start gap-4" style="transition-delay:0.5s">
-                                <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 font-bold text-sm shrink-0">03</div>
+                            <div class="reveal step-card bg-white rounded-xl p-4 border border-gray-100 shadow-pop2 cursor-default flex items-start gap-4" style="transition-delay:0.5s">
+                                <div class="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-text font-bold text-sm shrink-0">03</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900 mb-0.5">Kembalikan & Ulas</p>
                                     <p class="text-xs text-gray-500">Selesai baca? Kembalikan dan tinggalkan ulasan untuk membantu komunitas.</p>
@@ -531,7 +482,7 @@
                         </div>
 
                         <div class="reveal" style="transition-delay:0.6s">
-                            <a href="#" id="pinjam-cta" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-amber-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                            <a href="#" id="pinjam-cta" class="inline-flex items-center gap-2 bg-accent hover:bg-white text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-text shadow-pop2 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
                                 <span>Mulai Meminjam</span>
                                 <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                             </a>
@@ -542,7 +493,7 @@
         </section>
 
         <!-- =================== SECTION 3: TWITTER TAPI UNTUK BUKU =================== -->
-        <section id="komunitas" class="bg-amber-100 py-20 lg:py-28 relative overflow-hidden">
+        <section id="komunitas" class="bg-accent py-20 lg:py-28 relative overflow-hidden">
             <!-- Decorative blobs with animation -->
             <div class="absolute top-10 right-10 w-40 h-40 bg-amber-200 rounded-full opacity-50 blur-2xl pointer-events-none animate-float-slow"></div>
             <div class="absolute bottom-10 left-20 w-56 h-56 bg-orange-200 rounded-full opacity-40 blur-2xl pointer-events-none animate-float-slow" style="animation-delay:3s"></div>
@@ -552,28 +503,27 @@
                     <!-- Left: Content -->
                     <div class="reveal-left">
                         <!-- Badge -->
-                        <div class="inline-flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider shadow-sm">
-                            🐦 Fitur Komunitas
+                        <div class="inline-flex items-center gap-2 bg-[#fff176] border-2 border-text text-text text-xs font-bold px-4 py-1.5 rounded-full mb-5 shadow-pop tracking-wider">
+                            Apaan tuh?!
                         </div>
 
-                        <h2 class="text-4xl lg:text-5xl font-black text-gray-900 leading-tight mb-5">
+                        <h2 class="text-4xl lg:text-5xl font-black text-text leading-tight mb-5">
                             Twitter, Tapi<br>Untuk Buku.
                         </h2>
 
-                        <p class="text-gray-700 text-sm leading-relaxed mb-8 max-w-md">
+                        <p class="text-text opacity-70 text-sm leading-relaxed mb-8 max-w-md">
                             Bagikan progres bacaan kamu, komentari kutipan favorit, ikuti pembaca lain yang punya selera senada. Alinea adalah timeline membacamu yang hidup dan interaktif.
                         </p>
 
                         <!-- Tag pills (interactive) -->
                         <div class="flex flex-wrap gap-2 mb-8" id="tag-pills">
-                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#FiksiIlmiah</span>
-                            <span class="tag-pill active text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">#SastraIndonesia</span>
-                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#NonFiksi</span>
-                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#Sejarah</span>
-                            <span class="tag-pill border border-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm bg-white">#Gabung</span>
+                            <span class="tag-pill border-2 border-text text-text text-xs font-semibold px-3 py-1.5 rounded-full bg-secondary shadow-pop">Menurutku</span>
+                            <span class="tag-pill border-2 border-text text-text text-xs font-semibold px-3 py-1.5 rounded-full bg-[#fff176] shadow-pop">Akhirnya!!</span>
+                            <span class="tag-pill border-2 border-text text-text text-xs font-semibold px-3 py-1.5 rounded-full shadow-pop bg-[#ffb3c6]">"Kuotes"</span>
+                            <span class="tag-pill border-2 border-text text-text text-xs font-semibold px-3 py-1.5 rounded-full shadow-pop bg-white">SUKASUKA!</span>
                         </div>
 
-                        <a href="#" id="timeline-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                        <a href="#" id="timeline-cta" class="inline-flex items-center gap-2 bg-white hover:bg-primary text-text font-bold text-sm px-6 py-3 shadow-pop2 border-text border-2 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
                             <span>Lihat Timeline</span>
                             <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                         </a>
@@ -585,7 +535,6 @@
                             <!-- Phone-style header -->
                             <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center text-xs">📚</div>
                                     <span class="font-bold text-sm text-gray-900">Alinea Timeline</span>
                                 </div>
                                 <div class="flex gap-1">
@@ -635,36 +584,38 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Decorative floating cards -->
-                        <div class="absolute -top-6 -right-6 bg-white rounded-xl p-3 shadow-xl border border-gray-100 text-center animate-float hidden lg:block" style="animation-delay: 0.5s;">
-                            <p class="text-2xl font-black text-gray-900">1.2K</p>
-                            <p class="text-xs text-gray-500">Pembaca Aktif</p>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Feature grid below -->
                 <div class="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.1s">
-                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">📖</div>
-                        <p class="font-bold text-sm text-gray-900 mb-1">Bagikan Bacaan</p>
-                        <p class="text-xs text-gray-500 leading-relaxed">Ceritakan perjalanan bacaanmu ke komunitas</p>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-pop2 border-2 border-text" style="transition-delay:0.1s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">
+                            <img src="images/book.svg" alt="" class="h-8 w-auto">
+                        </div>
+                        <p class="font-bold text-sm text-text mb-1">Bagikan Bacaan</p>
+                        <p class="text-xs text-text opacity-70 leading-relaxed">Ceritakan perjalanan bacaanmu ke komunitas</p>
                     </div>
-                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.2s">
-                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">✍️</div>
-                        <p class="font-bold text-sm text-gray-900 mb-1">Catat Highlight</p>
-                        <p class="text-xs text-gray-500 leading-relaxed">Simpan kutipan favorit dan bagikan inspirasi</p>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-pop2 border-2 border-text" style="transition-delay:0.2s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">
+                            <img src="images/quotes.svg" class="h-8 w-auto"/>
+                        </div>
+                        <p class="font-bold text-sm text-text mb-1">Catat Highlight</p>
+                        <p class="text-xs text-text opacity-70 leading-relaxed">Simpan kutipan favorit dan bagikan inspirasi</p>
                     </div>
-                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.3s">
-                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">🎯</div>
-                        <p class="font-bold text-sm text-gray-900 mb-1">Ikuti Pembaca</p>
-                        <p class="text-xs text-gray-500 leading-relaxed">Temukan teman baca dengan selera yang sama</p>
+                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-pop2 border-2 border-text" style="transition-delay:0.3s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">
+                            <img src="images/confetti.svg" alt="" class="h-8 w-auto">
+                        </div>
+                        <p class="font-bold text-sm text-text mb-1">Ikuti Pembaca</p>
+                        <p class="text-xs text-text opacity-70 leading-relaxed">Temukan teman baca dengan selera yang sama</p>
                     </div>
-                    <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-sm border border-amber-100" style="transition-delay:0.4s">
-                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">🔥</div>
-                        <p class="font-bold text-sm text-gray-900 mb-1">Buku Trending</p>
-                        <p class="text-xs text-gray-500 leading-relaxed">Pantau buku yang lagi ramai dibicarakan</p>
+                    <div class="reveal feature-grid-card bg-white border-2 border-text rounded-2xl p-5 shadow-pop2" style="transition-delay:0.4s">
+                        <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">
+                            <img src="images/fire.svg" alt="" class="h-8 w-auto">
+                        </div>
+                        <p class="font-bold text-sm text-text mb-1">Buku Trending</p>
+                        <p class="text-xs text-text opacity-70 leading-relaxed">Pantau buku yang lagi ramai dibicarakan</p>
                     </div>
                 </div>
             </div>
@@ -675,10 +626,10 @@
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <!-- Header -->
                 <div class="reveal text-center mb-16">
-                    <h2 class="text-4xl lg:text-6xl font-black text-gray-900 mb-4">
+                    <h2 class="text-4xl lg:text-6xl font-black text-text mb-4">
                         Baca. Ulas. Pamer!
                     </h2>
-                    <p class="text-gray-500 text-base max-w-lg mx-auto leading-relaxed">
+                    <p class="text-text opacity-70 text-base max-w-lg mx-auto leading-relaxed">
                         Gabungkan kecintaanmu pada buku dengan ekspresi diri. Buat ulasan yang berkesan dan pamer koleksi seleraanmu ke komunitas.
                     </p>
                 </div>
@@ -687,7 +638,7 @@
                 <div class="relative" style="min-height: 500px;">
                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 px-4">
 
-                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-lg border border-gray-100 cursor-pointer" style="transform: rotate(-2deg); transition-delay:0.05s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 border border-text shadow-pop2 cursor-pointer" style="transform: rotate(-2deg); transition-delay:0.05s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">P</div>
                                 <div>
@@ -701,7 +652,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Atomic Habits</p>
                         </div>
 
-                        <div class="reveal-scale review-card bg-amber-50 rounded-2xl p-5 shadow-lg border border-amber-100 cursor-pointer" style="transform: rotate(2.5deg) translateY(24px); transition-delay:0.1s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer" style="transform: rotate(2.5deg) translateY(24px); transition-delay:0.1s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">A</div>
                                 <div>
@@ -715,7 +666,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Bumi Manusia</p>
                         </div>
 
-                        <div class="reveal-scale review-card bg-sky-50 rounded-2xl p-5 shadow-lg border border-sky-100 cursor-pointer col-span-2 lg:col-span-1" style="transform: rotate(-1.5deg) translateY(-12px); transition-delay:0.15s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer col-span-2 lg:col-span-1" style="transform: rotate(-1.5deg) translateY(-12px); transition-delay:0.15s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm">R</div>
                                 <div>
@@ -729,7 +680,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Sapiens</p>
                         </div>
 
-                        <div class="reveal-scale review-card bg-green-50 rounded-2xl p-5 shadow-lg border border-green-100 cursor-pointer" style="transform: rotate(3deg) translateY(16px); transition-delay:0.2s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer" style="transform: rotate(3deg) translateY(16px); transition-delay:0.2s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm">S</div>
                                 <div>
@@ -743,7 +694,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">The Alchemist</p>
                         </div>
 
-                        <div class="reveal-scale review-card bg-rose-50 rounded-2xl p-5 shadow-lg border border-rose-100 cursor-pointer" style="transform: rotate(-2.5deg) translateY(8px); transition-delay:0.25s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer" style="transform: rotate(-2.5deg) translateY(8px); transition-delay:0.25s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">B</div>
                                 <div>
@@ -757,7 +708,7 @@
                             <p class="text-xs text-gray-400 mt-3 font-medium">Educated</p>
                         </div>
 
-                        <div class="reveal-scale review-card bg-violet-50 rounded-2xl p-5 shadow-lg border border-violet-100 cursor-pointer hidden lg:block" style="transform: rotate(1.5deg) translateY(28px); transition-delay:0.3s">
+                        <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer hidden lg:block" style="transform: rotate(1.5deg) translateY(28px); transition-delay:0.3s">
                             <div class="flex items-center gap-3 mb-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-violet-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm">M</div>
                                 <div>
@@ -785,34 +736,21 @@
         </section>
 
         <!-- =================== FOOTER =================== -->
-        <footer id="tentang" class="bg-gray-950 text-gray-400 py-16 lg:py-20">
+        <footer id="tentang" class="bg-text text-gray-400 py-16 lg:py-20">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                     <!-- Logo & Brand -->
                     <div class="col-span-2 lg:col-span-1">
                         <div class="flex items-center gap-2 mb-4">
-                            <div class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
-                                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 12V3C2 2.45 2.45 2 3 2H11C11.55 2 12 2.45 12 3V12L7 10L2 12Z" fill="white"/>
-                                </svg>
-                            </div>
-                            <span class="text-white text-xl font-bold">Alinea</span>
+                            <img src="images/Alinea_footer.svg" alt="">
                         </div>
-                        <p class="text-sm text-gray-500 leading-relaxed mb-5 max-w-xs">
+                        <p class="text-sm text-white opacity-50 leading-relaxed mb-5 max-w-xs">
                             Platform komunitas buku pertama dari dan untuk pembaca Indonesia. Pinjam, Baca, Bagikan.
                         </p>
-                        <div class="flex gap-3">
-                            <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-amber-400 rounded-full flex items-center justify-center transition-colors duration-300" aria-label="Twitter">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                            </a>
-                            <a href="#" class="w-9 h-9 bg-gray-800 hover:bg-amber-400 rounded-full flex items-center justify-center transition-colors duration-300" aria-label="Instagram">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
-                            </a>
-                        </div>
                     </div>
 
                     <!-- Fitur -->
-                    <div>
+                    <div class="pl-15 pt-5">
                         <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Fitur</h3>
                         <ul class="space-y-3 text-sm">
                             <li><a href="#" class="hover:text-white transition-colors duration-200">Pinjam Buku</a></li>
@@ -823,7 +761,7 @@
                     </div>
 
                     <!-- Informasi -->
-                    <div>
+                    <div class="pt-5 pl-8">
                         <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Informasi</h3>
                         <ul class="space-y-3 text-sm">
                             <li><a href="#" class="hover:text-white transition-colors duration-200">Tentang Kami</a></li>
@@ -834,7 +772,7 @@
                     </div>
 
                     <!-- Quick Contact -->
-                    <div>
+                    <div class="pt-5">
                         <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Quick Contact</h3>
                         <ul class="space-y-3 text-sm">
                             <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
@@ -846,7 +784,7 @@
 
                 <!-- Divider -->
                 <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p class="text-xs text-gray-600">© {{ date('Y') }} Alinea. All rights reserved.</p>
+                    <p class="text-xs text-white opacity-50">© {{ date('Y') }} Alinea. All rights reserved.</p>
                     <div class="flex gap-6 text-xs">
                         <a href="#" class="hover:text-white transition-colors duration-200">Syarat & Ketentuan</a>
                         <a href="#" class="hover:text-white transition-colors duration-200">Privasi</a>
