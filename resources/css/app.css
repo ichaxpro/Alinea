@@ -13,6 +13,21 @@
     --color-secondary: #d4f6ff;
     --color-accent: #FFDDAF;
     --color-text: #444444;
+    --color-peach-soft: #FFDDAF;
+    --color-blue-main: #C7E7FF;
+    --color-blue-soft: #D4F6FF;
+    --background-image-gradient-3: linear-gradient(to right, 
+        var(--color-peach-soft) 0%, 
+        var(--color-blue-soft) 51%, 
+        var(--color-blue-main) 100%
+    );
+
+    --background-image-gradient-4: linear-gradient(to right, 
+        var(--color-peach-soft) 0%, 
+        var(--color-blue-main) 50%, 
+        var(--color-blue-soft) 75%, 
+        #FFFFFF 100%
+    );
     --font-poppins: "Poppins", ui-sans-serif, system-ui, sans-serif;
     --shadow-pop: 4px 2px 0px 1px #444444;
     --shadow-pop2: 6px 4px 0px 1px #444444;

@@ -13,3 +13,11 @@ Route::get('/login', function () {
 Route::get('/pinjam', function () {
     return view('pinjam');
 })->name('pinjam');
+
+Route::get('/timeline_home', function () {
+    return view('timeline_home');
+})->name('timeline_home');
+
+Route::get('/klub', function () {
+    return view('klub');
+})->name('klub');

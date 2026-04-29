@@ -281,31 +281,34 @@
                     <!-- Logo -->
                     <a href="#" class="flex items-center gap-2 group py-16">
                         <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <img fill="none" src="img/alinealogo.svg">
+                            <img fill="none" src="img/alinealogo.svg" class="h-7">
                         </div>
                     </a>
 
                     <!-- Nav Links (Desktop) -->
                     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <a href="#" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
-                        <a href="#fitur" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Fitur</a>
+                        <a href="{{ route('pinjam') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Pinjam</a>
                         <a href="#komunitas" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
-                        <a href="#ulasan" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
-                        <a href="#tentang" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Tentang</a>
+                        <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
+                        <a href="#tentang" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
                     </div>
 
                     <!-- CTA Button -->
                     <div class="flex items-center gap-3">
+                        <button id="navbar-search-btn" aria-label="Cari" class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        </button>
                         @if (Route::has('login'))
                             @auth
                                 <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-gray-900 transition-colors">Dashboard</a>
                             @else
-                                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Masuk</a>
+                                <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
                             @endauth
                         @endif
-                        <a href="#" id="cta-nav" class="bg-gray-900 text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-gray-700 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-                            Mulai →
-                        </a>
+                        
                     </div>
 
                     <!-- Mobile menu button -->
@@ -360,7 +363,7 @@
                             Borrow books from neighbors, share your reviews, and become part of a city-wide reading movement. Free, local, and beautifully simple.                        
                         </p>
                         <div class="reveal flex items-center gap-4" style="transition-delay:0.45s">
-                            <a href="#" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
+                            <a href="{{ route('login') }}" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
                                 <span class="relative z-10">GET STARTED</span>
                                 <svg class="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 7h10M8 3l4 4-4 4"/>
@@ -511,7 +514,7 @@
                             Twitter, Tapi<br>Untuk Buku.
                         </h2>
 
-                        <p class="text-text opacity-70 text-sm leading-relaxed mb-8 max-w-md">
+                        <p class="text-text font-semibold opacity-50 text-sm leading-relaxed mb-8 max-w-md">
                             Bagikan progres bacaan kamu, komentari kutipan favorit, ikuti pembaca lain yang punya selera senada. Alinea adalah timeline membacamu yang hidup dan interaktif.
                         </p>
 
@@ -523,7 +526,7 @@
                             <span class="tag-pill border-2 border-text text-text text-xs font-semibold px-3 py-1.5 rounded-full shadow-pop bg-white">SUKASUKA!</span>
                         </div>
 
-                        <a href="#" id="timeline-cta" class="inline-flex items-center gap-2 bg-white hover:bg-primary text-text font-bold text-sm px-6 py-3 shadow-pop2 border-text border-2 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                        <a href="{{ route('timeline_home') }}" id="timeline-cta" class="inline-flex items-center gap-2 bg-white hover:bg-primary text-text font-bold text-sm px-6 py-3 shadow-pop2 border-text border-2 rounded-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
                             <span>Lihat Timeline</span>
                             <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                         </a>
@@ -629,7 +632,7 @@
                     <h2 class="text-4xl lg:text-6xl font-black text-text mb-4">
                         Baca. Ulas. Pamer!
                     </h2>
-                    <p class="text-text opacity-70 text-base max-w-lg mx-auto leading-relaxed">
+                    <p class="text-text font-semibold opacity-50 text-base max-w-lg mx-auto leading-relaxed">
                         Gabungkan kecintaanmu pada buku dengan ekspresi diri. Buat ulasan yang berkesan dan pamer koleksi seleraanmu ke komunitas.
                     </p>
                 </div>
@@ -640,7 +643,7 @@
 
                         <div class="reveal-scale review-card bg-white rounded-2xl p-5 border border-text shadow-pop2 cursor-pointer" style="transform: rotate(-2deg); transition-delay:0.05s">
                             <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">P</div>
+                                <div class="w-10 h-10 bg-linear-to-r from-peach-soft/80 to-blue-main rounded-full flex items-center justify-center text-text font-bold text-sm">P</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900">Putri C.</p>
                                     <div class="flex gap-0.5 mt-0.5">
@@ -654,7 +657,7 @@
 
                         <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer" style="transform: rotate(2.5deg) translateY(24px); transition-delay:0.1s">
                             <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">A</div>
+                                <div class="w-10 h-10 bg-gradient-4 rounded-full flex items-center justify-center text-text font-bold text-sm">A</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900">Alinea C.</p>
                                     <div class="flex gap-0.5 mt-0.5">
@@ -668,7 +671,7 @@
 
                         <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer col-span-2 lg:col-span-1" style="transform: rotate(-1.5deg) translateY(-12px); transition-delay:0.15s">
                             <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm">R</div>
+                                <div class="w-10 h-10 bg-gradient-3 rounded-full flex items-center justify-center text-white font-bold text-sm">R</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900">Rasyid F.</p>
                                     <div class="flex gap-0.5 mt-0.5">
@@ -682,7 +685,7 @@
 
                         <div class="reveal-scale review-card bg-white rounded-2xl p-5 shadow-pop2 border border-text cursor-pointer" style="transform: rotate(3deg) translateY(16px); transition-delay:0.2s">
                             <div class="flex items-center gap-3 mb-3">
-                                <div class="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-sm">S</div>
+                                <div class="w-10 h-10 bg-linear-to-br from-peach-soft/80 to-blue-main rounded-full flex items-center justify-center text-white font-bold text-sm">S</div>
                                 <div>
                                     <p class="font-bold text-sm text-gray-900">Sari N.</p>
                                     <div class="flex gap-0.5 mt-0.5">
@@ -727,7 +730,7 @@
 
                 <!-- CTA -->
                 <div class="reveal text-center mt-16">
-                    <a href="#" id="ulasan-cta" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
+                    <a href="#" id="ulasan-cta" class="inline-flex items-center text-white gap-2 bg-gray-900 hover:bg-gradient-3 hover:text-text font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
                         <span>Tulis Ulasanmu Sekarang</span>
                         <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                     </a>
