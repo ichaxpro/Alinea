@@ -21,3 +21,7 @@ Route::get('/timeline_home', function () {
 Route::get('/klub', function () {
     return view('klub');
 })->name('klub');
+
+Route::get('/timeline_profile', function () {
+    return view('timeline_profile');
+})->name('timeline_profile');

@@ -174,6 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navBtns = document.querySelectorAll('[data-sidenav]');
     navBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Navigate to timeline_home if Beranda is clicked
+            if (btn.id === 'sidenav-beranda') {
+                window.location.href = '/timeline_home';
+                return;
+            }else if (btn.id === 'sidenav-profil') {
+                window.location.href = '/timeline_profile';
+                return;
+            }
+
             navBtns.forEach(b => {
                 b.classList.remove('bg-[#FFDDAF]', 'text-[#444]', 'font-semibold');
                 b.classList.add('text-gray-500');
