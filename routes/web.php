@@ -25,3 +25,7 @@ Route::get('/klub', function () {
 Route::get('/timeline_profile', function () {
     return view('timeline_profile');
 })->name('timeline_profile');
+
+Route::get('/chat', function () {
+    return view('chat');
+})->name('chat');
