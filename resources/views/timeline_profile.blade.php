@@ -123,9 +123,136 @@
                                     <span class="font-bold text-[#222]">165</span> Followers
                                 </p>
 
-                                
                             </div>
                         </div>
+                    </div>
+
+                    <div class="mt-8 border-b border-gray-200">
+                        <div class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                            <div class="flex min-w-[560px] w-full">
+                                @foreach ([
+                                    ['label' => 'Posts', 'active' => true],
+                                    ['label' => 'Achievements', 'active' => false],
+                                    ['label' => 'Tracking', 'active' => false],
+                                    ['label' => 'Media', 'active' => false],
+                                ] as $tab)
+                                <button type="button"
+                                        data-profile-tab
+                                        data-profile-tab-target="{{ strtolower($tab['label']) }}"
+                                        class="relative flex-1 px-1 pb-4 text-base font-semibold transition-colors text-center {{ $tab['active'] ? 'text-[#111]' : 'text-gray-400 hover:text-gray-600' }}"
+                                        aria-selected="{{ $tab['active'] ? 'true' : 'false' }}">
+                                    {{ $tab['label'] }}
+                                    <span data-profile-tab-indicator
+                                          class="absolute left-1/2 -translate-x-1/2 -bottom-[1px] h-1 w-24 rounded-full bg-[#5DA9FF] {{ $tab['active'] ? '' : 'hidden' }}"></span>
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="profile-feed-panel" data-profile-panel="posts" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
+                        @php
+                        $profilePosts = [
+                            [
+                                'id' => 1, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
+                                'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter',
+                                'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajimasi.',
+                                'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
+                                'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
+                            ],
+                            [
+                                'id' => 2, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
+                                'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library',
+                                'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
+                                'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
+                                'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
+                            ],
+                            [
+                                'id' => 3, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
+                                'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Atomic Habits',
+                                'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
+                                'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
+                                'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
+                            ],
+                            [
+                                'id' => 4, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
+                                'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'Sapiens',
+                                'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
+                                'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
+                                'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
+                            ],
+                        ];
+                        @endphp
+
+                        @foreach ($profilePosts as $post)
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
+                                     style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                                <div>
+                                    <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
+                                    <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                                        <span>{{ $post['handle'] }}</span>
+                                        <span class="text-gray-200">•</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                            {{ $post['location'] }}
+                                        </span>
+                                        <span class="text-gray-200">•</span>
+                                        <span>{{ $post['time'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
+                                {{ $post['book'] }}
+                            </div>
+
+                            <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
+
+                            <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
+                                <button id="comment-btn-profile-{{ $post['id'] }}" aria-label="Komentar"
+                                        class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
+                                    <x-icon-comment fill="none" />
+                                    <span>{{ $post['comments'] }}</span>
+                                </button>
+
+                                <button id="like-btn-profile-{{ $post['id'] }}" data-like-btn
+                                        data-base="{{ $post['likes_base'] }}" data-liked="{{ $post['liked'] ? 'true' : 'false' }}"
+                                        aria-pressed="{{ $post['liked'] ? 'true' : 'false' }}" aria-label="Suka"
+                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
+                                               {{ $post['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
+                                    <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" />
+                                    <span data-like-count>{{ $post['likes_label'] }}</span>
+                                </button>
+
+                                <div class="ml-auto flex items-center gap-2">
+                                    <button id="bookmark-btn-profile-{{ $post['id'] }}" data-bookmark-btn aria-pressed="false" aria-label="Simpan"
+                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
+                                        <x-icon-bookmark fill="none" />
+                                    </button>
+                                    <button id="share-btn-profile-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
+                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
+                                        <x-icon-share fill="none" />
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                        @endforeach
+                    </div>
+
+                    <div data-profile-panel="achievements" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
+                        Belum ada achievements.
+                    </div>
+
+                    <div data-profile-panel="tracking" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
+                        Belum ada tracking.
+                    </div>
+
+                    <div data-profile-panel="media" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
+                        Belum ada media.
                     </div>
                 </article>
             </main>
