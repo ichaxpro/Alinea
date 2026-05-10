@@ -289,7 +289,7 @@
                     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <a href="#" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
                         <a href="{{ route('pinjam') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Pinjam</a>
-                        <a href="#komunitas" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
+                        <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
                         <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
                         <a href="#tentang" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
                     </div>

@@ -65,21 +65,22 @@
 
     {{-- ========== PAGE LAYOUT (3-column: left | center | right) ========== --}}
     <div class="min-h-screen pt-14">
-        <div class="flex items-start gap-6 max-w-[1200px] mx-auto px-4 py-6">
+        <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6">
 
             {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
-            <aside class="hidden lg:block w-[200px] flex-shrink-0 sticky top-6">
+            <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
                         ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => true,
-                         'icon' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'],
+                         'icon' => 'beranda'],
                         ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
-                         'icon' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'],
+                         'icon' => 'profil'],
                         ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
-                         'icon' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'],
+                         'icon' => 'notifikasi'],
                         ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
-                         'icon' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/>'],
+                         'icon' => 'pesan'],
+                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community']
                     ];
                     @endphp
 
@@ -87,10 +88,10 @@
                     <button id="{{ $item['id'] }}" data-sidenav aria-label="{{ $item['label'] }}"
                             class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
                                    {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
-                            {!! $item['icon'] !!}
-                        </svg>
+                        <div class="w-5 h-5 shrink-0 flex items-center justify-center">
+                            <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
+                        </div>
+
                         <span class="text-sm">{{ $item['label'] }}</span>
                     </button>
                     @endforeach
@@ -187,6 +188,7 @@
                             'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajinasi.',
                             'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
                             'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
+                            'tag' => 'Dibaca',
                         ],
                         [
                             'id' => 2, 'name' => 'Dina Rahmawati', 'handle' => '@dina_r',
@@ -194,6 +196,7 @@
                             'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
                             'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
                             'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
+                            'tag' => 'Selesai',
                         ],
                         [
                             'id' => 3, 'name' => 'Ahmad Fauzan', 'handle' => '@afauzan_',
@@ -201,6 +204,7 @@
                             'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
                             'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
                             'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
+                            'tag' => 'Ulasan',
                         ],
                         [
                             'id' => 4, 'name' => 'Reza Mahendra', 'handle' => '@reza_m',
@@ -208,6 +212,7 @@
                             'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
                             'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
                             'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
+                            'tag' => 'Dibaca',
                         ],
                     ];
                     @endphp
@@ -216,10 +221,10 @@
                     <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors">
 
                         {{-- Header --}}
-                        <div class="flex items-center gap-3 mb-3">
+                        <div class="flex items-center gap-3 mb-3 justify-between">
                             <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
                                  style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
-                            <div>
+                            <div class="flex-1">
                                 <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                     <span>{{ $post['handle'] }}</span>
@@ -234,13 +239,14 @@
                                     <span>{{ $post['time'] }}</span>
                                 </div>
                             </div>
+                            <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
                         </div>
 
                         {{-- Book tag --}}
                         <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
                             {{ $post['book'] }}
                         </div>
-
+                        
                         {{-- Body --}}
                         <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 

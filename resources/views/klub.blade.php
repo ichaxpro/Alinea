@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/klub.js'])
 </head>
@@ -17,52 +17,7 @@
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 
     {{-- ========== NAVBAR ========== --}}
-    <nav id="main-navbar"
-         class="fixed inset-x-0 top-0 z-50 h-14 bg-white flex items-center border-b-2 border-black px-6 lg:px-10 transition-transform duration-300">
-        <div class="flex items-center justify-between w-full max-w-[1280px] mx-auto">
-
-            {{-- Logo --}}
-            <a href="/" class="flex-shrink-0" aria-label="Alinea — Halaman Utama">
-                <img src="{{ asset('images/alinealogo.svg') }}" alt="Alinea" class="h-8 w-auto" />
-            </a>
-
-            {{-- Desktop nav links --}}
-            <ul class="hidden md:flex items-center gap-7 list-none">
-                @foreach ([
-                    ['/', 'Beranda'],
-                    ['/pinjam', 'Pinjam'],
-                    ['/komunitas', 'Komunitas'],
-                    ['/klub', 'Klub'],
-                    ['/ulasan', 'Ulasan'],
-                ] as [$href, $label])
-                <li>
-                    <a href="{{ $href }}"
-                       class="relative text-sm font-medium transition-colors
-                              after:absolute after:bottom-[-3px] after:left-0 after:w-0 after:h-[2px]
-                              after:bg-accent after:transition-all hover:after:w-full
-                              {{ request()->is(trim($href, '/') ?: '/') ? 'text-gray-900 font-bold after:w-full' : 'text-gray-600 hover:text-gray-900' }}">
-                        {{ $label }}
-                    </a>
-                </li>
-                @endforeach
-            </ul>
-
-            {{-- Action buttons --}}
-            <div class="flex items-center gap-3">
-                <button id="navbar-search-btn" aria-label="Cari"
-                        class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text hover:bg-white/10 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-
-                <a href="/login" id="masuk-btn"
-                   class="bg-accent text-text font-bold text-sm px-5 py-2 rounded-full border-2 border-text hover:opacity-90 transition-opacity">
-                    Masuk
-                </a>
-            </div>
-        </div>
-    </nav>
+    <x-navbar></x-navbar>
 
     {{-- ========== MAIN CONTENT ========== --}}
     <main class="pt-14">
@@ -227,7 +182,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -238,7 +192,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -249,7 +202,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -260,7 +212,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -271,7 +222,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -282,7 +232,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -293,7 +242,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
         ];
