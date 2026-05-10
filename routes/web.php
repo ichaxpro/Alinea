@@ -30,6 +30,14 @@ Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
 
+Route::get('/ulasan', function() {
+    return view('ulasan');
+})->name('ulasan');
+
 Route::get('/ulasan_detail', function() {
     return view('ulasan_detail');
 })->name('ulasan_detail');
+
+Route::get('/dashboard', function() {
+    return view('dashboard');
+})->name('dashboard');

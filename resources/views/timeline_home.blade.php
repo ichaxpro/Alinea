@@ -124,7 +124,7 @@
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
                             <div class="flex flex-wrap gap-2">
-                                @foreach (['Dibaca', 'Selesai', 'Kutipan', 'Ulasan', 'Dll'] as $i => $tag)
+                                @foreach (['Dibaca', 'Selesai', 'Kutipan', 'Dll'] as $i => $tag)
                                 <button data-composer-tag id="tag-{{ Str::lower($tag) }}"
                                         class="text-xs font-medium px-4 py-1 rounded-full border-[1.5px] transition-colors cursor-pointer
                                                {{ $i === 0
