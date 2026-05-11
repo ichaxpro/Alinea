@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('beranda');
 
 Route::get('/login', function () {
     return view('login');
@@ -29,3 +29,15 @@ Route::get('/timeline_profile', function () {
 Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
+
+Route::get('/ulasan', function() {
+    return view('ulasan');
+})->name('ulasan');
+
+Route::get('/ulasan_detail', function() {
+    return view('ulasan_detail');
+})->name('ulasan_detail');
+
+Route::get('/dashboard', function() {
+    return view('dashboard');
+})->name('dashboard');

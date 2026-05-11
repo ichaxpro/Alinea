@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
         $table->foreignId('id_user')->constrained('user')->onDelete('cascade');
         $table->foreignId('id_buku')->constrained('books')->onDelete('cascade');
-        $table->integer('rating')->range(1, 5); // Range 1-5 bintang
+        $table->unsignedTinyInteger('rating'); // Range 1-5 bintang (validasi di level aplikasi)
         $table->text('ulasan');
         $table->timestamps();
         });

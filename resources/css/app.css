@@ -35,3 +35,31 @@ html { overflow-y: scroll; }
     --shadow-pop: 4px 2px 0px 1px #444444;
     --shadow-pop2: 6px 4px 0px 1px #444444;
 }
+
+.nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                background: #f59e0b;
+                bottom: -2px;
+                left: 0;
+                transition: width 0.3s cubic-bezier(0.16,1,0.3,1);
+            }
+            .nav-link:hover::after { width: 100%; }
+
+/* ===== MOBILE MENU TRANSITION ===== */
+            #mobile-menu {
+                transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            }
+            #mobile-menu.hidden-menu {
+                opacity: 0;
+                transform: scale(0.97);
+                pointer-events: none;
+                display: flex !important;
+            }
+            #mobile-menu.visible-menu {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: all;
+            }

@@ -289,9 +289,9 @@
                     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <a href="#" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
                         <a href="{{ route('pinjam') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Pinjam</a>
-                        <a href="#komunitas" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
+                        <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
                         <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
-                        <a href="#tentang" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
+                        <a href="{{ route('ulasan') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
                     </div>
 
                     <!-- CTA Button -->
@@ -768,8 +768,6 @@
                         <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Informasi</h3>
                         <ul class="space-y-3 text-sm">
                             <li><a href="#" class="hover:text-white transition-colors duration-200">Tentang Kami</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Blog</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Karir</a></li>
                             <li><a href="#" class="hover:text-white transition-colors duration-200">Bantuan</a></li>
                         </ul>
                     </div>
@@ -779,8 +777,8 @@
                         <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Quick Contact</h3>
                         <ul class="space-y-3 text-sm">
                             <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
-                            <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 21 2345 6789</a></li>
-                            <li><span class="text-gray-500">Jakarta, Indonesia</span></li>
+                            <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 12 2345 6789</a></li>
+                            <li><span class="text-gray-500">Malang, Indonesia</span></li>
                         </ul>
                     </div>
                 </div>

@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/klub.js'])
 </head>
@@ -17,52 +17,7 @@
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 
     {{-- ========== NAVBAR ========== --}}
-    <nav id="main-navbar"
-         class="fixed inset-x-0 top-0 z-50 h-14 bg-white flex items-center border-b-2 border-black px-6 lg:px-10 transition-transform duration-300">
-        <div class="flex items-center justify-between w-full max-w-[1280px] mx-auto">
-
-            {{-- Logo --}}
-            <a href="/" class="flex-shrink-0" aria-label="Alinea — Halaman Utama">
-                <img src="{{ asset('images/alinealogo.svg') }}" alt="Alinea" class="h-8 w-auto" />
-            </a>
-
-            {{-- Desktop nav links --}}
-            <ul class="hidden md:flex items-center gap-7 list-none">
-                @foreach ([
-                    ['/', 'Beranda'],
-                    ['/pinjam', 'Pinjam'],
-                    ['/komunitas', 'Komunitas'],
-                    ['/klub', 'Klub'],
-                    ['/ulasan', 'Ulasan'],
-                ] as [$href, $label])
-                <li>
-                    <a href="{{ $href }}"
-                       class="relative text-sm font-medium transition-colors
-                              after:absolute after:bottom-[-3px] after:left-0 after:w-0 after:h-[2px]
-                              after:bg-accent after:transition-all hover:after:w-full
-                              {{ request()->is(trim($href, '/') ?: '/') ? 'text-gray-900 font-bold after:w-full' : 'text-gray-600 hover:text-gray-900' }}">
-                        {{ $label }}
-                    </a>
-                </li>
-                @endforeach
-            </ul>
-
-            {{-- Action buttons --}}
-            <div class="flex items-center gap-3">
-                <button id="navbar-search-btn" aria-label="Cari"
-                        class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text hover:bg-white/10 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-
-                <a href="/login" id="masuk-btn"
-                   class="bg-accent text-text font-bold text-sm px-5 py-2 rounded-full border-2 border-text hover:opacity-90 transition-opacity">
-                    Masuk
-                </a>
-            </div>
-        </div>
-    </nav>
+    <x-navbar></x-navbar>
 
     {{-- ========== MAIN CONTENT ========== --}}
     <main class="pt-14">
@@ -125,6 +80,63 @@
             </nav>
         </div>
     </main>
+
+    <footer id="tentang" class="bg-text text-gray-400 py-16 lg:py-20">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+                    <!-- Logo & Brand -->
+                    <div class="col-span-2 lg:col-span-1">
+                        <div class="flex items-center gap-2 mb-4">
+                            <img src="images/Alinea_footer.svg" alt="">
+                        </div>
+                        <p class="text-sm text-white opacity-50 leading-relaxed mb-5 max-w-xs">
+                            Platform komunitas buku pertama dari dan untuk pembaca Indonesia. Pinjam, Baca, Bagikan.
+                        </p>
+                    </div>
+
+                    <!-- Fitur -->
+                    <div class="pl-15 pt-5">
+                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Fitur</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Pinjam Buku</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Timeline</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Ulasan Buku</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Book Club</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Informasi -->
+                    <div class="pt-5 pl-8">
+                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Informasi</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Tentang Kami</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Blog</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Karir</a></li>
+                            <li><a href="#" class="hover:text-white transition-colors duration-200">Bantuan</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Quick Contact -->
+                    <div class="pt-5">
+                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Quick Contact</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
+                            <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 21 2345 6789</a></li>
+                            <li><span class="text-gray-500">Jakarta, Indonesia</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p class="text-xs text-white opacity-50">© {{ date('Y') }} Alinea. All rights reserved.</p>
+                    <div class="flex gap-6 text-xs">
+                        <a href="#" class="hover:text-white transition-colors duration-200">Syarat & Ketentuan</a>
+                        <a href="#" class="hover:text-white transition-colors duration-200">Privasi</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
 
     {{-- ========== CLUB DATA (DB-ready) ========== --}}
     @php
@@ -227,7 +239,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -238,7 +249,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -249,7 +259,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -260,7 +269,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -271,7 +279,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -282,7 +289,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
             [
@@ -293,7 +299,6 @@
                 'admin' => 'Zahra Amelia',
                 'members_list' => ['Zahra Amelia', 'Adit Nugraha', 'Bunga Citra', 'Deni Setiawan', 'Eva Mustika'],
                 'recent_books' => ['The Fault in Our Stars', 'Percy Jackson', 'Divergent'],
-                'schedule' => 'Setiap Sabtu, 13:00 WIB',
                 'gradient_from' => '#FFDDAF', 'gradient_to' => '#D4F6FF',
             ],
         ];
