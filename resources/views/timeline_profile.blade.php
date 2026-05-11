@@ -116,7 +116,7 @@
                                     </div>
                                 </div>
 
-                                <p class="mt-4 text-lg text-[#333]">Apaan Nih?!</p>
+                                <p class="mt-4 text-base text-[#333]">Apaan Nih?!</p>
                                 <p class="text-sm text-gray-500">
                                     <span class="font-bold text-[#222]">256</span> Following
                                     <span class="mx-2">|</span>
@@ -139,7 +139,7 @@
                                 <button type="button"
                                         data-profile-tab
                                         data-profile-tab-target="{{ strtolower($tab['label']) }}"
-                                        class="relative flex-1 px-1 pb-4 text-base font-semibold transition-colors text-center {{ $tab['active'] ? 'text-[#111]' : 'text-gray-400 hover:text-gray-600' }}"
+                                        class="relative flex-1 px-1 pb-4 text-sm font-semibold transition-colors cursor-pointer text-center {{ $tab['active'] ? 'text-[#111]' : 'text-gray-400 hover:text-gray-600' }}"
                                         aria-selected="{{ $tab['active'] ? 'true' : 'false' }}">
                                     {{ $tab['label'] }}
                                     <span data-profile-tab-indicator
@@ -243,16 +243,183 @@
                         @endforeach
                     </div>
 
-                    <div data-profile-panel="achievements" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
-                        Belum ada achievements.
+                    <div data-profile-panel="achievements" class="hidden mt-5 flex flex-col gap-5">
+                        @php
+                        $achievements = [
+                            [
+                                'id' => 1, 'title' => 'Pionir Literasi', 
+                                'desc' => 'Berhasil Melakukan Peminjaman Buku Pertama Kamu Di Alinea!',
+                                'image' => 'badge_(2).png',
+                            ],
+                            [
+                                'id' => 2, 'title' => 'Kritikus Andal',
+                                'desc' => 'Menyelesaikan ulasan buku pertama!',
+                                'image' => 'badge_(2).png',
+                            ],
+                            [
+                                'id' => 3, 'title' => 'Sang Kolektor',
+                                'desc' => 'Berhasil menambahkan 5 buku pribadi ke dalam katalog koleksi publik.',
+                                'image' => 'badge_(2).png',
+                            ],
+                        ];
+                        @endphp
+                        
+                        @foreach ($achievements as $achievement)
+                        <div class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                            <div class="flex items-center gap-5">
+                                <div class="w-24 h-24 "
+                                     style="background: url('{{ asset('images/' . $achievement['image']) }}') no-repeat center center; background-size: cover;"></div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-[15px] text-[#444]">{{ $achievement['title'] }}</h3>
+                                    <p class="text-sm text-gray-500">{{ $achievement['desc'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
 
                     <div data-profile-panel="tracking" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
                         Belum ada tracking.
                     </div>
 
-                    <div data-profile-panel="media" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
-                        Belum ada media.
+                    <div data-profile-panel="media" class="hidden mt-5 flex flex-col gap-5">
+                        @php
+                        $mediaPosts = [
+                            [
+                                'id' => 1,
+                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '1 Jam Lalu','location' => 'Bandung',
+                                'caption' => 'Mengabadikan momen baca di kafe — suasana cocok banget untuk tenggelam di cerita.',
+                                'attachments' => [
+                                    ['type' => 'image', 'src' => 'cafe.jpg'],
+                                ],
+                                'comments' => '124', 'likes_label' => '3.2K', 'liked' => false,
+                            ],
+                            [
+                                'id' => 2,
+                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '2 Jam Lalu','location' => 'Jakarta',
+                                'caption' => 'Sudut rak buku favoritku — rekomendasi buku bagus di sana!',
+                                'attachments' => [
+                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
+                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
+                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
+                                    ['type' => 'video', 'src' => 'reading_clip.mp4'],
+                                ],
+                                'comments' => '88', 'likes_label' => '1.1K', 'liked' => true,
+                            ],
+                            [
+                                'id' => 3,
+                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => 'Kemarin','location' => 'Surabaya',
+                                'caption' => 'Cuplikan acara: presentasi buku terbaru.',
+                                'attachments' => [
+                                    ['type' => 'video', 'src' => 'reading_clip.mp4'],
+                                    ['type' => 'file', 'src' => 'transcript.pdf', 'label' => 'Transkrip presentasi.pdf'],
+                                ],
+                                'comments' => '64', 'likes_label' => '940', 'liked' => false,
+                            ],
+                        ];
+                        @endphp
+
+                        @foreach ($mediaPosts as $media)
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                                <div>
+                                    <span class="font-bold text-[15px] leading-tight">{{ $media['name'] }}</span>
+                                    <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                                        <span>{{ $media['handle'] }}</span>
+                                        <span class="text-gray-200">•</span>
+                                        <span>{{ $media['time'] }}</span>
+                                        <span class="text-gray-200">•</span>
+                                        <span>{{ $media['location'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ $media['caption'] }}</p>
+
+                            @if (!empty($media['attachments']))
+                                @php $imgs = array_filter($media['attachments'], fn($a) => $a['type']==='image'); @endphp
+                                @if (count($imgs) === 1)
+                                    @php $img = reset($imgs); @endphp
+                                    <div class="mb-4">
+                                        <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
+                                             class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
+                                    </div>
+                                @elseif (count($imgs) === 2)
+                                    <div class="grid grid-cols-2 gap-2 mb-4">
+                                        @foreach ($imgs as $img)
+                                        <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
+                                             class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover">
+                                        @endforeach
+                                    </div>
+                                @elseif (count($imgs) > 2)
+                                    <div class="mb-4 relative">
+                                        <div class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                                             data-carousel-scroll-{{ $media['id'] }}>
+                                            <div class="flex gap-3 w-max px-1">
+                                                @foreach ($imgs as $img)
+                                                <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
+                                                     class="rounded-xl border-[1.5px] border-[#444] object-cover w-[280px] h-auto flex-shrink-0">
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        <button class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-9 h-9 rounded-full bg-white border-2 border-[#444] flex items-center justify-center text-[#444] hover:bg-[#FFDDAF] hover:text-white transition-colors"
+                                                data-carousel-prev="{{ $media['id'] }}" aria-label="Gambar sebelumnya">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="15 18 9 12 15 6"/>
+                                            </svg>
+                                        </button>
+                                        <button class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-9 h-9 rounded-full bg-white border-2 border-[#444] flex items-center justify-center text-[#444] hover:bg-[#FFDDAF] hover:text-white transition-colors"
+                                                data-carousel-next="{{ $media['id'] }}" aria-label="Gambar berikutnya">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                @endif
+
+                                @foreach ($media['attachments'] as $att)
+                                    @if ($att['type'] === 'video')
+                                        <div class="mb-4">
+                                            <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444]">
+                                                <source src="{{ asset('images/' . $att['src']) }}" type="video/mp4">
+                                                Browser Anda tidak mendukung tag video.
+                                            </video>
+                                        </div>
+                                    @elseif ($att['type'] === 'file')
+                                        <div class="mb-3">
+                                            <a href="{{ asset('images/' . $att['src']) }}" download class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                                <span>{{ $att['label'] ?? $att['src'] }}</span>
+                                            </a>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+
+                            <div class="flex items-center gap-5 pt-2">
+                                <button aria-label="Komentar" class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
+                                    <x-icon-comment fill="none" />
+                                    <span>{{ $media['comments'] }}</span>
+                                </button>
+
+                                <button data-like-btn aria-pressed="{{ $media['liked'] ? 'true' : 'false' }}" aria-label="Suka"
+                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer {{ $media['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
+                                    <x-icon-like fill="{{ $media['liked'] ? 'currentColor' : 'none' }}" />
+                                    <span>{{ $media['likes_label'] }}</span>
+                                </button>
+
+                                <div class="ml-auto flex items-center gap-2">
+                                    <button aria-pressed="false" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
+                                        <x-icon-bookmark fill="none" />
+                                    </button>
+                                    <button aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
+                                        <x-icon-share fill="none" />
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                        @endforeach
                     </div>
                 </article>
             </main>

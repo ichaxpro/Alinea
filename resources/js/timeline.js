@@ -255,4 +255,26 @@ document.addEventListener('DOMContentLoaded', () => {
             el.classList.remove('opacity-100', 'translate-y-0');
         }, 2500);
     }
+
+    // ── Media carousel scroll buttons ──
+
+    document.querySelectorAll('[data-carousel-next]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mediaId = btn.dataset.carouselNext;
+            const carousel = document.querySelector(`[data-carousel-scroll-${mediaId}]`);
+            if (carousel) {
+                carousel.scrollBy({ left: 300, behavior: 'smooth' });
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-carousel-prev]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mediaId = btn.dataset.carouselPrev;
+            const carousel = document.querySelector(`[data-carousel-scroll-${mediaId}]`);
+            if (carousel) {
+                carousel.scrollBy({ left: -300, behavior: 'smooth' });
+            }
+        });
+    });
 });
