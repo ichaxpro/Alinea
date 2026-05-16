@@ -156,6 +156,7 @@
                             [
                                 'id' => 1, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
                                 'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter',
+                                'tag' => 'Dibaca',
                                 'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajimasi.',
                                 'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
                                 'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
@@ -163,6 +164,7 @@
                             [
                                 'id' => 2, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
                                 'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library',
+                                'tag' => 'Selesai',
                                 'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
                                 'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
                                 'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
@@ -170,6 +172,7 @@
                             [
                                 'id' => 3, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
                                 'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Atomic Habits',
+                                'tag' => 'Kutipan',
                                 'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
                                 'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
                                 'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
@@ -177,6 +180,7 @@
                             [
                                 'id' => 4, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
                                 'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'Sapiens',
+                                'tag' => 'Dibaca',
                                 'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
                                 'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
                                 'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
@@ -186,10 +190,10 @@
 
                         @foreach ($profilePosts as $post)
                         <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
-                            <div class="flex items-center gap-3 mb-3">
+                            <div class="flex items-start gap-3 mb-3">
                                 <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
                                      style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
-                                <div>
+                                <div class="flex-1 min-w-0">
                                     <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                     <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                         <span>{{ $post['handle'] }}</span>
@@ -203,6 +207,9 @@
                                         <span class="text-gray-200">•</span>
                                         <span>{{ $post['time'] }}</span>
                                     </div>
+                                </div>
+                                <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">
+                                    {{ $post['tag'] }}
                                 </div>
                             </div>
 
@@ -288,6 +295,7 @@
                             [
                                 'id' => 1,
                                 'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '1 Jam Lalu','location' => 'Bandung',
+                                'tag' => 'Dibaca',
                                 'caption' => 'Mengabadikan momen baca di kafe — suasana cocok banget untuk tenggelam di cerita.',
                                 'attachments' => [
                                     ['type' => 'image', 'src' => 'cafe.jpg'],
@@ -297,6 +305,7 @@
                             [
                                 'id' => 2,
                                 'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '2 Jam Lalu','location' => 'Jakarta',
+                                'tag' => 'Selesai',
                                 'caption' => 'Sudut rak buku favoritku — rekomendasi buku bagus di sana!',
                                 'attachments' => [
                                     ['type' => 'image', 'src' => 'bookshelve.jpg'],
@@ -309,6 +318,7 @@
                             [
                                 'id' => 3,
                                 'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => 'Kemarin','location' => 'Surabaya',
+                                'tag' => 'Kutipan',
                                 'caption' => 'Cuplikan acara: presentasi buku terbaru.',
                                 'attachments' => [
                                     ['type' => 'video', 'src' => 'reading_clip.mp4'],
@@ -321,9 +331,9 @@
 
                         @foreach ($mediaPosts as $media)
                         <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
-                            <div class="flex items-center gap-3 mb-3">
+                            <div class="flex items-start gap-3 mb-3">
                                 <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
-                                <div>
+                                <div class="flex-1 min-w-0">
                                     <span class="font-bold text-[15px] leading-tight">{{ $media['name'] }}</span>
                                     <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                         <span>{{ $media['handle'] }}</span>
@@ -332,6 +342,9 @@
                                         <span class="text-gray-200">•</span>
                                         <span>{{ $media['location'] }}</span>
                                     </div>
+                                </div>
+                                <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">
+                                    {{ $media['tag'] }}
                                 </div>
                             </div>
 
