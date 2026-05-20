@@ -16,6 +16,8 @@
     /* CSS State khusus yang diatur oleh JavaScript (jangan dihapus) */
     .review-modal-overlay.active { opacity: 1; visibility: visible; }
     .review-modal-overlay.active .review-modal { transform: translateY(0); }
+    .pinjam-modal-overlay.active { opacity: 1; visibility: visible; }
+    .pinjam-modal-overlay.active .pinjam-modal { transform: translateY(0); }
     .pick-star.active { color: #F5C518; transform: scale(1.15); }
     .btn-simpan.saved { color: #F5C518; border-color: #F5C518; }
     .btn-simpan.saved svg { fill: #F5C518; }
@@ -156,6 +158,47 @@
           </div>
           <button class="w-full p-3.5 text-[0.9rem] font-bold text-[#444444] bg-[#FFDDAF] rounded-full border-[1.5px] border-[#444444] transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]" id="submitReviewBtn">Kirim Ulasan</button>
         </div>
+      </div>
+    </div>
+
+    {{-- ========== PINJAM MODAL ========== --}}
+    <div class="pinjam-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="pinjamModalOverlay">
+      <div class="pinjam-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[800px] relative translate-y-5 transition-transform duration-300 mx-4" id="pinjamModal">
+        <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="pinjamModalClose" aria-label="Tutup">&times;</button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-14">
+          <!-- Left Part -->
+          <div class="flex flex-col items-center">
+            <div id="pinjamBookCover" class="w-[200px] aspect-[2/3] rounded-2xl overflow-hidden mb-4 shadow-sm border border-[#e0e0e0]">
+              <!-- image will be inserted here -->
+            </div>
+            <h4 class="text-[1.2rem] font-semibold text-[#444444] text-center leading-snug" id="pinjamBookTitle"></h4>
+            <p class="text-[0.8rem] text-[#444444]/50 text-center mb-1" id="pinjamBookWriter"></p>
+            
+            <div class="inline-block bg-[#D4F6FF] text-[#444444] text-[0.6rem] font-medium px-2 py-1 rounded-full text-center">
+              Pemilik : <span id="pinjamBookOwner">Ichachellow</span>
+            </div>
+          </div>
+
+          <!-- Right Part -->
+          <div class="pt-2 md:pt-4">
+            <h3 class="text-[1.2rem] font-bold mb-1 text-[#444444]">Pinjam Buku Ini</h3>
+            <p class="text-[0.8rem] text-[#949494] font-medium mb-6">Lengkapi Formulir untuk Mengajukan Peminjaman</p>
+
+            <div class="mb-6">
+              <label for="durasiPeminjaman" class="block text-[0.8rem] font-medium text-[#444444] mb-2">Durasi Peminjaman (Hari)</label>
+              <input type="number" id="durasiPeminjaman" min="1" class="w-full font-['Poppins'] text-[0.8rem] text-[#444444] border-[1.5px] border-[#444444] rounded-full px-3 py-1.5 outline-none transition-colors duration-200 bg-white focus:border-[#3FA9F5]" />
+            </div>
+            
+            <div class="mb-10">
+              <label for="titikTemu" class="block text-[0.8rem] font-medium text-[#444444] mb-2">Titik Temu</label>
+              <input type="text" id="titikTemu" class="w-full font-['Poppins'] text-[0.8rem] text-[#444444] border-[1.5px] border-[#444444] rounded-full px-3 py-1.5 outline-none transition-colors duration-200 bg-white focus:border-[#3FA9F5]" />
+            </div>
+            
+            <button class="w-full p-2 text-[0.9rem] font-bold text-[#444444] bg-[#FFDDAF] rounded-full border-[2px] border-[#444444] transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_4px_0_rgba(68,68,68,1)]" id="submitPinjamBtn">Ajukan Peminjaman</button>
+          </div>
+        </div>
+
       </div>
     </div>
 

@@ -96,6 +96,16 @@ function renderBookDetail(book) {
   // Modal title
   setTextById('modalBookTitle', book.judul);
 
+  // Pinjam Modal Details
+  setTextById('pinjamBookTitle', book.judul);
+  setTextById('pinjamBookWriter', book.penulis);
+  const pinjamCover = document.getElementById('pinjamBookCover');
+  if (pinjamCover && book.foto_sampul) {
+    pinjamCover.innerHTML = `<img src="${book.foto_sampul}" alt="Sampul ${book.judul}" class="w-full h-full object-cover rounded-xl" />`;
+  } else if (pinjamCover) {
+    pinjamCover.innerHTML = `<div class="absolute inset-0 rounded-xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] pointer-events-none"></div>`;
+  }
+
   // Rating
   setHtmlById('bookRating', `
     <div class="flex gap-0.5">${starsHtml(book.rating_avg)}</div>
@@ -299,9 +309,28 @@ document.getElementById('simpanBtn').addEventListener('click', function() {
   showToast(this.classList.contains('saved') ? '🔖 Buku disimpan!' : '🔖 Buku dihapus dari simpanan');
 });
 
-// Pinjam button
-document.getElementById('pinjamBtn').addEventListener('click', () => {
-  showToast('📚 Buku berhasil dipinjam! Cek email untuk detail pickup.');
+// Pinjam button modal
+const pinjamModalOverlay = document.getElementById('pinjamModalOverlay');
+function openPinjamModal() { pinjamModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closePinjamModal() { pinjamModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+document.getElementById('pinjamBtn').addEventListener('click', openPinjamModal);
+document.getElementById('pinjamModalClose').addEventListener('click', closePinjamModal);
+if (pinjamModalOverlay) {
+  pinjamModalOverlay.addEventListener('click', e => { if (e.target === pinjamModalOverlay) closePinjamModal(); });
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && pinjamModalOverlay && pinjamModalOverlay.classList.contains('active')) closePinjamModal(); });
+
+// Submit pinjam request
+document.getElementById('submitPinjamBtn').addEventListener('click', () => {
+  const durasi = document.getElementById('durasiPeminjaman').value.trim();
+  const titik = document.getElementById('titikTemu').value.trim();
+  if (!durasi || !titik) { showToast('⚠️ Lengkapi durasi dan titik temu'); return; }
+  
+  closePinjamModal();
+  document.getElementById('durasiPeminjaman').value = '';
+  document.getElementById('titikTemu').value = '';
+  showToast('📚 Permintaan peminjaman diajukan! Cek notifikasi secara berkala.');
 });
 
 // Sort reviews
