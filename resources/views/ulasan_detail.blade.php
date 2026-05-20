@@ -18,6 +18,8 @@
     .review-modal-overlay.active .review-modal { transform: translateY(0); }
     .pinjam-modal-overlay.active { opacity: 1; visibility: visible; }
     .pinjam-modal-overlay.active .pinjam-modal { transform: translateY(0); }
+    .owners-modal-overlay.active { opacity: 1; visibility: visible; }
+    .owners-modal-overlay.active .owners-modal { transform: translateY(0); }
     .pick-star.active { color: #F5C518; transform: scale(1.15); }
     .btn-simpan.saved { color: #F5C518; border-color: #F5C518; }
     .btn-simpan.saved svg { fill: #F5C518; }
@@ -157,6 +159,31 @@
             <textarea id="reviewText" rows="5" placeholder="Ceritakan pengalamanmu membaca buku ini..." class="w-full font-['Poppins'] text-[0.88rem] text-[#444444] border-[1.5px] border-[#e0e0e0] rounded-xl px-4 py-3 outline-none transition-colors duration-200 bg-[#FBFBFB] focus:border-[#FFDDAF] resize-y min-h-[100px]"></textarea>
           </div>
           <button class="w-full p-3.5 text-[0.9rem] font-bold text-[#444444] bg-[#FFDDAF] rounded-full border-[1.5px] border-[#444444] transition-all duration-200 hover:-translate-y-[1px] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]" id="submitReviewBtn">Kirim Ulasan</button>
+        </div>
+      </div>
+    </div>
+
+    {{-- ========== OWNERS MODAL ========== --}}
+    <div class="owners-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="ownersModalOverlay">
+      <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
+        <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="ownersModalClose" aria-label="Tutup">&times;</button>
+        
+        <h3 class="text-2xl font-extrabold mb-2 text-text">Pilih Pemilik Buku</h3>
+        <p class="text-[0.9rem] text-text/60 mb-6">Berikut adalah daftar pengguna yang memiliki buku ini dan bersedia meminjamkannya.</p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b-[1.5px] border-[#eee]">
+                <th class="py-3 px-4 text-[0.8rem] font-bold text-[#444444] uppercase tracking-wider">Nama Pemilik</th>
+                <th class="py-3 px-4 text-[0.8rem] font-bold text-[#444444] uppercase tracking-wider">Lokasi</th>
+                <th class="py-3 px-4 text-[0.8rem] font-bold text-[#444444] uppercase tracking-wider text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="ownersTableBody">
+              <!-- Owners list will be populated here -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
