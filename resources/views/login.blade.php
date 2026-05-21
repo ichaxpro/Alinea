@@ -60,7 +60,7 @@
         </div>
 
         <button type="submit" id="login-submit-btn" class="mt-2.5 w-full cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-4 font-['Plus_Jakarta_Sans',_sans-serif] text-[16px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
-          Log In
+          Masuk
         </button>
 
       </form>

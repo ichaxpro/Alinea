@@ -4,7 +4,7 @@
 
 // ── MOCK DATA ──
 const CURRENT_USER = {
-  id: 1, nama: 'Budi Ashcroft', username: 'isoba__', email: 'budi@alinea.id',
+  id: 1, nama: 'Rizki', username: 'isoba__', email: 'rizki@yahoo.com',
   kota: 'Malang', no_telp: '08123456789', bio: 'Pecinta buku fiksi dan thriller.',
   preferred_genres: ['Fiksi', 'Thriller', 'Misteri'],
   foto_profil: null, member_since: '2025-12-01',
@@ -54,7 +54,7 @@ function getTxStatus(tx) {
 }
 
 function statusLabel(s) {
-  const m = { pending:'Pengajuan', on_loan:'Sedang Dipinjam', overdue:'Overdue', returned:'Dikembalikan', accepted:'Diterima', rejected:'Ditolak', cancelled:'Dibatalkan' };
+  const m = { pending:'Pengajuan', on_loan:'Sedang Dipinjam', overdue:'Terlambat', returned:'Dikembalikan', accepted:'Diterima', rejected:'Ditolak', cancelled:'Dibatalkan' };
   return m[s]||s;
 }
 function statusColor(s) {
@@ -205,9 +205,11 @@ function renderCatalog() {
         <tr class="hover:bg-gray-50/50 transition-colors" data-book-id="${b.id}">
           <td class="py-3 px-4">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-14 rounded-lg bg-gradient-to-br from-[#C7E7FF] to-[#D4F6FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
+              ${b.foto_sampul
+                ? `<img src="${b.foto_sampul}" alt="${b.judul}" class="w-10 h-14 rounded-lg border-[1.5px] border-[#444] object-cover flex-shrink-0" />`
+                : `<div class="w-10 h-14 rounded-lg bg-gradient-to-br from-[#C7E7FF] to-[#D4F6FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
                 <span class="text-sm font-black text-[#444]/50">${getInitial(b.judul)}</span>
-              </div>
+              </div>`}
               <div class="min-w-0">
                 <p class="font-bold text-[13px] text-[#444] truncate">${b.judul}</p>
                 <p class="text-xs text-gray-400 truncate">${b.penulis} · ${b.tahun_terbit}</p>
@@ -251,10 +253,367 @@ function renderCatalog() {
       if (confirm(`Hapus "${book?.judul}" dari koleksi?`)) {
         catalogData = catalogData.filter(b=>b.id!==id);
         renderCatalog();
+        renderSidebarProfile();
         toast('Buku berhasil dihapus');
       }
     });
   });
+}
+
+// ── GOOGLE BOOKS API ──
+const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
+const GOOGLE_BOOKS_KEY = document.querySelector('meta[name="google-books-key"]')?.content || '';
+
+// Map Google Books categories (English) to our local categories
+function mapCategory(categories) {
+  if (!categories || !categories.length) return 'Fiksi';
+  const cat = categories.join(' ').toLowerCase();
+  const mapping = [
+    { keys: ['thriller','suspense','crime'], val: 'Thriller' },
+    { keys: ['mystery','detective'], val: 'Misteri' },
+    { keys: ['romance','love'], val: 'Romansa' },
+    { keys: ['science fiction','sci-fi'], val: 'Sci-Fi' },
+    { keys: ['fantasy','magic','dragon'], val: 'Fantasi' },
+    { keys: ['horror','ghost','supernatural'], val: 'Horror' },
+    { keys: ['biography','autobiography','memoir'], val: 'Biografi' },
+    { keys: ['history','historical'], val: 'Sejarah' },
+    { keys: ['self-help','self help','personal development','psychology','motivation'], val: 'Pengembangan Diri' },
+    { keys: ['business','economics','finance'], val: 'Bisnis' },
+    { keys: ['poetry','poem'], val: 'Puisi' },
+    { keys: ['comics','comic','graphic novel','manga'], val: 'Komik' },
+    { keys: ['nonfiction','non-fiction','science','education','reference','philosophy','religion','politics','social'], val: 'Non-Fiksi' },
+    { keys: ['fiction','novel','literary'], val: 'Fiksi' },
+  ];
+  for (const m of mapping) {
+    if (m.keys.some(k => cat.includes(k))) return m.val;
+  }
+  return 'Fiksi';
+}
+
+// Force HTTPS on Google Books image URLs (they often return http://)
+function fixCoverUrl(url) {
+  if (!url) return '';
+  return url
+    .replace(/^http:\/\//i, 'https://')
+    .replace('zoom=1', 'zoom=2')
+    .replace('&edge=curl', '');
+}
+
+// Extract ISBN from volumeInfo
+function extractISBN(info) {
+  if (!info.industryIdentifiers) return '';
+  const isbn13 = info.industryIdentifiers.find(id => id.type === 'ISBN_13');
+  const isbn10 = info.industryIdentifiers.find(id => id.type === 'ISBN_10');
+  return isbn13?.identifier || isbn10?.identifier || '';
+}
+
+// Parse a single volume from Google Books API into a normalized object
+function parseBookVolume(volume) {
+  const info = volume.volumeInfo || {};
+  const judul = info.title || '';
+  const subtitle = info.subtitle ? `: ${info.subtitle}` : '';
+  let coverUrl = '';
+  if (info.imageLinks) {
+    coverUrl = fixCoverUrl(info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || '');
+  }
+  return {
+    judul: judul + subtitle,
+    penulis: info.authors?.join(', ') || '',
+    tahun: info.publishedDate ? parseInt(info.publishedDate.substring(0, 4)) : '',
+    kategori: mapCategory(info.categories),
+    halaman: info.pageCount || '',
+    deskripsi: info.description || '',
+    isbn: extractISBN(info),
+    coverUrl,
+  };
+}
+
+// ── BOOK SEARCH (Autocomplete) ──
+let searchDebounceTimer = null;
+let currentSearchAbort = null;
+
+function initBookSearch() {
+  const input = $('#book-search-input');
+  if (!input) return;
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim();
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+
+    if (query.length < 3) {
+      hideSearchResults();
+      return;
+    }
+
+    searchDebounceTimer = setTimeout(() => searchBooks(query), 500);
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const wrapper = $('#book-search-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      hideSearchResults();
+    }
+  });
+}
+
+// Build a smarter query for Google Books API
+function buildSearchQuery(raw) {
+  const q = raw.trim();
+  // If it looks like an ISBN (digits/dashes, 10-17 chars), search by ISBN
+  const isbnClean = q.replace(/[-\s]/g, '');
+  if (/^\d{10,13}$/.test(isbnClean)) return `isbn:${isbnClean}`;
+  // For short queries (1-2 words), use intitle: for precision
+  const wordCount = q.split(/\s+/).length;
+  if (wordCount <= 2) return `intitle:${q}`;
+  // For longer queries (translated titles, full names), use plain query
+  // intitle: is too restrictive for translated/localized book titles
+  return q;
+}
+
+async function searchBooks(query, retryCount = 0) {
+  // Abort previous request if still in-flight
+  if (currentSearchAbort) currentSearchAbort.abort();
+  currentSearchAbort = new AbortController();
+
+  showSearchSpinner(true);
+
+  try {
+    const smartQuery = buildSearchQuery(query);
+    const keyParam = GOOGLE_BOOKS_KEY ? `&key=${GOOGLE_BOOKS_KEY}` : '';
+    const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(smartQuery)}&maxResults=8&printType=books&orderBy=relevance${keyParam}`;
+    console.log('[Alinea] Searching Google Books:', url);
+
+    const response = await fetch(url, {
+      signal: currentSearchAbort.signal,
+      headers: { 'Accept': 'application/json' },
+    });
+    console.log('[Alinea] API response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('[Alinea] API error response:', errorText);
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('[Alinea] Found', data.totalItems, 'results');
+
+    if (data.totalItems && data.items?.length) {
+      const books = data.items.map(parseBookVolume);
+      showSearchResults(books);
+      showSearchSpinner(false);
+      return;
+    }
+
+    // If first query returned nothing, try alternative query strategy
+    if (retryCount === 0) {
+      // If we used intitle:, retry without it. If plain, try intitle:.
+      const wordCount = query.trim().split(/\s+/).length;
+      const altQuery = wordCount <= 2 ? query.trim() : `intitle:${query.trim()}`;
+      console.log('[Alinea] No results, trying alternative query:', altQuery);
+
+      try {
+        const fallbackUrl = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(altQuery)}&maxResults=8&printType=books&orderBy=relevance${keyParam}`;
+        const fallbackResp = await fetch(fallbackUrl, {
+          signal: currentSearchAbort.signal,
+          headers: { 'Accept': 'application/json' },
+        });
+        if (fallbackResp.ok) {
+          const fallbackData = await fallbackResp.json();
+          if (fallbackData.totalItems && fallbackData.items?.length) {
+            const books = fallbackData.items.map(parseBookVolume);
+            showSearchResults(books);
+            showSearchSpinner(false);
+            return;
+          }
+        }
+      } catch (fallbackErr) {
+        console.warn('[Alinea] Fallback search also failed:', fallbackErr.message);
+      }
+    }
+
+    showSearchResults([]);
+    showSearchSpinner(false);
+    return;
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      showSearchSpinner(false);
+      return;
+    }
+    console.error('[Alinea] Google Books API error:', err.message, err);
+    // Retry once on network/fetch errors
+    if (retryCount < 1) {
+      console.log('[Alinea] Retrying search in 1s...');
+      setTimeout(() => searchBooks(query, retryCount + 1), 1000);
+      return;
+    }
+    showSearchResults(null); // null = error state
+    showSearchSpinner(false);
+  }
+}
+
+function showSearchSpinner(show) {
+  const spinner = $('#book-search-spinner');
+  if (spinner) spinner.classList.toggle('hidden', !show);
+}
+
+function showSearchResults(books) {
+  const container = $('#book-search-results');
+  if (!container) return;
+
+  // Error state
+  if (books === null) {
+    container.innerHTML = `
+      <div class="p-4 text-center">
+        <p class="text-xs text-red-400 font-medium">Gagal mencari buku.</p>
+        <p class="text-[11px] text-gray-300 mt-1">Kuota API mungkin habis. Coba lagi nanti atau isi manual di bawah.</p>
+      </div>`;
+    container.classList.remove('hidden');
+    return;
+  }
+
+  // No results
+  if (books.length === 0) {
+    container.innerHTML = `
+      <div class="p-4 text-center">
+        <p class="text-3xl mb-1.5">📭</p>
+        <p class="text-xs text-gray-400 font-medium">Tidak ada hasil ditemukan.</p>
+        <p class="text-[11px] text-gray-300 mt-0.5">Coba kata kunci lain, atau isi manual di bawah.</p>
+      </div>`;
+    container.classList.remove('hidden');
+    return;
+  }
+
+  // Render results
+  container.innerHTML = books.map((book, i) => `
+    <button type="button" data-search-result="${i}"
+            class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#FFDDAF]/15 transition-colors cursor-pointer ${i < books.length - 1 ? 'border-b border-gray-100' : ''} ${i === 0 ? 'rounded-t-2xl' : ''} ${i === books.length - 1 ? 'rounded-b-2xl' : ''}">
+      ${book.coverUrl
+        ? `<img src="${book.coverUrl}" alt="" class="w-10 h-14 rounded-lg border border-[#444]/20 object-cover flex-shrink-0 bg-gray-100" />`
+        : `<div class="w-10 h-14 rounded-lg border border-[#444]/20 bg-gradient-to-br from-[#C7E7FF] to-[#D4F6FF] flex items-center justify-center flex-shrink-0">
+            <span class="text-sm font-black text-[#444]/40">${getInitial(book.judul)}</span>
+          </div>`
+      }
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-[13px] text-[#444] truncate leading-tight">${book.judul}</p>
+        <p class="text-[11px] text-gray-400 truncate">${book.penulis}${book.tahun ? ` · ${book.tahun}` : ''}</p>
+        ${book.isbn ? `<p class="text-[10px] text-gray-300 font-mono mt-0.5">ISBN: ${book.isbn}</p>` : ''}
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" class="flex-shrink-0"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  `).join('');
+
+  container.classList.remove('hidden');
+
+  // Attach click handlers
+  container.querySelectorAll('[data-search-result]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.searchResult);
+      selectSearchResult(books[idx]);
+    });
+  });
+}
+
+function hideSearchResults() {
+  const container = $('#book-search-results');
+  if (container) { container.classList.add('hidden'); container.innerHTML = ''; }
+}
+
+function selectSearchResult(book) {
+  hideSearchResults();
+  $('#book-search-input').value = '';
+
+  // Fill form fields with highlight animation
+  fillField('add-book-judul', book.judul);
+  fillField('add-book-penulis', book.penulis);
+  if (book.tahun) fillField('add-book-tahun', book.tahun);
+  if (book.halaman) fillField('add-book-halaman', book.halaman);
+  if (book.isbn) fillField('add-book-isbn-manual', book.isbn);
+  selectOption('add-book-kategori', book.kategori);
+  $('#add-book-cover-url').value = book.coverUrl;
+
+  // Show preview card
+  showBookPreview(book);
+}
+
+function fillField(id, value) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.value = value;
+    el.classList.add('!border-[#C7E7FF]', '!bg-[#D4F6FF]/10');
+    setTimeout(() => el.classList.remove('!border-[#C7E7FF]', '!bg-[#D4F6FF]/10'), 1500);
+  }
+}
+
+function selectOption(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const option = Array.from(el.options).find(o => o.value === value);
+  if (option) {
+    el.value = value;
+    el.classList.add('!border-[#C7E7FF]', '!bg-[#D4F6FF]/10');
+    setTimeout(() => el.classList.remove('!border-[#C7E7FF]', '!bg-[#D4F6FF]/10'), 1500);
+  }
+}
+
+function showBookPreview(book) {
+  const preview = $('#book-preview');
+  if (!preview) return;
+
+  // Cover
+  const coverImg = $('#preview-cover');
+  const coverPlaceholder = $('#preview-cover-placeholder');
+  if (book.coverUrl) {
+    coverImg.src = book.coverUrl;
+    coverImg.classList.remove('hidden');
+    if (coverPlaceholder) { coverPlaceholder.classList.add('hidden'); coverPlaceholder.classList.remove('flex'); }
+  } else {
+    coverImg.classList.add('hidden');
+    if (coverPlaceholder) {
+      coverPlaceholder.classList.remove('hidden');
+      coverPlaceholder.classList.add('flex');
+      const initEl = $('#preview-cover-initial');
+      if (initEl) initEl.textContent = getInitial(book.judul);
+    }
+  }
+
+  // Text
+  const titleEl = $('#preview-title');
+  if (titleEl) titleEl.textContent = book.judul;
+  const authorEl = $('#preview-author');
+  if (authorEl) authorEl.textContent = book.penulis;
+  const yearEl = $('#preview-year');
+  if (yearEl) yearEl.textContent = book.tahun ? `📅 ${book.tahun}` : '';
+  const catEl = $('#preview-category');
+  if (catEl) catEl.textContent = `📖 ${book.kategori}`;
+
+  const pagesEl = $('#preview-pages');
+  if (pagesEl) {
+    if (book.halaman) { pagesEl.textContent = `📄 ${book.halaman} hal`; pagesEl.classList.remove('hidden'); }
+    else pagesEl.classList.add('hidden');
+  }
+  const isbnEl = $('#preview-isbn');
+  if (isbnEl) {
+    if (book.isbn) { isbnEl.textContent = `ISBN: ${book.isbn}`; isbnEl.classList.remove('hidden'); }
+    else isbnEl.classList.add('hidden');
+  }
+  const descEl = $('#preview-desc');
+  if (descEl) descEl.textContent = book.deskripsi ? book.deskripsi.substring(0, 200) + (book.deskripsi.length > 200 ? '...' : '') : '';
+
+  preview.classList.remove('hidden');
+}
+
+function hideBookPreview() {
+  const preview = $('#book-preview');
+  if (preview) preview.classList.add('hidden');
+}
+
+function clearBookSelection() {
+  hideBookPreview();
+  $('#add-book-form')?.reset();
+  $('#add-book-cover-url').value = '';
+  $('#book-search-input').value = '';
 }
 
 // ── ADD BOOK MODAL ──
@@ -262,13 +621,17 @@ function openAddBookModal() {
   $('#add-book-modal').classList.remove('hidden');
   $('#add-book-modal').classList.add('flex');
   document.body.style.overflow = 'hidden';
-  setTimeout(() => $('#add-book-judul')?.focus(), 100);
+  setTimeout(() => $('#book-search-input')?.focus(), 100);
 }
 function closeAddBookModal() {
   $('#add-book-modal').classList.add('hidden');
   $('#add-book-modal').classList.remove('flex');
   document.body.style.overflow = '';
   $('#add-book-form')?.reset();
+  $('#book-search-input').value = '';
+  $('#add-book-cover-url').value = '';
+  hideSearchResults();
+  hideBookPreview();
 }
 
 function handleAddBook(e) {
@@ -276,16 +639,30 @@ function handleAddBook(e) {
   const fd = new FormData(e.target);
   const judul = fd.get('judul')?.trim();
   const penulis = fd.get('penulis')?.trim();
-  const isbn = fd.get('isbn')?.trim();
+  const isbn = fd.get('isbn')?.trim() || '';
   const tahun = parseInt(fd.get('tahun_terbit'));
   const kategori = fd.get('kategori');
+  const coverUrl = fd.get('foto_sampul') || null;
+  const halaman = parseInt(fd.get('halaman')) || null;
 
   if (!judul||!penulis) { toast('Judul dan penulis wajib diisi','error'); return; }
 
-  catalogData.push({ id: nextCatalogId++, judul, penulis, isbn: isbn||'—', tahun_terbit: tahun||new Date().getFullYear(), kategori: kategori||'Fiksi', foto_sampul:null, is_available:true, status:'tersedia' });
+  catalogData.push({
+    id: nextCatalogId++,
+    judul,
+    penulis,
+    isbn: isbn || '—',
+    tahun_terbit: tahun || new Date().getFullYear(),
+    kategori: kategori || 'Fiksi',
+    foto_sampul: coverUrl,
+    halaman,
+    is_available: true,
+    status: 'tersedia',
+  });
 
   closeAddBookModal();
   renderCatalog();
+  renderSidebarProfile();
   toast(`"${judul}" berhasil ditambahkan!`);
 }
 
@@ -322,6 +699,25 @@ function renderSidebarProfile() {
   if (el2) el2.textContent = CURRENT_USER.kota || '—';
   const el3 = $('#profile-initial');
   if (el3) el3.textContent = getInitial(CURRENT_USER.nama);
+  // Username
+  const el4 = $('#sidebar-username');
+  if (el4) el4.textContent = CURRENT_USER.username ? `@${CURRENT_USER.username}` : '';
+  // Stats
+  const statKoleksi = $('#stat-koleksi');
+  if (statKoleksi) statKoleksi.textContent = catalogData.length;
+  const statTx = $('#stat-transaksi');
+  if (statTx) statTx.textContent = TRANSACTIONS.length;
+}
+
+function populateProfileForm() {
+  const nama = $('#prof-nama');
+  if (nama) nama.value = CURRENT_USER.nama || '';
+  const email = $('#prof-email');
+  if (email) email.value = CURRENT_USER.email || '';
+  const kota = $('#prof-kota');
+  if (kota) kota.value = CURRENT_USER.kota || '';
+  const telp = $('#prof-telp');
+  if (telp) telp.value = CURRENT_USER.no_telp || '';
 }
 
 // ── INIT ──
@@ -362,6 +758,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#add-book-modal')?.addEventListener('click', (e) => { if(e.target.id==='add-book-modal') closeAddBookModal(); });
   $('#add-book-form')?.addEventListener('submit', handleAddBook);
 
+  // Book search (Google Books API autocomplete)
+  initBookSearch();
+  $('#btn-clear-selection')?.addEventListener('click', clearBookSelection);
+
   // Forms
   $('#security-form')?.addEventListener('submit', handleChangePassword);
   $('#profile-form')?.addEventListener('submit', handleSaveProfile);
@@ -373,8 +773,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input) {
         const isPassword = input.type === 'password';
         input.type = isPassword ? 'text' : 'password';
-        btn.querySelector('.eye-open')?.classList.toggle('hidden', !isPassword);
-        btn.querySelector('.eye-closed')?.classList.toggle('hidden', isPassword);
+        // When switched TO text: hide eye-open, show eye-closed
+        // When switched TO password: show eye-open, hide eye-closed
+        btn.querySelector('.eye-open')?.classList.toggle('hidden', isPassword);
+        btn.querySelector('.eye-closed')?.classList.toggle('hidden', !isPassword);
       }
     });
   });
@@ -387,4 +789,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // Init
   switchTab('personal');
   renderSidebarProfile();
+  populateProfileForm();
 });

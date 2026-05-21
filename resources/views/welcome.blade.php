@@ -275,51 +275,7 @@
         <div id="scroll-progress"></div>
 
         <!-- =================== NAVBAR =================== -->
-        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16">
-                    <!-- Logo -->
-                    <a href="#" class="flex items-center gap-2 group py-16">
-                        <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <img fill="none" src="img/alinealogo.svg" class="h-7">
-                        </div>
-                    </a>
-
-                    <!-- Nav Links (Desktop) -->
-                    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                        <a href="#" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
-                        <a href="{{ route('pinjam') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Pinjam</a>
-                        <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
-                        <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
-                        <a href="{{ route('ulasan') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
-                    </div>
-
-                    <!-- CTA Button -->
-                    <div class="flex items-center gap-3">
-                        <button id="navbar-search-btn" aria-label="Cari" class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
-                        </button>
-                        @if (Route::has('login'))
-                            @auth
-                                <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-gray-900 transition-colors">Dashboard</a>
-                            @else
-                                <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
-                            @endauth
-                        @endif
-                        
-                    </div>
-
-                    <!-- Mobile menu button -->
-                    <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                            <path d="M3 6h14M3 10h14M3 14h14"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </nav>
+        <x-navbar></x-navbar>
 
         <!-- =================== HERO SECTION =================== -->
         <section class="min-h-screen bg-white pt-16 relative overflow-hidden" id="hero-section">
@@ -360,11 +316,11 @@
                         </div>
 
                         <p class="reveal text-gray-500 text-base leading-relaxed max-w-sm mb-8 font-poppins" style="transition-delay:0.35s">
-                            Borrow books from neighbors, share your reviews, and become part of a city-wide reading movement. Free, local, and beautifully simple.                        
+                            Pinjam buku dari sesama pengguna, bagikan ulasanmu, dan jadilah bagian dari gerakan literasi kotamu. Gratis, lokal, dan mudah.                      
                         </p>
                         <div class="reveal flex items-center gap-4" style="transition-delay:0.45s">
                             <a href="{{ route('login') }}" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
-                                <span class="relative z-10">GET STARTED</span>
+                                <span class="relative z-10">Mulai</span>
                                 <svg class="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 7h10M8 3l4 4-4 4"/>
                                 </svg>
@@ -452,7 +408,7 @@
                         </div>
 
                         <h2 class="reveal text-4xl lg:text-5xl font-black text-text leading-tight mb-5" style="transition-delay:0.1s">
-                            Borrow, Read,<br>Give Back.
+                            Pinjam, Baca,<br>Kembalikan.
                         </h2>
 
                         <p class="reveal text-text !opacity-50 font-semibold text-sm leading-relaxed mb-8 max-w-md" style="transition-delay:0.2s">

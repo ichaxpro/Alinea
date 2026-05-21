@@ -206,7 +206,7 @@ function renderReviews(reset = false) {
       <div class="flex items-center justify-between">
         <span class="text-[0.78rem] text-[#444444]/35 italic">Apakah ulasan ini membantu?</span>
         <button class="btn-helpful inline-flex items-center gap-1.5 px-4 py-1.5 text-[0.78rem] font-semibold text-[#444444] border ${voted ? 'border-[#FFDDAF] bg-[#FFDDAF]' : 'border-[#ddd] bg-white'} rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB]" data-id="${r.id}">
-          👍 Membantu (${r.helpful})
+          Membantu (${r.helpful})
         </button>
       </div>`;
     list.appendChild(card);
@@ -278,7 +278,7 @@ document.getElementById('reviewsList').addEventListener('click', e => {
     btn.classList.remove('border-[#ddd]', 'bg-white');
     btn.classList.add('border-[#FFDDAF]', 'bg-[#FFDDAF]');
   }
-  btn.textContent = `👍 Membantu (${review.helpful})`;
+  btn.textContent = `Membantu (${review.helpful})`;
 });
 
 // Load more
