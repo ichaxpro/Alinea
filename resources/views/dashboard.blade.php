@@ -380,5 +380,14 @@
         @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
         .animate-spin { animation: spin 1s linear infinite; }
     </style>
+
+    <script>
+        window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'created_at'])) !!};
+        window.CURRENT_USER.nama = window.CURRENT_USER.name;
+        window.CURRENT_USER.preferred_genres = [];
+        window.CURRENT_USER.foto_profil = null;
+        window.CURRENT_USER.member_since = window.CURRENT_USER.created_at ? window.CURRENT_USER.created_at.substring(0, 10) : '';
+        delete window.CURRENT_USER.created_at;
+    </script>
 </body>
 </html>

@@ -3,12 +3,6 @@
 // ══════════════════════════════════════
 
 // ── MOCK DATA ──
-const CURRENT_USER = {
-  id: 1, nama: 'Rizki', username: 'isoba__', email: 'rizki@yahoo.com',
-  kota: 'Malang', no_telp: '08123456789', bio: 'Pecinta buku fiksi dan thriller.',
-  preferred_genres: ['Fiksi', 'Thriller', 'Misteri'],
-  foto_profil: null, member_since: '2025-12-01',
-};
 
 const ALL_GENRES = ['Fiksi','Non-Fiksi','Thriller','Misteri','Romansa','Sci-Fi','Fantasi','Horror','Biografi','Sejarah','Pengembangan Diri','Bisnis','Puisi','Komik'];
 

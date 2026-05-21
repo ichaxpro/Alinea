@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Api\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,5 +45,13 @@ Route::get('/ulasan_detail', function() {
 })->name('ulasan_detail');
 
 Route::get('/dashboard', function() {
-    return view('dashboard');
-})->name('dashboard');
+    return view('dashboard', ['user' => Auth::user()]);
+})->middleware('auth')->name('dashboard');
+
+Route::get('/daftar', function() {
+    return view('daftar_akun');
+})->name('register');
+
+Route::post('/login', [AuthController::class, 'loginWeb']);
+Route::post('/daftar', [AuthController::class, 'registerWeb']);
+Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
