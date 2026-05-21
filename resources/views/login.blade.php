@@ -35,7 +35,7 @@
     </div>
 
     <div class="flex flex-1 items-center justify-center bg-white px-6 py-[60px] lg:px-[40px] lg:py-0">
-      <form class="w-full max-w-[400px]" onsubmit="event.preventDefault();">
+      <form class="w-full max-w-[400px]" id="login-form">
 
         <div class="mb-[44px] flex items-center gap-1.5">
           <img src="{{ asset('images/alinealogo.svg') }}" alt="Alinea Logo" class="brand-logo">
@@ -59,6 +59,10 @@
           <input type="password" id="password" name="password" autocomplete="current-password" class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[14px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[13px]" />
         </div>
 
+        <div id="login-error" class="hidden mb-4 p-3 rounded-xl bg-red-50 border-[1.5px] border-red-200 text-red-600 text-sm font-medium text-center">
+          Email atau password salah
+        </div>
+
         <button type="submit" id="login-submit-btn" class="mt-2.5 w-full cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-4 font-['Plus_Jakarta_Sans',_sans-serif] text-[16px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
           Masuk
         </button>
@@ -67,7 +71,34 @@
     </div>
 
   </div>
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
+      document.getElementById('login-error').classList.add('hidden');
+      
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if(!res.ok) {
+        const errEl = document.getElementById('login-error');
+        errEl.textContent = data.message || 'Email atau password salah';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      localStorage.setItem('token', data.token);
+      window.location.href = '/dashboard';
+    });
+  </script>
 </body>
 
 </html>
