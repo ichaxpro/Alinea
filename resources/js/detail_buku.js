@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   ulasan.js — Alinea Book Detail Page
+   detail_buku.js — Alinea Book Detail Page
    Data-driven: semua data dari JS, siap integrasi DB
    
    Untuk integrasi database nanti, cukup ganti BOOK_DATA, REVIEWS,

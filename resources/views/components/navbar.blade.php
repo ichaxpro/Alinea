@@ -14,7 +14,7 @@
                         <a href="{{ route('beranda') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
                         <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
                         <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
-                        <a href="{{ route('ulasan') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
+                        <a href="{{ route('katalog') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
                     </div>
 
                     <!-- CTA Button -->
@@ -26,7 +26,7 @@
                         </button>
                        @auth
                            <div class="relative" id="profile-dropdown">
-                            <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-[#FFDDAF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer">
+                            <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer">
                                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                             </button>
 
