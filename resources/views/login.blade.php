@@ -43,7 +43,7 @@
 
         <h1 class="mb-3 text-[26px] font-extrabold tracking-[-1px] text-[#444] lg:text-[32px]">Selamat Datang!</h1>
         <p class="mb-9 text-[14px] font-medium text-[#808080]">
-          Belum punya akun? <a href="#" class="font-bold text-[#353337] no-underline hover:underline">Daftar!</a>
+          Belum punya akun? <a href="{{ route('daftar') }}" class="font-bold text-[#353337] no-underline hover:underline">Daftar!</a>
         </p>
 
         <div class="mb-6">

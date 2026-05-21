@@ -10,6 +10,10 @@ Route::get('/login', function () {
     return view('login');
 })->name('login');
 
+Route::get('/daftar_akun', function () {
+    return view('daftar_akun');
+})->name('daftar');
+
 Route::get('/pinjam', function () {
     return view('pinjam');
 })->name('pinjam');
