@@ -24,13 +24,35 @@
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
                         </button>
-                        @if (Route::has('login'))
-                            @auth
-                                <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-gray-900 transition-colors">Dashboard</a>
-                            @else
-                                <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
-                            @endauth
-                        @endif
+                       @auth
+                           <div class="relative" id="profile-dropdown">
+                            <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-[#FFDDAF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </button>
+
+                            <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
+                                <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dashboard</a>
+                                <form method="POST" action="/logout">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Logout</button>
+                                </form>
+                            </div>
+                           </div>
+
+                           <script>
+                            function toggleDropdown() {
+                                document.getElementById('dropdown-menu').classList.toggle('hidden');
+                            }
+                            document.addEventListener('click', function(e) {
+                                const dd = document.getElementById('profile-dropdown');
+                                if (dd && !dd.contains(e.target)) {
+                                    document.getElementById('dropdown-menu')?.classList.add('hidden');
+                                }
+                            });
+                           </script>
+                           @else
+                           <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
+                       @endauth
                         
                     </div>
 

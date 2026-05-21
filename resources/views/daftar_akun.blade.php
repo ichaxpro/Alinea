@@ -46,7 +46,8 @@
     </div>
 
     <div class="flex flex-1 items-center justify-center bg-white px-6 py-[60px] lg:px-[40px] lg:py-0">
-      <form id="register-form" class="w-full max-w-[450px]" onsubmit="event.preventDefault(); submitForm();">
+      <form method="POST" action="/daftar" id="register-form" class="w-full max-w-[450px]">
+        @csrf
 
         <div class="mb-[30px] flex items-center gap-1.5">
           <img src="{{ asset('images/alinealogo.svg') }}" alt="Alinea Logo" class="brand-logo h-8">
@@ -102,11 +103,11 @@
           <div class="mb-5 flex gap-4">
             <div class="w-1/2">
                 <label for="city" class="mb-2 block text-[13px] font-bold text-[#555358]">Kota</label>
-                <input type="text" id="city" name="city" required placeholder="Kota domisili" class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[12px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[11px]" />
+                <input type="text" id="city" name="kota" required placeholder="Kota domisili" class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[12px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[11px]" />
             </div>
             <div class="w-1/2">
                 <label for="phone" class="mb-2 block text-[13px] font-bold text-[#555358]">Nomor Telepon</label>
-                <input type="tel" id="phone" name="phone" required placeholder="08..." class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[12px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[11px]" />
+                <input type="tel" id="phone" name="no_telp" required placeholder="08..." class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[12px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[11px]" />
             </div>
           </div>
 
@@ -236,11 +237,31 @@
         });
     }
 
-    function submitForm() {
-        // Here you would normally submit the form data to the server
-        alert('Pendaftaran Berhasil! (Simulasi)');
-        window.location.href = "{{ route('login') }}";
-    }
+    // async function submitForm() {
+    //   const res = await fetch('/api/register', {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+    //     body: JSON.stringify({
+    //       name: document.getElementById('name').value,
+    //       username: document.getElementById('username').value,
+    //       email: document.getElementById('email').value,
+    //       password: document.getElementById('password').value,
+    //       password_confirmation: document.getElementById('password_confirmation').value,
+    //       kota: document.getElementById('city').value,
+    //       no_telp: document.getElementById('phone').value,
+    //     }),
+    //   });
+
+    //   const data = await res.json();
+
+    //   if(!res.ok) {
+    //     alert(data.message || 'Pendaftaran gagal');
+    //     return;
+    //   }
+
+    //   localStorage.setItem('token', data.token);
+    //   window.location.href = '/dashboard';
+    // }
   </script>
 
 </body>
