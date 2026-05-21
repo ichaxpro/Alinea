@@ -67,7 +67,7 @@
             {{-- ═══════ HERO HEADING ═══════ --}}
             <div class="mb-8">
                 <h1 class="text-2xl md:text-3xl font-black text-text tracking-[-0.02em] mb-2">
-                    Ulasan Buku
+                    Katalog Buku
                 </h1>
             </div>
 
