@@ -17,51 +17,7 @@
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 
     {{-- ========== NAVBAR (fixed, hides when scrolled away from top) ========== --}}
-    <nav id="main-navbar"
-         class="fixed inset-x-0 top-0 z-50 h-14 bg-white flex items-center border-b-2 border-black px-6 lg:px-10 transition-transform duration-300">
-        <div class="flex items-center justify-between w-full max-w-[1280px] mx-auto">
-
-            {{-- Logo --}}
-            <a href="/" class="flex-shrink-0" aria-label="Alinea — Halaman Utama">
-                <img src="{{ asset('images/alinealogo.svg') }}" alt="Alinea" class="h-8 w-auto"/>
-            </a>
-
-            {{-- Desktop nav links --}}
-            <ul class="hidden md:flex items-center gap-7 list-none">
-                @foreach ([
-                    ['/', 'Beranda'],
-                    ['/pinjam', 'Pinjam'],
-                    ['/komunitas', 'Komunitas'],
-                    ['/klub', 'Klub'],
-                    ['/ulasan', 'Ulasan'],
-                ] as [$href, $label])
-                <li>
-                    <a href="{{ $href }}"
-                       class="relative text-gray-600 text-sm font-medium hover:text-gray-900 transition-colors
-                              after:absolute after:bottom-[-3px] after:left-0 after:w-0 after:h-[2px]
-                              after:bg-accent after:transition-all hover:after:w-full">
-                        {{ $label }}
-                    </a>
-                </li>
-                @endforeach
-            </ul>
-
-            {{-- Action buttons --}}
-            <div class="flex items-center gap-3">
-                <button id="navbar-search-btn" aria-label="Cari"
-                        class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text hover:bg-white/10 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                </button>
-
-                <a href="/login" id="masuk-btn"
-                   class="bg-accent text-text font-bold text-sm px-5 py-2 rounded-full border-2 border-text hover:opacity-90 transition-opacity">
-                    Masuk
-                </a>
-            </div>
-        </div>
-    </nav>
+    <x-navbar></x-navbar>
 
     {{-- ========== PAGE LAYOUT (3-column: left | center | right) ========== --}}
     <div class="min-h-screen pt-14">

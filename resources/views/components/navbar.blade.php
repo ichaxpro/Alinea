@@ -12,10 +12,9 @@
                     <!-- Nav Links (Desktop) -->
                     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <a href="{{ route('beranda') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
-                        <a href="{{ route('pinjam') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Pinjam</a>
                         <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Komunitas</a>
                         <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
-                        <a href="{{ route('ulasan') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Ulasan</a>
+                        <a href="{{ route('ulasan') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
                     </div>
 
                     <!-- CTA Button -->
