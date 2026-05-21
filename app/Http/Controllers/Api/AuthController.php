@@ -87,7 +87,18 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'kota' => 'required|string|max:255',
             'no_telp' => 'required|string|max:20',
+            'genres' => 'nullable|array',
         ]);
+
+        $genres = $request->input('genres', []);
+        $normalized = array_map(function($g) {
+            $map = [
+                'Non-fiksi' => 'Non-Fiksi',
+                'Sci-fi' => 'Sci-Fi',
+                'Horror' => 'Horror',
+            ];
+            return $map[$g] ?? $g;
+        }, $genres);
 
         $user = User::create([
             'name' => $request->name,
@@ -96,6 +107,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'kota' => $request->kota,
             'no_telp' => $request->no_telp, 
+            'preferred_genres' => $normalized,
         ]);
         
         Auth::login($user);

@@ -5,13 +5,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ulasan Buku — Alinea</title>
+    @if(config('services.google_books.key'))
+    <meta name="google-books-key" content="{{ config('services.google_books.key') }}" />
+    @endif
     <meta name="description" content="Jelajahi dan temukan ulasan buku terbaik di Alinea. Cari berdasarkan genre, rating, dan kata kunci." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    @vite(['resources/css/app.css', 'resources/js/ulasan_list.js'])
+    @vite(['resources/css/app.css', 'resources/js/katalog.js'])
+
+    <script>
+        window.__FEATURED_BOOKS__ = {!! json_encode($featuredBooks->map(fn($b) => [
+            'id' => $b->id,
+            'judul' => $b->judul,
+            'penulis' => $b->penulis,
+            'tahun' => $b->tahun,
+            'rating_avg' => 0,
+            'rating_count' => 0,
+            'sinopsis' => $b->sinopsis,
+            'genres' => $b->genres ?? [],
+            'cover' => $b->cover_url,
+            'gradient_from' => $b->gradient_from,
+            'gradient_to' => $b->gradient_to,
+        ])->values()) !!};
+    </script>
 
     <style>
         /* ── Skeleton shimmer ── */

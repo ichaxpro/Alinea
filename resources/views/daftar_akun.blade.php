@@ -129,7 +129,7 @@
             
             <div id="genre-container" class="flex flex-wrap gap-2">
                 @php
-                    $genres = ['Fiksi', 'Non-fiksi', 'Thriller', 'Misteri', 'Romansa', 'Sci-fi', 'Fantasi', 'Horor', 'Biografi', 'Sejarah', 'Pengembangan Diri', 'Bisnis', 'Puisi', 'Komik'];
+                    $genres = ['Fiksi', 'Non-Fiksi', 'Thriller', 'Misteri', 'Romansa', 'Sci-Fi', 'Fantasi', 'Horror', 'Biografi', 'Sejarah', 'Pengembangan Diri', 'Bisnis', 'Puisi', 'Komik'];
                 @endphp
                 
                 @foreach($genres as $index => $genre)

@@ -36,13 +36,13 @@ Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
 
-Route::get('/ulasan', function() {
-    return view('ulasan');
-})->name('ulasan');
+Route::get('/katalog', function() {
+    return view('katalog', ['featuredBooks' => \App\Models\FeaturedBook::all()]);
+})->name('katalog');
 
-Route::get('/ulasan_detail', function() {
-    return view('ulasan_detail');
-})->name('ulasan_detail');
+Route::get('/detail-buku', function() {
+    return view('detail_buku');
+})->name('detail_buku');
 
 Route::get('/dashboard', function() {
     return view('dashboard', ['user' => Auth::user()]);
