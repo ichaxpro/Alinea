@@ -25,6 +25,11 @@ const BOOK_DATA = {
   sinopsis: 'Bujang, si "Tukang Pukul" Keluarga Tong, besar di dunia ekonomi bayangan yang penuh intrik. Meski tangguh, ia harus hadapi pengkhianatan besar. Di balik aksi menegangkan, Bujang mencari makna "pulang" sejati: menaklukkan rasa takut, berdamai dengan masa lalu, dan kembali kepada jati diri serta Tuhan.',
   foto_sampul: null, // null = pakai gradient placeholder
   status: 'tersedia',
+  owners: [
+    { id: 1, name: 'Alinea Library', location: 'Jakarta Pusat' },
+    { id: 2, name: 'Ichachellow', location: 'Bandung' },
+    { id: 3, name: 'Budi Santoso', location: 'Surabaya' }
+  ],
   genres: ['Horror', 'Thriller'],
   // Statistik rating (dihitung dari reviews)
   rating_avg: 4.6,
@@ -95,6 +100,17 @@ function renderBookDetail(book) {
 
   // Modal title
   setTextById('modalBookTitle', book.judul);
+
+  // Pinjam Modal Details
+  setTextById('pinjamBookTitle', book.judul);
+  setTextById('pinjamBookWriter', book.penulis);
+  // Owner is dynamically set upon selection
+  const pinjamCover = document.getElementById('pinjamBookCover');
+  if (pinjamCover && book.foto_sampul) {
+    pinjamCover.innerHTML = `<img src="${book.foto_sampul}" alt="Sampul ${book.judul}" class="w-full h-full object-cover rounded-xl" />`;
+  } else if (pinjamCover) {
+    pinjamCover.innerHTML = `<div class="absolute inset-0 rounded-xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] pointer-events-none"></div>`;
+  }
 
   // Rating
   setHtmlById('bookRating', `
@@ -218,6 +234,30 @@ function renderSimilarBooks() {
 }
 
 // ══════════════════════════════════════
+// RENDER OWNERS TABLE
+// ══════════════════════════════════════
+
+function renderOwnersTable(book) {
+  const tbody = document.getElementById('ownersTableBody');
+  if (!tbody || !book.owners) return;
+  
+  tbody.innerHTML = book.owners.map(owner => `
+    <tr class="border-b-[1.5px] border-[#eee] last:border-0 hover:bg-[#FBFBFB] transition-colors">
+      <td class="py-4 px-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.7rem] font-bold text-[#444444]">${owner.name[0].toUpperCase()}</div>
+          <span class="text-[0.9rem] font-semibold text-[#444444]">${owner.name}</span>
+        </div>
+      </td>
+      <td class="py-4 px-4 text-[0.85rem] text-[#444444]/70">${owner.location}</td>
+      <td class="py-4 px-4 text-center">
+        <button class="btn-pilih-owner px-4 py-1.5 text-[0.8rem] font-bold text-[#444444] bg-white border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB]" data-name="${owner.name}">Pilih</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ══════════════════════════════════════
 // EVENT HANDLERS
 // ══════════════════════════════════════
 
@@ -299,9 +339,65 @@ document.getElementById('simpanBtn').addEventListener('click', function() {
   showToast(this.classList.contains('saved') ? '🔖 Buku disimpan!' : '🔖 Buku dihapus dari simpanan');
 });
 
-// Pinjam button
+// Owners modal
+const ownersModalOverlay = document.getElementById('ownersModalOverlay');
+function openOwnersModal() { ownersModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeOwnersModal() { ownersModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+// Pinjam button modal
+const pinjamModalOverlay = document.getElementById('pinjamModalOverlay');
+function openPinjamModal() { pinjamModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closePinjamModal() { pinjamModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+
+// Handle Pinjam button click: show owners first
 document.getElementById('pinjamBtn').addEventListener('click', () => {
-  showToast('📚 Buku berhasil dipinjam! Cek email untuk detail pickup.');
+  renderOwnersTable(window.__BOOK_DATA__ || BOOK_DATA);
+  openOwnersModal();
+});
+
+// Close listeners for owners modal
+document.getElementById('ownersModalClose').addEventListener('click', closeOwnersModal);
+if (ownersModalOverlay) {
+  ownersModalOverlay.addEventListener('click', e => { if (e.target === ownersModalOverlay) closeOwnersModal(); });
+}
+
+// Close listeners for pinjam modal
+document.getElementById('pinjamModalClose').addEventListener('click', closePinjamModal);
+if (pinjamModalOverlay) {
+  pinjamModalOverlay.addEventListener('click', e => { if (e.target === pinjamModalOverlay) closePinjamModal(); });
+}
+
+document.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') {
+    if (ownersModalOverlay && ownersModalOverlay.classList.contains('active')) closeOwnersModal();
+    if (pinjamModalOverlay && pinjamModalOverlay.classList.contains('active')) closePinjamModal();
+  }
+});
+
+// Handle owner selection
+document.getElementById('ownersTableBody').addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn-pilih-owner');
+  if (!btn) return;
+  
+  const selectedOwnerName = btn.dataset.name;
+  
+  // Update pinjam modal with selected owner
+  setTextById('pinjamBookOwner', selectedOwnerName);
+  
+  closeOwnersModal();
+  openPinjamModal();
+});
+
+// Submit pinjam request
+document.getElementById('submitPinjamBtn').addEventListener('click', () => {
+  const durasi = document.getElementById('durasiPeminjaman').value.trim();
+  const titik = document.getElementById('titikTemu').value.trim();
+  if (!durasi || !titik) { showToast('⚠️ Lengkapi durasi dan titik temu'); return; }
+  
+  closePinjamModal();
+  document.getElementById('durasiPeminjaman').value = '';
+  document.getElementById('titikTemu').value = '';
+  showToast('📚 Permintaan peminjaman diajukan! Cek notifikasi secara berkala.');
 });
 
 // Sort reviews
