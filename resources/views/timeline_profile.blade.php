@@ -131,9 +131,9 @@
                         <div class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                             <div class="flex min-w-[560px] w-full">
                                 @foreach ([
-                                    ['label' => 'Posts', 'active' => true],
-                                    ['label' => 'Achievements', 'active' => false],
-                                    ['label' => 'Tracking', 'active' => false],
+                                    ['label' => 'Unggahan', 'active' => true],
+                                    ['label' => 'Penghargaan', 'active' => false],
+                                    ['label' => 'Riwayat', 'active' => false],
                                     ['label' => 'Media', 'active' => false],
                                 ] as $tab)
                                 <button type="button"
@@ -150,7 +150,7 @@
                         </div>
                     </div>
 
-                    <div id="profile-feed-panel" data-profile-panel="posts" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
+                    <div id="profile-feed-panel" data-profile-panel="unggahan" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
                         @php
                         $profilePosts = [
                             [
@@ -250,7 +250,7 @@
                         @endforeach
                     </div>
 
-                    <div data-profile-panel="achievements" class="hidden mt-5 flex flex-col gap-5">
+                    <div data-profile-panel="penghargaan" class="hidden mt-5 flex flex-col gap-5">
                         @php
                         $achievements = [
                             [
@@ -285,8 +285,69 @@
                         @endforeach
                     </div>
 
-                    <div data-profile-panel="tracking" class="hidden mt-5 py-12 text-center text-sm text-gray-400">
-                        Belum ada tracking.
+                    <div data-profile-panel="riwayat" class="hidden mt-5 flex flex-col gap-8">
+                        @php
+                        $readingNow = [
+                            ['title' => 'The Midnight Library', 'author' => 'Matt Haig', 'image' => 'midnight_library.jpg'],
+                            ['title' => 'Atomic Habits', 'author' => 'James Clear', 'image' => 'atomic_habits.jpg'],
+                            ['title' => 'Sapiens', 'author' => 'Yuval Noah Harari', 'image' => 'sapiens.jpg'],
+                        ];
+
+                        $finishedBooks = [
+                            ['title' => 'Harry Potter', 'author' => 'J.K. Rowling', 'image' => 'book_cover_4.jpg'],
+                            ['title' => 'Educated', 'author' => 'Tara Westover', 'image' => 'book_cover_5.jpg'],
+                            ['title' => 'Laut Bercerita', 'author' => 'Leila S. Chudori', 'image' => 'laut_bercerita.jpg'],
+                            ['title' => 'The Alchemist', 'author' => 'Paulo Coelho', 'image' => 'book_cover_7.jpg'],
+                            ['title' => 'Pachinko', 'author' => 'Min Jin Lee', 'image' => 'book_cover_8.jpg'],
+                            ['title' => 'Bumi Manusia', 'author' => 'Pramoedya A.T.', 'image' => 'book_cover_9.jpg'],
+                            ['title' => 'Dune', 'author' => 'Frank Herbert', 'image' => 'book_cover_10.jpg'],
+                            ['title' => 'Norwegian Wood', 'author' => 'Haruki Murakami', 'image' => 'book_cover_11.jpg'],
+                        ];
+                        @endphp
+
+                        <section>
+                            <div class="flex items-end justify-between mb-3">
+                                <h5 class="text-sm font-bold text-[#222]">Sedang Dibaca</h5>
+                                <span class="text-xs text-gray-400">Reading shelf</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                @foreach ($readingNow as $book)
+                                <article class="group">
+                                    <div class="relative aspect-[2/3] rounded-2xl border-2 border-[#444] overflow-hidden shadow-sm bg-gray-100">
+                                        <img src="{{ asset('images/' . $book['image']) }}" alt="Sampul {{ $book['title'] }}"
+                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
+                                        <span class="absolute top-2 left-2 text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border border-[#444] bg-white/90 text-[#333]">
+                                            Reading now...
+                                        </span>
+                                    </div>
+                                    <div class="pt-2 px-0.5">
+                                        <h4 class="text-[13px] leading-tight font-bold text-[#2a2a2a] line-clamp-1">{{ $book['title'] }}</h4>
+                                        <p class="text-[11px] mt-0.5 text-gray-500 line-clamp-1">{{ $book['author'] }}</p>
+                                    </div>
+                                </article>
+                                @endforeach
+                            </div>
+                        </section>
+
+                        <section>
+                            <div class="flex items-end justify-between mb-3">
+                                <h3 class="text-sm font-bold text-[#222]">Sudah Dibaca</h3>
+                                <span class="text-xs text-gray-400">Finished shelf</span>
+                            </div>
+
+                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                @foreach ($finishedBooks as $book)
+                                <article class="group">
+                                    <div class="aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
+                                        <img src="{{ asset('images/' . $book['image']) }}" alt="Sampul {{ $book['title'] }}"
+                                             class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]">
+                                    </div>
+                                    <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book['title'] }}</p>
+                                </article>
+                                @endforeach
+                            </div>
+                        </section>
                     </div>
 
                     <div data-profile-panel="media" class="hidden mt-5 flex flex-col gap-5">
