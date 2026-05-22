@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\BookController;
+use App\Models\FeaturedBook;
+use App\Http\Controllers\Api\PersonalBookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,7 +50,10 @@ Route::get('/katalog', function() {
 Route::get('/detail-buku/{param}', [BookController::class, 'detail'])->name('detail_buku');
 
 Route::get('/dashboard', function() {
-    return view('dashboard', ['user' => Auth::user()]);
+    return view('dashboard', [
+        'user' => Auth::user(),
+        'featuredBooks' => \App\Models\FeaturedBook::all(),
+    ]);
 })->middleware('auth')->name('dashboard');
 
 Route::get('/daftar', function() {
@@ -58,3 +63,10 @@ Route::get('/daftar', function() {
 Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/personal-books', [PersonalBookController::class, 'index']);
+    Route::post('/personal-books', [PersonalBookController::class, 'store']);
+    Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
+    Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
+});
