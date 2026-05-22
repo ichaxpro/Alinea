@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\BookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -44,9 +45,7 @@ Route::get('/katalog', function() {
     return view('katalog', ['featuredBooks' => \App\Models\FeaturedBook::all()]);
 })->name('katalog');
 
-Route::get('/detail-buku', function() {
-    return view('detail_buku');
-})->name('detail_buku');
+Route::get('/detail-buku/{param}', [BookController::class, 'detail'])->name('detail_buku');
 
 Route::get('/dashboard', function() {
     return view('dashboard', ['user' => Auth::user()]);
