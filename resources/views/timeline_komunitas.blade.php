@@ -59,12 +59,14 @@
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
                 {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
-                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100">
+                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex flex-col gap-3">
                     <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
                         <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">
                             Klub Saya
                         </div>
                     </div>
+
+                    
                 </div>
 
                 {{-- Composer --}}
@@ -86,7 +88,7 @@
                                 @endforeach
                             </div>
 
-                            <input type="text" id="composer-title" placeholder="Judul topik diskusi..." maxlength="120"
+                            <input type="text" id="composer-title" placeholder="Judul Buku" maxlength="120"
                                    class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" />
 
                             <textarea id="composer-body" data-autogrow placeholder="Apa yang ingin kamu diskusikan dengan member klub?" rows="3"
@@ -94,13 +96,15 @@
 
                             {{-- Pilih Klub Dropdown untuk composer --}}
                             <div class="w-full">
-                                <select class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
+                                <select id="composer-klub" class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
                                     <option value="" disabled selected>Pilih Klub Tujuan...</option>
                                     <option value="1">Dunia Fantasi</option>
                                     <option value="2">Sastra Nusantara</option>
                                     <option value="3">Pengulik Kebenaran</option>
                                 </select>
                             </div>
+
+
 
                             {{-- Footer: media icons | char counter | submit --}}
                             <div class="flex items-center justify-between mt-1">
@@ -139,6 +143,16 @@
                     </div>
                 </article>
 
+                {{-- Club Filters (Multi-select) --}}
+                <div class="flex flex-wrap gap-2 pt-1 pb-2" id="club-filters">
+                    @foreach (['Dunia Fantasi', 'Sastra Nusantara', 'Pengulik Kebenaran'] as $klub)
+                    <button data-klub-filter="{{ $klub }}"
+                            class="text-[13px] font-semibold px-5 py-2 rounded-full border-[1.5px] border-[#444] text-[#444] hover:bg-gray-50 transition-colors cursor-pointer bg-white shadow-sm">
+                        {{ $klub }}
+                    </button>
+                    @endforeach
+                </div>
+
                 {{-- Post feed --}}
                 <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
                     @php
@@ -153,7 +167,7 @@
                         ],
                         [
                             'id' => 2, 'name' => 'Dina Rahmawati', 'handle' => '@dina_r',
-                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library', 'klub' => 'Romance Readers',
+                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library', 'klub' => 'Dunia Fantasi',
                             'body' => 'Ada yang bisa kasih rekomendasi buku dengan vibe yang mirip The Midnight Library? Butuh cerita yang ringan tapi memberikan makna mendalam tentang pilihan hidup.',
                             'comments' => '24', 'likes_base' => 89, 'likes_label' => '89',
                             'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
@@ -179,7 +193,7 @@
                     @endphp
 
                     @foreach ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors">
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors" data-post-klub="{{ $post['klub'] }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
