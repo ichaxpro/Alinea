@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard — Alinea</title>
     <meta name="description" content="Kelola profil, koleksi buku, dan transaksi peminjamanmu di Alinea." />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     @if(config('services.google_books.key'))
     <meta name="google-books-key" content="{{ config('services.google_books.key') }}" />
     @endif
@@ -380,6 +381,23 @@
         @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
         .animate-spin { animation: spin 1s linear infinite; }
     </style>
+
+    <script>
+        window.__FEATURED_BOOKS__ = {!! json_encode($featuredBooks->map(fn($b) => [
+            'id' => $b->id,
+            'judul' => $b->judul,
+            'penulis' => $b->penulis,
+            'tahun' => $b->tahun,
+            'sinopsis' => $b->sinopsis,
+            'genres' => $b->genres ?? [],
+            'cover' => $b->cover_url,
+            'isbn' => $b->isbn,
+            'jumlah_halaman' => $b->jumlah_halaman,
+            'kategori' => $b->kategori ?? 'Fiksi',
+            'gradient_from' => $b->gradient_from,
+            'gradient_to' => $b->gradient_to,
+        ])->values()) !!};
+    </script>
 
     <script>
         window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'created_at'])) !!};
