@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   
+  <script>
+    window.__BOOK_DATA__ = {!! json_encode($bookData) !!};
+  </script>
   @vite(['resources/css/app.css', 'resources/js/detail_buku.js'])
 
   <style>
@@ -244,7 +247,7 @@
                     <!-- Logo & Brand -->
                     <div class="col-span-2 lg:col-span-1">
                         <div class="flex items-center gap-2 mb-4">
-                            <img src="images/Alinea_footer.svg" alt="">
+                            <img src="/images/Alinea_footer.svg" alt="">
                         </div>
                         <p class="text-sm text-white opacity-50 leading-relaxed mb-5 max-w-xs">
                             Platform komunitas buku pertama dari dan untuk pembaca Indonesia. Pinjam, Baca, Bagikan.

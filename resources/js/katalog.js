@@ -85,7 +85,7 @@ async function fetchGoogleBooks(query, maxResults = 40) {
     const res = await fetch(url, {headers: {'Accept': 'application/json'}});
     if(!res.ok) throw new Error(`API error: ${res.status}`);
     const data = await res.json();
-    return (data.items || []).map((v, i) => ({...parseBookVolume(v), id:i + 1}));
+    return (data.items || []).map((v, i) => ({...parseBookVolume(v), id:i + 1, google_id: v.id}));
 }
 
 async function fetchOpenLibrary(query, limit = 40) {
@@ -403,7 +403,8 @@ function renderCards(books) {
     <article class="card-animate group bg-white border-[1.5px] border-[#e8e8e8] rounded-2xl overflow-hidden cursor-pointer
                     flex flex-col hover:border-[#444] hover:-translate-y-1 transition-all duration-300"
              style="animation-delay: ${i * 0.06}s"
-             data-book-id="${book.id}">
+             data-book-id="${book.id}"
+             data-google-id="${book.google_id || ''}">
       
       <!-- Cover -->
       <div class="relative aspect-[4/3] overflow-hidden">
@@ -445,7 +446,7 @@ function renderCards(books) {
         </div>
 
         <!-- CTA -->
-        <a href="/detail-buku" 
+        <a href="/detail-buku/${book.id || book.google_id}" 
            class="inline-flex items-center gap-2 px-5 py-2 text-[0.8rem] font-bold text-text bg-[#FFDDAF] rounded-full border-[1.5px] border-text
                   hover:bg-amber-300 hover:-translate-y-px transition-all duration-200 self-start"
            onclick="event.stopPropagation()">
@@ -459,7 +460,10 @@ function renderCards(books) {
   grid.querySelectorAll('[data-book-id]').forEach(card => {
     card.addEventListener('click', (e) => {
       if (e.target.closest('a')) return; // let <a> handle itself
-      window.location.href = '/detail-buku';
+      const id = card.dataset.bookId;
+      const googleId = card.dataset.googleId;
+      const target = googleId || id;
+      if (target) window.location.href = '/detail-buku/' + target;
     });
   });
 }
