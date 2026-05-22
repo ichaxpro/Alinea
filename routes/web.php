@@ -24,6 +24,10 @@ Route::get('/timeline_home', function () {
     return view('timeline_home');
 })->name('timeline_home');
 
+Route::get('/timeline_komunitas', function () {
+    return view('timeline_komunitas');
+})->name('timeline_komunitas');
+
 Route::get('/klub', function () {
     return view('klub');
 })->name('klub');

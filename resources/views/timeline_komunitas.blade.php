@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alinea — Timeline</title>
-    <meta name="description" content="Ikuti timeline buku Alinea — bagikan progres bacaan, ulasan, dan kutipan favoritmu." />
+    <title>Alinea — Timeline Komunitas</title>
+    <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,7 +28,7 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => true,
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false,
                          'icon' => 'beranda', 'url' => route('timeline_home')],
                         ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
                          'icon' => 'profil', 'url' => route('timeline_profile')],
@@ -36,7 +36,7 @@
                          'icon' => 'notifikasi'],
                         ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
                          'icon' => 'pesan'],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
+                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => true, 'icon' => 'community', 'url' => route('timeline_komunitas')]
                     ];
                     @endphp
 
@@ -58,18 +58,12 @@
             {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
-                {{-- Tab switcher (sticky with bg mask so posts slide behind it) --}}
+                {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
                 <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100">
-                    <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden"
-                         role="tablist" aria-label="Pilih umpan">
-                        <button data-tab-btn role="tab" id="tab-for-you" aria-selected="true" aria-controls="feed-panel"
-                                class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full transition-colors cursor-pointer">
-                            For You
-                        </button>
-                        <button data-tab-btn role="tab" id="tab-following" aria-selected="false" aria-controls="feed-panel"
-                                class="flex-1 py-2.5 text-sm text-gray-400 rounded-full transition-colors cursor-pointer hover:bg-gray-50">
-                            Following
-                        </button>
+                    <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
+                        <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">
+                            Klub Saya
+                        </div>
                     </div>
                 </div>
 
@@ -81,8 +75,8 @@
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
                             <div class="flex flex-wrap gap-2">
-                                @foreach (['Dibaca', 'Selesai', 'Kutipan', 'Dll'] as $i => $tag)
-                                <button data-composer-tag id="tag-{{ Str::lower($tag) }}"
+                                @foreach (['Diskusi', 'Tanya Jawab', 'Rekomendasi', 'Pengumuman'] as $i => $tag)
+                                <button data-composer-tag id="tag-{{ Str::slug($tag) }}"
                                         class="text-xs font-medium px-4 py-1 rounded-full border-[1.5px] transition-colors cursor-pointer
                                                {{ $i === 0
                                                    ? 'border-[#444] bg-[#FFDDAF] text-[#444]'
@@ -92,14 +86,24 @@
                                 @endforeach
                             </div>
 
-                            <input type="text" id="composer-title" placeholder="Judul buku (opsional)..." maxlength="120"
+                            <input type="text" id="composer-title" placeholder="Judul topik diskusi..." maxlength="120"
                                    class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" />
 
-                            <textarea id="composer-body" data-autogrow placeholder="Apa yang sedang kamu baca? Bagikan pikiranmu..." rows="3"
+                            <textarea id="composer-body" data-autogrow placeholder="Apa yang ingin kamu diskusikan dengan member klub?" rows="3"
                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
 
+                            {{-- Pilih Klub Dropdown untuk composer --}}
+                            <div class="w-full">
+                                <select class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
+                                    <option value="" disabled selected>Pilih Klub Tujuan...</option>
+                                    <option value="1">Dunia Fantasi</option>
+                                    <option value="2">Sastra Nusantara</option>
+                                    <option value="3">Pengulik Kebenaran</option>
+                                </select>
+                            </div>
+
                             {{-- Footer: media icons | char counter | submit --}}
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between mt-1">
                                 {{-- Media upload icons --}}
                                 <div class="flex items-center gap-2">
                                     <button type="button" aria-label="Unggah gambar" title="Unggah gambar"
@@ -136,40 +140,40 @@
                 </article>
 
                 {{-- Post feed --}}
-                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you">
+                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
                     @php
                     $posts = [
                         [
                             'id' => 1, 'name' => 'Budi Ashcroft', 'handle' => '@isoba__',
-                            'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter',
-                            'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajinasi.',
-                            'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
+                            'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter', 'klub' => 'Dunia Fantasi',
+                            'body' => 'Menurut kalian, apakah tindakan Dumbledore menutupi fakta penting dari Harry di awal cerita bisa dibenarkan? Saya merasa itu terlalu membebani Harry.',
+                            'comments' => '45', 'likes_base' => 120, 'likes_label' => '120',
                             'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
-                            'tag' => 'Dibaca',
+                            'tag' => 'Diskusi',
                         ],
                         [
                             'id' => 2, 'name' => 'Dina Rahmawati', 'handle' => '@dina_r',
-                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library',
-                            'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
-                            'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
+                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library', 'klub' => 'Romance Readers',
+                            'body' => 'Ada yang bisa kasih rekomendasi buku dengan vibe yang mirip The Midnight Library? Butuh cerita yang ringan tapi memberikan makna mendalam tentang pilihan hidup.',
+                            'comments' => '24', 'likes_base' => 89, 'likes_label' => '89',
                             'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Selesai',
+                            'tag' => 'Rekomendasi',
                         ],
                         [
                             'id' => 3, 'name' => 'Ahmad Fauzan', 'handle' => '@afauzan_',
-                            'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Atomic Habits',
-                            'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
-                            'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
+                            'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Bumi Manusia', 'klub' => 'Sastra Nusantara',
+                            'body' => 'Baru menyelesaikan diskusi tentang Minke di pertemuan minggu lalu. Memang karakter Minke sangat kompleks. Jangan lupa pertemuan minggu depan kita akan bahas buku kedua!',
+                            'comments' => '12', 'likes_base' => 54, 'likes_label' => '54',
                             'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Ulasan',
+                            'tag' => 'Pengumuman',
                         ],
                         [
                             'id' => 4, 'name' => 'Reza Mahendra', 'handle' => '@reza_m',
-                            'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'Sapiens',
-                            'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
-                            'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
+                            'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'And Then There Were None', 'klub' => 'Pengulik Kebenaran',
+                            'body' => 'Siapa yang sudah baca buku Agatha Christie ini? Jujur endingnya sangat tidak tertebak! Bagaimana cara kalian menyusun teori saat membaca genre misteri seperti ini?',
+                            'comments' => '31', 'likes_base' => 102, 'likes_label' => '102',
                             'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
-                            'tag' => 'Dibaca',
+                            'tag' => 'Tanya Jawab',
                         ],
                     ];
                     @endphp
@@ -199,9 +203,14 @@
                             <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
                         </div>
 
-                        {{-- Book tag --}}
-                        <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
-                            {{ $post['book'] }}
+                        {{-- Tags: Book and Club --}}
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
+                                📖 {{ $post['book'] }}
+                            </div>
+                            <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
+                                👥 {{ $post['klub'] }}
+                            </div>
                         </div>
                         
                         {{-- Body --}}
@@ -252,32 +261,32 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
-                        <input type="search" id="sidebar-search-input" placeholder="Cari buku atau pengguna..."
+                        <input type="search" id="sidebar-search-input" placeholder="Cari diskusi klub..."
                                class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
                     </div>
                 </div>
 
                 {{-- What's Trending --}}
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <h2 class="font-bold text-[15px] mb-4">What's Trending</h2>
+                    <h2 class="font-bold text-[15px] mb-4">Klub Terpopuler</h2>
 
                     @php
                     $trending = [
-                        ['Harry Potter',          'J.K. Rowling'],
-                        ['Toko Kelontong Namiya', 'Keigo Higashino'],
-                        ['Crime & Punishment',    'Fyodor Dostoyevsky'],
-                        ['The Silent Voice',      'Naoko Yamada'],
-                        ['Your Name',             'Makoto Shinkai'],
+                        ['Romance Readers',          '30 Member'],
+                        ['Dunia Fantasi',            '24 Member'],
+                        ['Buku Anak Muda',           '22 Member'],
+                        ['Sastra Nusantara',         '18 Member'],
+                        ['Filsafat Kopi',            '15 Member'],
                     ];
                     @endphp
 
                     <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $book)
+                        @foreach ($trending as $rank => $club)
                         <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
                             <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
                             <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $book[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $book[1] }}</span>
+                                <span class="font-bold text-[13px] leading-tight block">{{ $club[0] }}</span>
+                                <span class="text-[11px] text-gray-400">{{ $club[1] }}</span>
                             </div>
                         </li>
                         @endforeach
