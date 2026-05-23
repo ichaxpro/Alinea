@@ -98,9 +98,11 @@
                             <div class="w-full">
                                 <select id="composer-klub" class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
                                     <option value="" disabled selected>Pilih Klub Tujuan...</option>
-                                    <option value="1">Dunia Fantasi</option>
-                                    <option value="2">Sastra Nusantara</option>
-                                    <option value="3">Pengulik Kebenaran</option>
+                                    @forelse ($joinedClubs as $club)
+                                    <option value="{{ $club->id }}">{{ $club->nama_klub }}</option>
+                                    @empty
+                                    <option value="" disabled>Belum ada klub yang diikuti</option>
+                                    @endforelse
                                 </select>
                             </div>
 
@@ -145,17 +147,20 @@
 
                 {{-- Club Filters (Multi-select) --}}
                 <div class="flex flex-wrap gap-2 pt-1 pb-2" id="club-filters">
-                    @foreach (['Dunia Fantasi', 'Sastra Nusantara', 'Pengulik Kebenaran'] as $klub)
-                    <button data-klub-filter="{{ $klub }}"
+                    @forelse ($joinedClubs as $klub)
+                    <button data-klub-filter="{{ $klub->nama_klub }}"
                             class="text-[13px] font-semibold px-5 py-2 rounded-full border-[1.5px] border-[#444] text-[#444] hover:bg-gray-50 transition-colors cursor-pointer bg-white shadow-sm">
-                        {{ $klub }}
+                        {{ $klub->nama_klub }}
                     </button>
-                    @endforeach
+                    @empty
+                    <span class="text-sm text-gray-400">Belum ada klub yang diikuti.</span>
+                    @endforelse
                 </div>
 
                 {{-- Post feed --}}
                 <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
                     @php
+                    $joinedClubNames = $joinedClubs->pluck('nama_klub')->values()->all();
                     $posts = [
                         [
                             'id' => 1, 'name' => 'Budi Ashcroft', 'handle' => '@isoba__',
@@ -190,9 +195,13 @@
                             'tag' => 'Tanya Jawab',
                         ],
                     ];
+
+                    $visiblePosts = collect($posts)
+                        ->filter(fn ($post) => in_array($post['klub'], $joinedClubNames, true))
+                        ->values();
                     @endphp
 
-                    @foreach ($posts as $post)
+                    @forelse ($visiblePosts as $post)
                     <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors" data-post-klub="{{ $post['klub'] }}">
 
                         {{-- Header --}}
@@ -262,7 +271,11 @@
                             </div>
                         </div>
                     </article>
-                    @endforeach
+                    @empty
+                    <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 text-sm text-gray-500">
+                        Belum ada post dari klub yang kamu ikuti.
+                    </div>
+                    @endforelse
                 </div>
             </main>
 
@@ -284,26 +297,18 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <h2 class="font-bold text-[15px] mb-4">Klub Terpopuler</h2>
 
-                    @php
-                    $trending = [
-                        ['Romance Readers',          '30 Member'],
-                        ['Dunia Fantasi',            '24 Member'],
-                        ['Buku Anak Muda',           '22 Member'],
-                        ['Sastra Nusantara',         '18 Member'],
-                        ['Filsafat Kopi',            '15 Member'],
-                    ];
-                    @endphp
-
                     <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $club)
+                        @forelse ($popularClubs as $rank => $club)
                         <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
                             <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
                             <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $club[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $club[1] }}</span>
+                                <span class="font-bold text-[13px] leading-tight block" title="{{ $club->nama_klub }}">{{ \Illuminate\Support\Str::limit($club->nama_klub, 22) }}</span>
+                                <span class="text-[11px] text-gray-400">{{ $club->member_count }} Member</span>
                             </div>
                         </li>
-                        @endforeach
+                        @empty
+                        <li class="text-sm text-gray-400">Belum ada klub yang bisa ditampilkan.</li>
+                        @endforelse
                     </ol>
                 </div>
             </aside>

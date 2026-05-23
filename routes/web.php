@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\KlubController;
 use App\Http\Controllers\BookController;
@@ -30,15 +32,16 @@ Route::get('/timeline_home', function () {
 })->name('timeline_home');
 
 
-Route::get('/timeline_komunitas', function () {
-    return view('timeline_komunitas');
-})->name('timeline_komunitas');
+Route::get('/timeline_komunitas', [KlubController::class, 'timelineKomunitas'])->name('timeline_komunitas');
 
 Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
 // Create club endpoint used by the klub page (AJAX)
 Route::post('/klub', [KlubController::class, 'store']);
+Route::patch('/klub/{club}', [KlubController::class, 'update'])->name('klub.update');
+Route::delete('/klub/{club}', [KlubController::class, 'destroy'])->name('klub.destroy');
 Route::post('/klub/{club}/join', [KlubController::class, 'join'])->name('klub.join');
+Route::post('/klub/{club}/leave', [KlubController::class, 'leave'])->name('klub.leave');
 Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('klub.payload');
 
 Route::get('/timeline_profile', function () {
