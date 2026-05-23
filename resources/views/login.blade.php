@@ -54,7 +54,7 @@
         <div class="mb-6">
           <div class="mb-2 flex items-center justify-between">
             <label for="password" class="mb-0 block text-[13px] font-bold text-[#555358]">Kata Sandi</label>
-            <a href="#" class="text-[12px] font-semibold text-[#A0A0A0] no-underline transition-colors duration-200 hover:text-[#353337]">Lupa Kata Sandi?</a>
+            <a href="{{ route('lupa_akun') }}" class="text-[12px] font-semibold text-[#A0A0A0] no-underline transition-colors duration-200 hover:text-[#353337]">Lupa Kata Sandi?</a>
           </div>
           <input type="password" id="password" name="password" autocomplete="current-password" class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-white px-4 py-[14px] font-['Plus_Jakarta_Sans',_sans-serif] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6] focus:px-[15px] focus:py-[13px]" />
         </div>

@@ -69,6 +69,10 @@ Route::get('/timeline_notifikasi', function () {
     return view('timeline_notifikasi');
 })->name('timeline_notifikasi');
 
+Route::get('/lupa_akun', function () {
+    return view('lupa_akun');
+})->name('lupa_akun');
+
 Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
