@@ -64,7 +64,13 @@
                 {{-- Composer --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6">
                     <div class="flex gap-6 items-start">
-                        <div class="w-28 h-28 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                        <div class="w-28 h-28 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 overflow-hidden flex items-center justify-center">
+                            @if($user->foto_profil ?? false)
+                            <img src="{{ Storage::disk('public')->url($user->foto_profil) }}" alt="Avatar" class="w-full h-full object-cover">
+                            @else
+                            <span class="text-4xl font-black text-text/60">D</span>
+                            @endif
+                        </div>
 
                         <div class="flex-1">
                             <div class="flex flex-col">
