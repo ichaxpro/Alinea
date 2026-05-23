@@ -28,6 +28,11 @@ Route::get('/timeline_home', function () {
     return view('timeline_home');
 })->name('timeline_home');
 
+
+Route::get('/timeline_komunitas', function () {
+    return view('timeline_komunitas');
+})->name('timeline_komunitas');
+
 Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
 // Create club endpoint used by the klub page (AJAX)
