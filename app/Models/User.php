@@ -11,8 +11,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres'])]
+#[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres', 'foto_profil'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -35,5 +36,11 @@ class User extends Authenticatable
 
     public function personalBooks(): HasMany {
         return $this->hasMany(PersonalBook::class);
+    }
+
+    protected $appends = ['avatar_url'];
+
+    public function getAvatarUrlAttribute(): ?string {
+        return $this->foto_profil ? Storage::disk('public')->url($this->foto_profil) : null;
     }
 }
