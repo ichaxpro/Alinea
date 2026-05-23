@@ -16,7 +16,7 @@
 
   <div class="flex flex-col min-h-screen w-screen lg:flex-row lg:h-screen lg:min-h-0">
 
-<div class="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#D1EAFA] px-[30px] py-[50px] min-h-[400px] lg:pl-[80px] lg:pr-0 lg:py-0 lg:min-h-0">
+    <div class="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#D1EAFA] px-[30px] py-[50px] min-h-[400px] lg:pl-[80px] lg:pr-0 lg:py-0 lg:min-h-0">
       <div class="relative z-10 -mt-[60px] lg:-mt-[300px]">
         <h1 class="mb-6 text-[36px] font-extrabold leading-[1.15] tracking-[-1.5px] text-[#38556D] sm:text-[44px] lg:text-[58px]">
           <span>Dimana</span>
@@ -40,10 +40,10 @@
         </div>
 
         <div id="step-email">
-        <h1 class="mb-3 text-[26px] font-extrabold tracking-[-1px] text-[#444] lg:text-[32px]">Pemulihan Akun</h1>
-        <p class="mb-9 text-[14px] font-medium text-[#808080]">
-          Untuk membantu menjaga akun Anda tetap aman, masukkan email yang terdaftar untuk menerima kode verifikasi.</a>
-        </p>
+          <h1 class="mb-3 text-[26px] font-extrabold tracking-[-1px] text-[#444] lg:text-[32px]">Pemulihan Akun</h1>
+          <p class="mb-9 text-[14px] font-medium text-[#808080]">
+            Untuk membantu menjaga akun Anda tetap aman, masukkan email yang terdaftar untuk menerima kode verifikasi.
+          </p>
 
           <div class="mb-8">
             <label for="email" class="mb-2 block text-[13px] font-bold text-[#555358]">Alamat Email</label>
@@ -73,8 +73,33 @@
 
           <div class="flex items-center justify-between gap-4">
             <button type="button" onclick="goToEmail()" class="text-sm font-bold text-[#808080] no-underline hover:text-[#353337]">Ganti Email</button>
-            <button type="button" onclick="submitRecovery()" class="px-8 cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-3.5 text-[15px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
+            <button type="button" onclick="goToPassword()" class="px-8 cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-3.5 text-[15px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
               Verifikasi
+            </button>
+          </div>
+        </div>
+
+        <div id="step-password" class="hidden">
+          <h1 class="mb-2 text-[26px] font-extrabold tracking-[-1px] text-[#353337] lg:text-[32px]">Ganti Sandi</h1>
+          <p class="mb-8 text-[14px] font-medium text-[#808080] leading-relaxed">
+            Buat kata sandi baru yang kuat dan mudah Anda ingat.
+          </p>
+
+          <div class="mb-5">
+            <label for="new_password" class="mb-2 block text-[13px] font-bold text-[#555358]">Kata Sandi Baru</label>
+            <input type="password" id="new_password" placeholder="••••••••" 
+              class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-[#EDF3FC] px-4 py-[14px] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6]" />
+          </div>
+
+          <div class="mb-8">
+            <label for="confirm_password" class="mb-2 block text-[13px] font-bold text-[#555358]">Konfirmasi Kata Sandi</label>
+            <input type="password" id="confirm_password" placeholder="••••••••" 
+              class="w-full rounded-xl border-[1.5px] border-[#4D4B50] bg-[#EDF3FC] px-4 py-[14px] text-[15px] text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6]" />
+          </div>
+
+          <div class="flex items-center justify-end">
+            <button type="button" onclick="submitNewPassword()" class="w-full cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-4 text-[16px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
+              Simpan Kata Sandi
             </button>
           </div>
         </div>
@@ -101,13 +126,36 @@
       document.getElementById('step-email').classList.remove('hidden');
     }
 
-    function submitRecovery() {
+    // Fungsi Baru: Masuk ke halaman Ganti Sandi setelah Verifikasi sukses
+    function goToPassword() {
       const codeInput = document.getElementById('code').value;
-      if(codeInput.length < 6) {
+      if(codeInput.trim().length < 6) {
         alert("Masukkan 6 digit kode verifikasi yang valid.");
         return;
       }
-      alert("Kode berhasil diverifikasi! Mengalihkan ke halaman pembuatan password baru.");
+      
+      // Sembunyikan bagian verifikasi kode, tampilkan form ganti sandi
+      document.getElementById('step-verify').classList.add('hidden');
+      document.getElementById('step-password').classList.remove('hidden');
+    }
+
+    function submitNewPassword() {
+      const newPass = document.getElementById('new_password').value;
+      const confirmPass = document.getElementById('confirm_password').value;
+
+      if(newPass === "" || confirmPass === "") {
+        alert("Semua kolom kata sandi wajib diisi!");
+        return;
+      }
+
+      if(newPass !== confirmPass) {
+        alert("Konfirmasi kata sandi tidak cocok!");
+        return;
+      }
+
+      alert("Kata sandi berhasil diperbarui! Silakan login kembali.");
+      // Di sini Anda bisa mengarahkan user kembali ke login asli Laravel
+      window.location.href = "/login"; 
     }
   </script>
 </body>
