@@ -46,7 +46,8 @@
                             </p>
                             <div class="border-t border-gray-100 mt-4 pt-3 flex justify-around text-center">
                                 <div><p id="stat-koleksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Koleksi</p></div>
-                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Transaksi</p></div>
+                                <div><p id="stat-pengajuan" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Pengajuan</p></div>
+                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Riwayat Peminjaman</p></div>
                             </div>
                         </div>
 
@@ -57,7 +58,8 @@
                             $tabs = [
                                 ['key'=>'personal','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>','label'=>'Informasi Pribadi'],
                                 ['key'=>'security','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>','label'=>'Keamanan'],
-                                ['key'=>'transaksi','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','label'=>'Transaksi'],
+                                ['key'=>'pengajuan','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>','label'=>'Pengajuan Pinjam'],
+                                ['key'=>'transaksi','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','label'=>'Riwayat Peminjaman'],
                                 ['key'=>'katalog','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>','label'=>'Katalog Buku'],
                             ];
                             @endphp
@@ -176,7 +178,25 @@
                         </div>
                     </div>
 
-                    {{-- ━━━ PANEL: Transaksi ━━━ --}}
+                    {{-- ━━━ PANEL: Pengajuan Pinjam ━━━ --}}
+                    <div data-tab-panel="pengajuan" class="hidden">
+                        <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-[#FFDDAF]/30 flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="font-bold text-lg">Pengajuan Pinjam</h2>
+                                        <p class="text-xs text-gray-400">Permintaan peminjaman bukumu dari pengguna lain</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="pengajuan-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    {{-- ━━━ PANEL: Riwayat Peminjaman ━━━ --}}
                     <div data-tab-panel="transaksi" class="hidden">
                         <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6 md:p-8">
                             <div class="flex items-center justify-between mb-6">
@@ -185,7 +205,7 @@
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </div>
                                     <div>
-                                        <h2 class="font-bold text-lg">Transaksi Peminjaman</h2>
+                                        <h2 class="font-bold text-lg">Riwayat Peminjaman</h2>
                                         <p class="text-xs text-gray-400">Riwayat peminjaman bukumu</p>
                                     </div>
                                 </div>
