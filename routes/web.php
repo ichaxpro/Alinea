@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\KlubController;
 use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
@@ -27,13 +28,12 @@ Route::get('/timeline_home', function () {
     return view('timeline_home');
 })->name('timeline_home');
 
-Route::get('/timeline_komunitas', function () {
-    return view('timeline_komunitas');
-})->name('timeline_komunitas');
+Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
-Route::get('/klub', function () {
-    return view('klub');
-})->name('klub');
+// Create club endpoint used by the klub page (AJAX)
+Route::post('/klub', [KlubController::class, 'store']);
+Route::post('/klub/{club}/join', [KlubController::class, 'join'])->name('klub.join');
+Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('klub.payload');
 
 Route::get('/timeline_profile', function () {
     return view('timeline_profile');
