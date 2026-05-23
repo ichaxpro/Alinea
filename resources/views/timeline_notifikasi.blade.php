@@ -21,7 +21,39 @@
 
     {{-- ========== PAGE LAYOUT ========== --}}
     <div class="min-h-screen pt-14">
-        <div class="max-w-2xl mx-auto px-4 py-6">
+        <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6">
+
+            {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
+            <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
+                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
+                    @php
+                    $sideNav = [
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false,
+                         'icon' => 'beranda', 'url' => route('timeline_home')],
+                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
+                         'icon' => 'profil', 'url' => route('timeline_profile')],
+                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => true,
+                         'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
+                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
+                         'icon' => 'pesan', 'url' => route('chat')],
+                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
+                    ];
+                    @endphp
+
+                    @foreach ($sideNav as $item)
+                    @php $tag = isset($item['url']) ? 'a' : 'button'; @endphp
+                    <{{ $tag }} id="{{ $item['id'] }}" {!! isset($item['url']) ? 'href="'.$item['url'].'"' : 'data-sidenav' !!} aria-label="{{ $item['label'] }}"
+                            class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
+                                   {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
+                        <div class="w-5 h-5 shrink-0 flex items-center justify-center">
+                            <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
+                        </div>
+
+                        <span class="text-sm">{{ $item['label'] }}</span>
+                    </{{ $tag }}>
+                    @endforeach
+                </div>
+            </aside>
 
             <main class="bg-white border-[1.5px] border-[#444] rounded-2xl overflow-hidden flex flex-col">
                 
