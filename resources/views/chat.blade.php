@@ -59,7 +59,7 @@
     <div id="chatList" class="flex-1 overflow-y-auto px-2 space-y-1">
 
         <div onclick="openChat('bima')" class="chat-item flex gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-gray-100">
-            <div class="w-11 h-11 bg-gray-300 rounded-xl"></div>
+            <div class="w-11 h-11 bg-gray-300 rounded-full"></div>
             <div class="flex-1">
                 <p class="font-medium text-sm">Bima</p>
                 <p class="text-xs text-gray-400">Halo, lagi dimana?</p>
@@ -68,7 +68,7 @@
         </div>
 
         <div onclick="openChat('rizki')" class="chat-item flex gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-gray-100">
-            <div class="w-11 h-11 bg-gray-300 rounded-xl"></div>
+            <div class="w-11 h-11 bg-gray-300 rounded-full"></div>
             <div class="flex-1">
                 <p class="font-medium text-sm">Rizki</p>
                 <p class="text-xs text-gray-400">Tugas udah kelar belum?</p>
@@ -77,7 +77,7 @@
         </div>
 
         <div onclick="openChat('icha')" class="chat-item flex gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-gray-100">
-            <div class="w-11 h-11 bg-gray-300 rounded-xl"></div>
+            <div class="w-11 h-11 bg-gray-300 rounded-full"></div>
             <div class="flex-1">
                 <p class="font-medium text-sm">Icha</p>
                 <p class="text-xs text-gray-400">Nanti meeting yaa</p>
@@ -86,7 +86,7 @@
         </div>
 
         <div onclick="openChat('zaky')" class="chat-item flex gap-3 px-3 py-2 rounded-xl cursor-pointer hover:bg-gray-100">
-            <div class="w-11 h-11 bg-gray-300 rounded-xl"></div>
+            <div class="w-11 h-11 bg-gray-300 rounded-full"></div>
             <div class="flex-1">
                 <p class="font-medium text-sm">Zaky</p>
                 <p class="text-xs text-gray-400">Ngopi kuy</p>

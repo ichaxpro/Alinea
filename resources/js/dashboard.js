@@ -1,7 +1,7 @@
 // ══════════════════════════════════════
 // ALINEA — DASHBOARD JS
 // ══════════════════════════════════════
-
+import { initAvatarUpload } from "./avatar-upload";
 // ── MOCK DATA ──
 
 const ALL_GENRES = ['Fiksi','Non-Fiksi','Thriller','Misteri','Romansa','Sci-Fi','Fantasi','Horror','Biografi','Sejarah','Pengembangan Diri','Bisnis','Puisi','Komik'];
@@ -95,6 +95,8 @@ function toast(msg, type='success') {
   requestAnimationFrame(() => { t.classList.remove('translate-y-3','opacity-0'); });
   setTimeout(() => { t.classList.add('translate-y-3','opacity-0'); setTimeout(()=>t.remove(),300); }, 2500);
 }
+
+window.showToast = toast;
 
 function getInitial(name) { return name ? name.charAt(0).toUpperCase() : '?'; }
 
@@ -907,6 +909,17 @@ function renderSidebarProfile() {
   if (statKoleksi) statKoleksi.textContent = catalogData.length;
   const statTx = $('#stat-transaksi');
   if (statTx) statTx.textContent = TRANSACTIONS.length;
+  const avatarImg = document.getElementById('profile-avatar-img');
+  const avatarInitial = document.getElementById('profile-initial');
+  if (CURRENT_USER.foto_profil) {
+    avatarImg.src = CURRENT_USER.foto_profil;
+    avatarImg.classList.remove('hidden');
+    avatarInitial.classList.add('hidden');
+  } else {
+    avatarImg.classList.add('hidden');
+    avatarInitial.classList.remove('hidden');
+    avatarInitial.textContent = getInitial(CURRENT_USER.nama);
+  }
 }
 
 function populateProfileForm() {
@@ -991,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Init
+  initAvatarUpload();
   switchTab('personal');
   renderSidebarProfile();
   populateProfileForm();

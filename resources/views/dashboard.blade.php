@@ -394,6 +394,7 @@
     </div>
 
     {{-- Toast --}}
+    <x-avatar-crop-modal />
     <div class="fixed bottom-6 left-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
 
     <style>
@@ -420,10 +421,9 @@
     </script>
 
     <script>
-        window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'created_at'])) !!};
+        window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'foto_profil', 'created_at'])) !!};
         window.CURRENT_USER.nama = window.CURRENT_USER.name;
         window.CURRENT_USER.preferred_genres = {!! json_encode($user->preferred_genres ?? []) !!};
-        window.CURRENT_USER.foto_profil = null;
         window.CURRENT_USER.member_since = window.CURRENT_USER.created_at ? window.CURRENT_USER.created_at.substring(0, 10) : '';
         delete window.CURRENT_USER.created_at;
     </script>

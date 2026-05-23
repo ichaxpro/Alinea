@@ -7,6 +7,7 @@ use App\Http\Controllers\KlubController;
 use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
+use App\Http\Controllers\Api\AvatarController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -78,4 +79,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/personal-books', [PersonalBookController::class, 'store']);
     Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
     Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
+    Route::post('/upload-avatar', [AvatarController::class, 'upload']);
 });
