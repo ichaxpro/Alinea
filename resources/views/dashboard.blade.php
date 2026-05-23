@@ -34,7 +34,7 @@
 
                         {{-- Profile Card (populated by JS from CURRENT_USER) --}}
                         <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 text-center">
-                            <div id="profile-avatar-wrapper" class="w-20 h-20 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                            <div id="profile-avatar-wrapper" class="w-20 h-20 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] mx-auto flex items-center justify-center mb-3 overflow-hidden cursor-pointer">
                                 <span id="profile-initial" class="text-2xl font-black text-[#444]/70"></span>
                                 <img id="profile-avatar-img" class="hidden w-full h-full object-cover" src="" alt="Avatar" />
                             </div>
@@ -44,9 +44,10 @@
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                 <span id="sidebar-location"></span>
                             </p>
-                            <div class="border-t border-gray-100 mt-4 pt-3 flex justify-around text-center">
+                            <div class="border-t border-gray-100 mt-4 pt-3 grid grid-cols-3 gap-1 text-center">
                                 <div><p id="stat-koleksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Koleksi</p></div>
-                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Transaksi</p></div>
+                                <div><p id="stat-pengajuan" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Pengajuan</p></div>
+                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Riwayat</p></div>
                             </div>
                         </div>
 
@@ -57,7 +58,8 @@
                             $tabs = [
                                 ['key'=>'personal','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>','label'=>'Informasi Pribadi'],
                                 ['key'=>'security','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>','label'=>'Keamanan'],
-                                ['key'=>'transaksi','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','label'=>'Transaksi'],
+                                ['key'=>'pengajuan','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>','label'=>'Pengajuan Pinjam'],
+                                ['key'=>'transaksi','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','label'=>'Riwayat Peminjaman'],
                                 ['key'=>'katalog','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>','label'=>'Katalog Buku'],
                             ];
                             @endphp
@@ -176,7 +178,25 @@
                         </div>
                     </div>
 
-                    {{-- ━━━ PANEL: Transaksi ━━━ --}}
+                    {{-- ━━━ PANEL: Pengajuan Pinjam ━━━ --}}
+                    <div data-tab-panel="pengajuan" class="hidden">
+                        <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-[#FFDDAF]/30 flex items-center justify-center">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="font-bold text-lg">Pengajuan Pinjam</h2>
+                                        <p class="text-xs text-gray-400">Permintaan peminjaman bukumu dari pengguna lain</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="pengajuan-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    {{-- ━━━ PANEL: Riwayat Peminjaman ━━━ --}}
                     <div data-tab-panel="transaksi" class="hidden">
                         <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6 md:p-8">
                             <div class="flex items-center justify-between mb-6">
@@ -185,7 +205,7 @@
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </div>
                                     <div>
-                                        <h2 class="font-bold text-lg">Transaksi Peminjaman</h2>
+                                        <h2 class="font-bold text-lg">Riwayat Peminjaman</h2>
                                         <p class="text-xs text-gray-400">Riwayat peminjaman bukumu</p>
                                     </div>
                                 </div>
@@ -374,6 +394,7 @@
     </div>
 
     {{-- Toast --}}
+    <x-avatar-crop-modal />
     <div class="fixed bottom-6 left-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
 
     <style>
@@ -400,10 +421,9 @@
     </script>
 
     <script>
-        window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'created_at'])) !!};
+        window.CURRENT_USER = {!! json_encode($user->only(['id', 'name', 'username', 'email', 'kota', 'no_telp', 'foto_profil', 'created_at'])) !!};
         window.CURRENT_USER.nama = window.CURRENT_USER.name;
         window.CURRENT_USER.preferred_genres = {!! json_encode($user->preferred_genres ?? []) !!};
-        window.CURRENT_USER.foto_profil = null;
         window.CURRENT_USER.member_since = window.CURRENT_USER.created_at ? window.CURRENT_USER.created_at.substring(0, 10) : '';
         delete window.CURRENT_USER.created_at;
     </script>
