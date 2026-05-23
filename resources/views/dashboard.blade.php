@@ -44,10 +44,10 @@
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                 <span id="sidebar-location"></span>
                             </p>
-                            <div class="border-t border-gray-100 mt-4 pt-3 flex justify-around text-center">
+                            <div class="border-t border-gray-100 mt-4 pt-3 grid grid-cols-3 gap-1 text-center">
                                 <div><p id="stat-koleksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Koleksi</p></div>
                                 <div><p id="stat-pengajuan" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Pengajuan</p></div>
-                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Riwayat Peminjaman</p></div>
+                                <div><p id="stat-transaksi" class="font-black text-lg">0</p><p class="text-[10px] text-gray-400 uppercase tracking-wider">Riwayat</p></div>
                             </div>
                         </div>
 
