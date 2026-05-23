@@ -21,6 +21,11 @@ const TRANSACTIONS = [
   { id:5, buku:{ judul:'Negeri 5 Menara', penulis:'A. Fuadi', foto_sampul:null }, pemilik:{ nama:'Maya Putri', kota:'Malang' }, tanggal_pinjam:'2026-01-05', tanggal_kembali_rencana:'2026-01-19', tanggal_pengembalian_aktual:'2026-01-20', status_transaksi:'returned', titik_temu_pinjam:'Alun-Alun Malang' },
 ];
 
+const PENGAJUAN_PINJAM = [
+  { id:1, buku:{ judul:'Atomic Habits', penulis:'James Clear', foto_sampul:null }, peminjam:{ nama:'Budi Santoso', kota:'Surabaya' }, tanggal_pinjam:'2026-06-01', tanggal_kembali_rencana:'2026-06-15', status:'pending', titik_temu:'Toko Kopi Kulo' },
+  { id:2, buku:{ judul:'Sapiens', penulis:'Yuval Noah Harari', foto_sampul:null }, peminjam:{ nama:'Rina Wati', kota:'Jakarta' }, tanggal_pinjam:'2026-05-25', tanggal_kembali_rencana:'2026-06-08', status:'accepted', titik_temu:'Stasiun Tugu' },
+];
+
 // ── STATE ──
 let activeTab = 'personal';
 let catalogData = [];
@@ -108,6 +113,7 @@ function switchTab(tab) {
     p.classList.toggle('hidden', p.dataset.tabPanel !== tab);
   });
   if (tab === 'transaksi') renderTransactions();
+  if (tab === 'pengajuan') renderPengajuan();
   if (tab === 'katalog') {
     if (!catalogLoaded) {
       loadCatalog();
@@ -189,6 +195,74 @@ function renderTransactions() {
           ${overdueDay ? `<p class="mt-1">${overdueDay}</p>` : ''}
           <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Titik temu: ${tx.titik_temu_pinjam}</p>
         </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PENGAJUAN PINJAM ──
+window.handlePengajuanAction = function(id, action) {
+  const p = PENGAJUAN_PINJAM.find(x => x.id === id);
+  if (!p) return;
+  if (action === 'terima') {
+    p.status = 'accepted';
+    toast('Pengajuan diterima! Silakan negosiasi di chat.', 'success');
+  } else if (action === 'tolak') {
+    p.status = 'rejected';
+    toast('Pengajuan ditolak.', 'info');
+  }
+  renderPengajuan();
+};
+
+function renderPengajuan() {
+  const list = $('#pengajuan-list');
+  if (!list) return;
+
+  const statEl = $('#stat-pengajuan');
+  if (statEl) statEl.textContent = PENGAJUAN_PINJAM.filter(x => x.status === 'pending').length;
+
+  if (PENGAJUAN_PINJAM.length === 0) {
+    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3">📭</div><p class="text-sm text-gray-400 font-medium">Belum ada pengajuan pinjam.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = PENGAJUAN_PINJAM.map(p => {
+    let actions = '';
+    if (p.status === 'pending') {
+      actions = `
+        <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
+          <button onclick="handlePengajuanAction(${p.id}, 'tolak')" class="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">Tolak</button>
+          <button onclick="handlePengajuanAction(${p.id}, 'terima')" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] hover:bg-[#ffcf90] border-[1.5px] border-[#444] rounded-lg transition-colors cursor-pointer">Terima</button>
+          <a href="/chat" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>
+        </div>
+      `;
+    } else {
+      actions = `
+        <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
+          <span class="text-xs font-medium ${p.status === 'accepted' ? 'text-green-600' : 'text-red-500'}">${p.status === 'accepted' ? '✓ Diterima' : '✕ Ditolak'}</span>
+          ${p.status === 'accepted' ? `<a href="/chat" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>` : ''}
+        </div>
+      `;
+    }
+
+    return `
+    <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:shadow-md transition-shadow duration-200">
+      <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+        <div class="w-14 h-20 rounded-lg bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
+          <span class="text-lg font-black text-[#444]/60">${getInitial(p.buku.judul)}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <h3 class="font-bold text-[15px] text-[#444] truncate">${p.buku.judul}</h3>
+          </div>
+          <p class="text-xs text-gray-400 mb-2">${p.buku.penulis}</p>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+            <span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Peminjam: ${p.peminjam.nama}</span>
+            <span class="flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${fmt(p.tanggal_pinjam)} — ${fmt(p.tanggal_kembali_rencana)}</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Titik temu: ${p.titik_temu}</p>
+        </div>
+        ${actions}
       </div>
     </div>`;
   }).join('');
