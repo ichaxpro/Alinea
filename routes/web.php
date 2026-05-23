@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\KlubController;
+use App\Http\Controllers\BookController;
+use App\Models\FeaturedBook;
+use App\Http\Controllers\Api\PersonalBookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,13 +28,17 @@ Route::get('/timeline_home', function () {
     return view('timeline_home');
 })->name('timeline_home');
 
+
 Route::get('/timeline_komunitas', function () {
     return view('timeline_komunitas');
 })->name('timeline_komunitas');
 
-Route::get('/klub', function () {
-    return view('klub');
-})->name('klub');
+Route::get('/klub', [KlubController::class, 'index'])->name('klub');
+
+// Create club endpoint used by the klub page (AJAX)
+Route::post('/klub', [KlubController::class, 'store']);
+Route::post('/klub/{club}/join', [KlubController::class, 'join'])->name('klub.join');
+Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('klub.payload');
 
 Route::get('/timeline_profile', function () {
     return view('timeline_profile');
@@ -44,12 +52,13 @@ Route::get('/katalog', function() {
     return view('katalog', ['featuredBooks' => \App\Models\FeaturedBook::all()]);
 })->name('katalog');
 
-Route::get('/detail-buku', function() {
-    return view('detail_buku');
-})->name('detail_buku');
+Route::get('/detail-buku/{param}', [BookController::class, 'detail'])->name('detail_buku');
 
 Route::get('/dashboard', function() {
-    return view('dashboard', ['user' => Auth::user()]);
+    return view('dashboard', [
+        'user' => Auth::user(),
+        'featuredBooks' => \App\Models\FeaturedBook::all(),
+    ]);
 })->middleware('auth')->name('dashboard');
 
 Route::get('/daftar', function() {
@@ -63,3 +72,10 @@ Route::get('/timeline_notifikasi', function () {
 Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/personal-books', [PersonalBookController::class, 'index']);
+    Route::post('/personal-books', [PersonalBookController::class, 'store']);
+    Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
+    Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
+});
