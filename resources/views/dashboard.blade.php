@@ -34,7 +34,7 @@
 
                         {{-- Profile Card (populated by JS from CURRENT_USER) --}}
                         <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 text-center">
-                            <div id="profile-avatar-wrapper" class="w-20 h-20 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] mx-auto flex items-center justify-center mb-3 overflow-hidden">
+                            <div id="profile-avatar-wrapper" class="w-20 h-20 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] mx-auto flex items-center justify-center mb-3 overflow-hidden cursor-pointer">
                                 <span id="profile-initial" class="text-2xl font-black text-[#444]/70"></span>
                                 <img id="profile-avatar-img" class="hidden w-full h-full object-cover" src="" alt="Avatar" />
                             </div>
