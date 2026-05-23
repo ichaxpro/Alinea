@@ -29,6 +29,43 @@ class PersonalBookController extends Controller
         $data['status'] = 'tersedia';
         $data['is_available'] = true;
         $book = $request->user()->personalBooks()->create($data);
+
+        // Also add to FeaturedBook if not exists so it appears in the catalog page
+        $featuredBookQuery = \App\Models\FeaturedBook::query();
+        if (!empty($data['isbn'])) {
+            $featuredBookQuery->where('isbn', $data['isbn']);
+        } else {
+            $featuredBookQuery->where('judul', $data['judul'])->where('penulis', $data['penulis']);
+        }
+        
+        if (!$featuredBookQuery->exists()) {
+            $gradients = [
+                ['from' => '#FFDDAF', 'to' => '#C7E7FF'],
+                ['from' => '#C7E7FF', 'to' => '#D4F6FF'],
+                ['from' => '#FFDDAF', 'to' => '#D4F6FF'],
+                ['from' => '#D4F6FF', 'to' => '#FFDDAF'],
+            ];
+            $gradient = $gradients[array_rand($gradients)];
+
+            \App\Models\FeaturedBook::create([
+                'judul' => $data['judul'],
+                'penulis' => $data['penulis'],
+                'tahun' => $data['tahun_terbit'] ?? null,
+                'isbn' => $data['isbn'] ?? null,
+                'kategori' => $data['kategori'],
+                'cover_url' => $data['cover_url'] ?? null,
+                'jumlah_halaman' => $data['jumlah_halaman'] ?? null,
+                'status' => 'tersedia',
+                'gradient_from' => $gradient['from'],
+                'gradient_to' => $gradient['to'],
+                'genres' => [$data['kategori']],
+                'sinopsis' => 'Belum ada sinopsis.',
+                'bahasa' => 'Indonesia',
+                'rating_avg' => 0,
+                'rating_count' => 0,
+            ]);
+        }
+
         return response()->json($book, 201);
     }
 

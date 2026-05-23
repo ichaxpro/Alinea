@@ -172,7 +172,47 @@
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="ownersModalClose" aria-label="Tutup">&times;</button>
         
         <h3 class="text-2xl font-extrabold mb-2 text-text">Pilih Pemilik Buku</h3>
-        <p class="text-[0.9rem] text-text/60 mb-6">Berikut adalah daftar pengguna yang memiliki buku ini dan bersedia meminjamkannya.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <p class="text-[0.9rem] text-text/60 m-0">Berikut daftar pengguna yang memiliki buku ini.</p>
+          <div class="flex items-center gap-2">
+            <label for="lokasiFilter" class="text-[0.8rem] font-semibold text-[#444444] whitespace-nowrap">Filter Lokasi:</label>
+            <select id="lokasiFilter" class="font-['Poppins'] text-[0.8rem] text-[#444444] border-[1.5px] border-[#ddd] rounded-lg px-2 py-1.5 outline-none bg-white focus:border-[#3FA9F5]">
+              <option value="all">Semua Jawa Timur</option>
+              <option value="Bangkalan">Bangkalan</option>
+              <option value="Banyuwangi">Banyuwangi</option>
+              <option value="Batu">Batu</option>
+              <option value="Blitar">Blitar</option>
+              <option value="Bojonegoro">Bojonegoro</option>
+              <option value="Bondowoso">Bondowoso</option>
+              <option value="Gresik">Gresik</option>
+              <option value="Jember">Jember</option>
+              <option value="Jombang">Jombang</option>
+              <option value="Kediri">Kediri</option>
+              <option value="Lamongan">Lamongan</option>
+              <option value="Lumajang">Lumajang</option>
+              <option value="Madiun">Madiun</option>
+              <option value="Magetan">Magetan</option>
+              <option value="Malang">Malang</option>
+              <option value="Mojokerto">Mojokerto</option>
+              <option value="Nganjuk">Nganjuk</option>
+              <option value="Ngawi">Ngawi</option>
+              <option value="Pacitan">Pacitan</option>
+              <option value="Pamekasan">Pamekasan</option>
+              <option value="Pasuruan">Pasuruan</option>
+              <option value="Ponorogo">Ponorogo</option>
+              <option value="Probolinggo">Probolinggo</option>
+              <option value="Sampang">Sampang</option>
+              <option value="Sidoarjo">Sidoarjo</option>
+              <option value="Situbondo">Situbondo</option>
+              <option value="Sumenep">Sumenep</option>
+              <option value="Surabaya">Surabaya</option>
+              <option value="Trenggalek">Trenggalek</option>
+              <option value="Tuban">Tuban</option>
+              <option value="Tulungagung">Tulungagung</option>
+            </select>
+          </div>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
