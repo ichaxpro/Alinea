@@ -55,7 +55,7 @@ class BookController extends Controller
             'sinopsis' => $book->sinopsis ?? '',
             'foto_sampul' => $book->cover_url,
             'status' => $book->status ?? 'tersedia',
-            'owners' => [],
+            'owners' => $this->getOwners($book->isbn, $book->judul, $book->penulis),
             'genres' => $book->genres ?? [],
             'rating_avg' => (float) ($book->rating_avg ?? 0),
             'rating_count' => (int) ($book->rating_count ?? 0),
@@ -112,11 +112,47 @@ class BookController extends Controller
             'sinopsis' => $info['description'] ?? '',
             'foto_sampul' => $coverUrl,
             'status' => 'tersedia',
-            'owners' => [],
+            'owners' => $this->getOwners($isbn, $judul, isset($info['authors']) ? implode(', ', $info['authors']) : ''),
             'genres' => $info['categories'] ?? ['Fiksi'],
             'rating_avg' => (float) ($info['averageRating'] ?? 0),
             'rating_count' => (int) ($info['ratingCount'] ?? 0),
             'rating_distribution' => (object) [],
         ];
+    }
+
+    private function getOwners(?string $isbn, string $judul, string $penulis): array {
+        $query = \App\Models\PersonalBook::with('user')->where('is_available', true);
+        
+        $query->where(function($q) use ($isbn, $judul, $penulis) {
+            if (!empty($isbn)) {
+                $q->where('isbn', $isbn)->orWhere(function($q2) use ($judul, $penulis) {
+                    $q2->where('judul', 'like', "%{$judul}%")->where('penulis', 'like', "%{$penulis}%");
+                });
+            } else {
+                $q->where('judul', 'like', "%{$judul}%")->where('penulis', 'like', "%{$penulis}%");
+            }
+        });
+
+        $owners = [];
+        foreach($query->get() as $pb) {
+            if ($pb->user) {
+                $owners[] = [
+                    'id' => $pb->user->id,
+                    'name' => $pb->user->name ?? $pb->user->username,
+                    'location' => $pb->user->kota ?? 'Indonesia',
+                ];
+            }
+        }
+
+        $uniqueOwners = [];
+        $seen = [];
+        foreach ($owners as $owner) {
+            if (!in_array($owner['id'], $seen)) {
+                $seen[] = $owner['id'];
+                $uniqueOwners[] = $owner;
+            }
+        }
+        
+        return $uniqueOwners;
     }
 }

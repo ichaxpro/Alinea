@@ -239,11 +239,35 @@ function renderSimilarBooks() {
 // RENDER OWNERS TABLE
 // ══════════════════════════════════════
 
-function renderOwnersTable(book) {
+// Mocking current user for demonstration purposes. In production, this can come from window.__USER_DATA__
+const CURRENT_USER = {
+  name: 'Current User',
+  domicile: 'Surabaya' 
+};
+
+function renderOwnersTable(book, filterLoc = 'all') {
   const tbody = document.getElementById('ownersTableBody');
   if (!tbody || !book.owners) return;
   
-  tbody.innerHTML = book.owners.map(owner => `
+  // Filter by location
+  let filteredOwners = [...book.owners];
+  if (filterLoc !== 'all') {
+    filteredOwners = filteredOwners.filter(owner => owner.location === filterLoc);
+  }
+  
+  // Sort so that owners with the same domicile as the current user appear first
+  filteredOwners.sort((a, b) => {
+    const aMatch = a.location === CURRENT_USER.domicile ? 1 : 0;
+    const bMatch = b.location === CURRENT_USER.domicile ? 1 : 0;
+    return bMatch - aMatch;
+  });
+
+  if (filteredOwners.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-[0.85rem] text-[#444444]/60">Tidak ada pemilik di lokasi ini yang memiliki buku.</td></tr>`;
+    return;
+  }
+  
+  tbody.innerHTML = filteredOwners.map(owner => `
     <tr class="border-b-[1.5px] border-[#eee] last:border-0 hover:bg-[#FBFBFB] transition-colors">
       <td class="py-4 px-4">
         <div class="flex items-center gap-3">
@@ -361,6 +385,14 @@ document.getElementById('pinjamBtn').addEventListener('click', () => {
 document.getElementById('ownersModalClose').addEventListener('click', closeOwnersModal);
 if (ownersModalOverlay) {
   ownersModalOverlay.addEventListener('click', e => { if (e.target === ownersModalOverlay) closeOwnersModal(); });
+}
+
+// Handle Location Filter Dropdown
+const lokasiFilter = document.getElementById('lokasiFilter');
+if (lokasiFilter) {
+  lokasiFilter.addEventListener('change', (e) => {
+    renderOwnersTable(window.__BOOK_DATA__, e.target.value);
+  });
 }
 
 // Close listeners for pinjam modal
