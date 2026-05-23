@@ -233,7 +233,7 @@ function renderPengajuan() {
     if (p.status === 'pending') {
       actions = `
         <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
-          <button onclick="handlePengajuanAction(${p.id}, 'tolak')" class="px-4 py-2 text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors cursor-pointer">Tolak</button>
+          <button onclick="handlePengajuanAction(${p.id}, 'tolak')" class="px-4 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border-[1.5px] border-red-200 rounded-lg transition-colors cursor-pointer">Tolak</button>
           <button onclick="handlePengajuanAction(${p.id}, 'terima')" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] hover:bg-[#ffcf90] border-[1.5px] border-[#444] rounded-lg transition-colors cursor-pointer">Terima</button>
           <a href="/chat" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>
         </div>
