@@ -39,7 +39,10 @@
                 <div class="relative">
                     <select id="klub-filter-category"
                             class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-9 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors">
-                        <option value="">Semua Kategori</option>
+                        <option value="">Semua Genre</option>
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat }}">{{ $cat }}</option>
+                        @endforeach
                     </select>
                     <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#444]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"/>
@@ -295,16 +298,12 @@
                                     @foreach ($categories as $cat)
                                         <option value="{{ $cat }}">{{ $cat }}</option>
                                     @endforeach
-                                    <option value="__custom__">+ Kategori Lain...</option>
                                 </select>
                                 <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"/>
                                 </svg>
                             </div>
-                            {{-- Custom category input (hidden by default) --}}
-                            <input type="text" id="input-kategori-custom" name="kategori_custom" maxlength="50"
-                                   placeholder="Ketik kategori baru..."
-                                   class="hidden w-full border-[1.5px] border-gray-200 rounded-xl px-4 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors bg-[#FBFBFB] mt-2" />
+                            {{-- No custom categories — users must choose from katalog genres only --}}
                         </div>
 
                         {{-- Deskripsi --}}

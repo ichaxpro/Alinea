@@ -29,6 +29,8 @@ function mapClub(c) {
         adminUsername:   c.admin_username || null,
         membersData:     c.members_data || [],
         joined:          Boolean(c.joined),
+        ownerId:         c.owner?.id ?? c.owner_id ?? null,
+        isOwner:         Boolean(c.owner && CURRENT_USER && Number(c.owner.id) === Number(CURRENT_USER.id)),
     };
 }
 
@@ -48,10 +50,15 @@ const modalBackdrop  = document.getElementById('klub-modal-backdrop');
 const modalPanel     = document.getElementById('klub-modal-panel');
 const modalContent   = document.getElementById('klub-modal-content');
 const modalClose     = document.getElementById('klub-modal-close');
+const submitBtn      = document.getElementById('btn-submit-klub');
 
 // ── Populate category filter from data ──
 function populateCategories() {
-    const cats = [...new Set(CLUBS.map(c => c.category))].sort();
+    // If server rendered options are present, don't duplicate
+    if (filterCategory.options.length > 1) return;
+
+    const serverCats = window.__KLUB_CATEGORIES__ || null;
+    const cats = serverCats ? serverCats.slice().sort() : [...new Set(CLUBS.map(c => c.category))].sort();
     cats.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;
@@ -99,6 +106,18 @@ function getJoinButtonLabel(club) {
     return club.joined ? 'Sudah Bergabung' : 'Bergabung';
 }
 
+function getPrimaryActionLabel(club) {
+    if (club.isOwner) return 'Edit Klub';
+    if (club.joined) return 'Keluar Klub';
+    return 'Bergabung';
+}
+
+function getPrimaryActionKind(club) {
+    if (club.isOwner) return 'edit';
+    if (club.joined) return 'leave';
+    return 'join';
+}
+
 function getMemberRoleLabel(role) {
     switch (role) {
         case 'owner':
@@ -122,6 +141,19 @@ function syncClubFromResponse(data) {
     }
 
     return updatedClub;
+}
+
+function getClubPayload(clubId) {
+    return fetch(`/klub/${clubId}/payload`, {
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin',
+    }).then(async (response) => {
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(errorBody.message || 'Gagal memuat data klub');
+        }
+        return response.json();
+    });
 }
 
 function getUserAvatar(user) {
@@ -178,6 +210,185 @@ function setJoined(clubId) {
         });
 }
 
+function leaveClub(clubId) {
+    const club = CLUBS.find(c => c.id === clubId);
+    if (!club || !CURRENT_USER || club.isOwner) return;
+
+    fetch(`/klub/${clubId}/leave`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({}),
+    })
+        .then(async (response) => {
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => ({}));
+                throw { status: response.status, message: errorBody.message || 'Gagal keluar klub' };
+            }
+            return response.json();
+        })
+        .then((data) => {
+            const updatedClub = syncClubFromResponse(data);
+            applyFilters(false);
+            if (!modal.classList.contains('hidden')) {
+                openModal(updatedClub);
+            }
+        })
+        .catch((err) => {
+            alert(typeof err === 'string' ? err : (err?.message || 'Gagal keluar klub.'));
+        });
+}
+
+let deleteConfirmEl = null;
+
+function closeDeleteConfirm() {
+    if (!deleteConfirmEl) return;
+    deleteConfirmEl.classList.add('opacity-0');
+    deleteConfirmEl.classList.add('pointer-events-none');
+    setTimeout(() => {
+        deleteConfirmEl?.remove();
+        deleteConfirmEl = null;
+        document.body.style.overflow = '';
+    }, 220);
+}
+
+function openDeleteConfirm(club) {
+    if (!club || !CURRENT_USER || !club.isOwner) return;
+
+    closeDeleteConfirm();
+
+    deleteConfirmEl = document.createElement('div');
+    deleteConfirmEl.className = 'fixed inset-0 z-[99999] flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm transition-opacity duration-200 opacity-0';
+    deleteConfirmEl.innerHTML = `
+        <div class="w-full max-w-md bg-white border-[1.5px] border-[#444] rounded-3xl shadow-2xl overflow-hidden">
+            <div class="px-6 pt-6 pb-4 bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-b-[1.5px] border-[#444]">
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#444]">Konfirmasi Hapus</p>
+                <h3 class="mt-2 text-lg font-bold text-[#444] break-words">Apakah anda yakin ingin menghapus klub ini?</h3>
+            </div>
+            <div class="px-6 py-5">
+                <div class="bg-gray-50 border border-gray-200 rounded-2xl p-4 mb-5">
+                    <p class="text-xs text-gray-400 mb-1">Nama klub</p>
+                    <p class="text-sm font-semibold text-[#444] break-words">${club.name}</p>
+                </div>
+                <p class="text-sm text-gray-500 leading-relaxed">Tindakan ini akan menghapus klub beserta data anggota yang terhubung. Aksi ini tidak bisa dibatalkan.</p>
+                <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+                    <button type="button" data-delete-cancel class="px-5 py-2.5 rounded-full border-[1.5px] border-gray-300 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors">
+                        Batal
+                    </button>
+                    <button type="button" data-delete-confirm class="px-5 py-2.5 rounded-full border-[1.5px] border-red-600 bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-colors">
+                        Ya, hapus klub
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    deleteConfirmEl.addEventListener('click', (e) => {
+        if (e.target === deleteConfirmEl) {
+            closeDeleteConfirm();
+        }
+    });
+
+    deleteConfirmEl.querySelector('[data-delete-cancel]')?.addEventListener('click', closeDeleteConfirm);
+    deleteConfirmEl.querySelector('[data-delete-confirm]')?.addEventListener('click', () => {
+        closeDeleteConfirm();
+        deleteClub(club.id);
+    });
+
+    document.body.appendChild(deleteConfirmEl);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        deleteConfirmEl?.classList.remove('opacity-0');
+    });
+}
+
+function deleteClub(clubId) {
+    const club = CLUBS.find(c => c.id === clubId);
+    if (!club || !CURRENT_USER || !club.isOwner) return;
+
+    fetch(`/klub/${clubId}`, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({}),
+    })
+        .then(async (response) => {
+            if (!response.ok) {
+                const errorBody = await response.json().catch(() => ({}));
+                throw { status: response.status, message: errorBody.message || 'Gagal menghapus klub' };
+            }
+            return response.json();
+        })
+        .then(() => {
+            const index = CLUBS.findIndex(c => c.id === clubId);
+            if (index >= 0) CLUBS.splice(index, 1);
+            applyFilters();
+            closeModal();
+        })
+        .catch((err) => {
+            alert(typeof err === 'string' ? err : (err?.message || 'Gagal menghapus klub.'));
+        });
+}
+
+function openEditClub(clubId) {
+    const club = CLUBS.find(c => c.id === clubId);
+    if (!club || !club.isOwner) return;
+
+    const form = document.getElementById('buat-klub-form');
+    const modalEl = document.getElementById('buat-klub-modal');
+    const panelEl = document.getElementById('buat-klub-panel');
+    const bannerEl = document.getElementById('buat-klub-preview-banner');
+    const titleInput = document.getElementById('input-nama-klub');
+    const categorySelect = document.getElementById('input-kategori');
+    const descriptionInput = document.getElementById('input-deskripsi');
+    const gradientFromInput = document.getElementById('input-gradient-from');
+    const gradientToInput = document.getElementById('input-gradient-to');
+    const fotoLabel = document.getElementById('foto-klub-label');
+    const submitBtn = document.getElementById('btn-submit-klub');
+
+    if (!form || !modalEl || !panelEl || !bannerEl || !titleInput || !categorySelect || !descriptionInput || !gradientFromInput || !gradientToInput || !submitBtn) return;
+
+    form.dataset.mode = 'edit';
+    form.dataset.clubId = String(club.id);
+    form.action = `/klub/${club.id}`;
+
+    titleInput.value = club.name || '';
+    descriptionInput.value = club.fullDescription || club.description || '';
+    gradientFromInput.value = club.gradientFrom || '#FFDDAF';
+    gradientToInput.value = club.gradientTo || '#C7E7FF';
+    bannerEl.style.background = `linear-gradient(135deg, ${gradientFromInput.value}, ${gradientToInput.value})`;
+    submitBtn.textContent = 'Simpan Perubahan';
+
+    if (fotoLabel) {
+        fotoLabel.textContent = club.coverUrl ? 'Cover saat ini digunakan' : 'Klik atau seret gambar ke sini';
+        fotoLabel.className = club.coverUrl ? 'text-xs text-[#444] font-medium' : 'text-xs text-gray-300';
+    }
+
+    const categories = Array.from(categorySelect.options).map(opt => opt.value);
+    if (categories.includes(club.category)) {
+        categorySelect.value = club.category;
+    } else {
+        categorySelect.value = '';
+    }
+
+    modalEl.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        panelEl.classList.remove('scale-95', 'opacity-0');
+        panelEl.classList.add('scale-100', 'opacity-100');
+    });
+}
+
 // ── Render Pagination ──
 function renderPagination(totalPages) {
     if (totalPages <= 1) { pagination.innerHTML = ''; return; }
@@ -228,7 +439,7 @@ function renderCards(clubs) {
             </div>
             <p class="text-xs text-gray-500 leading-relaxed flex-1 line-clamp-3 overflow-hidden break-words">${club.description}</p>
             <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
-                <button data-join-btn="${club.id}" ${club.joined ? 'disabled' : ''} class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors ${club.joined ? 'opacity-70 cursor-not-allowed hover:bg-[#FFDDAF]' : ''}">${getJoinButtonLabel(club)}</button>
+                <button data-primary-action-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors ${club.joined || club.isOwner ? '' : ''}">${getPrimaryActionLabel(club)}</button>
                 <span class="text-xs font-semibold text-gray-400">${club.members} Member</span>
             </div>
         </article>
@@ -239,10 +450,24 @@ function renderCards(clubs) {
             openModal(CLUBS.find(c => c.id === Number(card.dataset.clubId)));
         });
     });
-    grid.querySelectorAll('[data-join-btn]').forEach(btn => {
+    grid.querySelectorAll('[data-primary-action-btn]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
-            setJoined(Number(btn.dataset.joinBtn));
+            const clubId = Number(btn.dataset.primaryActionBtn);
+            const club = CLUBS.find(c => c.id === clubId);
+            if (!club) return;
+
+            if (club.isOwner) {
+                openEditClub(clubId);
+                return;
+            }
+
+            if (club.joined) {
+                leaveClub(clubId);
+                return;
+            }
+
+            setJoined(clubId);
         });
     });
 }
@@ -250,6 +475,17 @@ function renderCards(clubs) {
 // ── Detail Modal ──
 function openModal(club) {
     if (!club) return;
+    const actionButtonsHtml = club.isOwner
+        ? `
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button data-edit-club-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0">Edit Klub</button>
+                <button data-delete-club-btn="${club.id}" class="bg-red-500 text-white font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-red-600 hover:bg-red-600 transition-colors flex-shrink-0">Hapus Klub</button>
+            </div>
+        `
+        : club.joined
+            ? `<button data-leave-club-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0">Keluar Klub</button>`
+            : `<button data-join-club-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0">Bergabung</button>`;
+
     modalContent.innerHTML = `
         <div class="h-36 rounded-t-2xl relative" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}">
             <div class="absolute -bottom-10 left-6">
@@ -259,9 +495,9 @@ function openModal(club) {
             </div>
         </div>
         <div class="pt-14 px-6 pb-6">
-                <div class="flex items-start justify-between mb-1">
+            <div class="flex items-start justify-between mb-1 gap-3">
                 <h2 class="font-bold text-xl break-words whitespace-normal">${club.name}</h2>
-                <button data-join-btn="${club.id}" ${club.joined ? 'disabled' : ''} class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0 ${club.joined ? 'opacity-70 cursor-not-allowed hover:bg-[#FFDDAF]' : ''}">${getJoinButtonLabel(club)}</button>
+                ${actionButtonsHtml}
             </div>
             <div class="flex flex-wrap items-center gap-2 mb-4">
                 <span class="inline-block text-xs font-medium px-3 py-0.5 rounded-full border-[1.5px] border-[#444]">${club.category}</span>
@@ -299,9 +535,27 @@ function openModal(club) {
                 </div>
             </div>
         </div>`;
-    modalContent.querySelector('[data-join-btn]')?.addEventListener('click', (e) => {
+    modalContent.querySelector('[data-edit-club-btn]')?.addEventListener('click', (e) => {
         e.stopPropagation();
-        setJoined(Number(e.currentTarget.dataset.joinBtn));
+        const clubId = Number(e.currentTarget.dataset.editClubBtn);
+        closeModal();
+        setTimeout(() => openEditClub(clubId), 320);
+    });
+
+    modalContent.querySelector('[data-delete-club-btn]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDeleteConfirm(club);
+    });
+
+    modalContent.querySelector('[data-leave-club-btn]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        leaveClub(Number(e.currentTarget.dataset.leaveClubBtn));
+        closeModal();
+    });
+
+    modalContent.querySelector('[data-join-club-btn]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setJoined(Number(e.currentTarget.dataset.joinClubBtn));
     });
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -328,6 +582,24 @@ const buatBtn       = document.getElementById('buat-klub-btn');
 const buatForm      = document.getElementById('buat-klub-form');
 
 function openBuatKlub() {
+    // Ensure form is reset for create mode
+    if (buatForm) {
+        buatForm.reset();
+        delete buatForm.dataset.mode;
+        delete buatForm.dataset.clubId;
+        buatForm.action = '/klub';
+    }
+    // Reset counters/preview/labels
+    const namaCounterEl = document.getElementById('nama-klub-counter');
+    const deskripsiCounterEl = document.getElementById('deskripsi-counter');
+    const previewBannerEl = document.getElementById('buat-klub-preview-banner');
+    const fotoLabelEl = document.getElementById('foto-klub-label');
+    if (namaCounterEl) namaCounterEl.textContent = '0/100';
+    if (deskripsiCounterEl) deskripsiCounterEl.textContent = '0/500';
+    if (previewBannerEl) previewBannerEl.style.background = 'linear-gradient(135deg, #FFDDAF, #C7E7FF)';
+    if (fotoLabelEl) { fotoLabelEl.textContent = 'Klik atau seret gambar ke sini'; fotoLabelEl.className = 'text-xs text-gray-300'; }
+    if (submitBtn) submitBtn.textContent = 'Buat Klub Sekarang';
+
     buatModal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => {
@@ -339,7 +611,18 @@ function openBuatKlub() {
 function closeBuatKlub() {
     buatPanel.classList.remove('scale-100', 'opacity-100');
     buatPanel.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => { buatModal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
+    setTimeout(() => {
+        buatModal.classList.add('hidden');
+        document.body.style.overflow = '';
+
+        if (buatForm) {
+            delete buatForm.dataset.mode;
+            delete buatForm.dataset.clubId;
+            buatForm.action = '/klub';
+            buatForm.reset();
+        }
+        if (submitBtn) submitBtn.textContent = 'Buat Klub Sekarang';
+    }, 300);
 }
 
 if (buatBtn) buatBtn.addEventListener('click', openBuatKlub);
@@ -360,20 +643,7 @@ function setupCounter(inputId, counterId, max) {
 setupCounter('input-nama-klub', 'nama-klub-counter', 100);
 setupCounter('input-deskripsi', 'deskripsi-counter', 500);
 
-// ── Custom category toggle ──
-const kategoriSelect = document.getElementById('input-kategori');
-const kategoriCustom = document.getElementById('input-kategori-custom');
-if (kategoriSelect && kategoriCustom) {
-    kategoriSelect.addEventListener('change', () => {
-        if (kategoriSelect.value === '__custom__') {
-            kategoriCustom.classList.remove('hidden');
-            kategoriCustom.focus();
-        } else {
-            kategoriCustom.classList.add('hidden');
-            kategoriCustom.value = '';
-        }
-    });
-}
+// Note: custom categories removed — users must choose from katalog genres.
 
 // ── Gradient picker ──
 const gradientPicker = document.getElementById('gradient-picker');
@@ -435,16 +705,17 @@ if (buatForm) {
         e.preventDefault();
 
         const formData = new FormData(buatForm);
-        // Jika custom category dipilih, override kategori
-        if (formData.get('kategori') === '__custom__') {
-            const custom = formData.get('kategori_custom')?.trim();
-            if (!custom) { alert('Masukkan nama kategori.'); return; }
-            formData.set('kategori', custom);
-        }
+        // kategori must be one of the provided options (enforced by server)
+
+        const isEditMode = buatForm.dataset.mode === 'edit';
+        const requestUrl = isEditMode ? (buatForm.dataset.clubId ? `/klub/${buatForm.dataset.clubId}` : buatForm.action) : buatForm.action;
+        // Use POST + _method override for edit to ensure Laravel handles multipart properly
+        const requestMethod = 'POST';
+        if (isEditMode) formData.append('_method', 'PATCH');
 
         try {
-            const res = await fetch(buatForm.action, {
-                method: 'POST',
+            const res = await fetch(requestUrl, {
+                method: requestMethod,
                 body: formData,
                 credentials: 'same-origin',
                 headers: {
@@ -462,43 +733,50 @@ if (buatForm) {
                 return;
             }
 
-            const data = await res.json();
+            // Try to parse JSON; if parsing fails, continue — we'll fetch payload below to sync.
+            let data = null;
+            try { data = await res.json(); } catch (e) { /* ignore parse errors */ }
 
-            // Map response to internal CLUBS shape and insert at the top
-            const newClub = {
-                id: data.id,
-                name: data.name,
-                category: data.category,
-                members: data.members,
-                founded: data.founded,
-                description: data.description,
-                fullDescription: data.full_description,
-                admin: data.admin,
-                adminAvatar: data.admin_avatar,
-                membersList: data.members_list,
-                recentBooks: data.recent_books,
-                schedule: data.schedule,
-                gradientFrom: data.gradient_from,
-                gradientTo: data.gradient_to,
-                coverUrl: data.foto_klub || null,
-                adminUsername: data.admin_username || null,
-                adminAvatar: data.admin_avatar || null,
-                membersData: data.members_data || [],
-                joined: Boolean(data.joined),
-            };
+            // If server returned a payload, sync it. Otherwise we'll re-fetch the canonical payload.
+            if (data) {
+                if (isEditMode) {
+                    syncClubFromResponse(data);
+                } else {
+                    const updated = syncClubFromResponse(data);
+                    if (!CLUBS.find(c => c.id === updated.id)) CLUBS.unshift(updated);
+                }
+            }
 
-            CLUBS.unshift(newClub);
+            // Determine club id for payload re-sync: prefer dataset.clubId (edit) then data.id (create)
+            const clubId = isEditMode ? buatForm.dataset.clubId : (data?.id || null);
+            if (clubId) {
+                try {
+                    const payloadResp = await fetch(`/klub/${clubId}/payload`, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
+                    if (payloadResp.ok) {
+                        const payload = await payloadResp.json();
+                        syncClubFromResponse(payload);
+                    }
+                } catch (e) {
+                    // ignore payload sync failures
+                }
+            }
             applyFilters();
 
             closeBuatKlub();
             buatForm.reset();
+            delete buatForm.dataset.mode;
+            delete buatForm.dataset.clubId;
+            buatForm.action = '/klub';
+            if (submitBtn) submitBtn.textContent = 'Buat Klub Sekarang';
             // Reset gradient preview
             if (previewBanner) previewBanner.style.background = 'linear-gradient(135deg, #FFDDAF, #C7E7FF)';
             if (fotoLabel) { fotoLabel.textContent = 'Klik atau seret gambar ke sini'; fotoLabel.className = 'text-xs text-gray-300'; }
 
         } catch (err) {
-            console.error(err);
-            alert('Gagal membuat klub.');
+            console.error('Error submitting buat-klub form:', err);
+            // Do not show blocking alert here to avoid duplicate/confusing alerts when server actually created the club.
+            // Optionally reload to ensure client reflects server state in error scenarios:
+            // window.location.reload();
         }
     });
 }
