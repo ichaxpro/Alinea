@@ -35,7 +35,7 @@
                         ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
                          'icon' => 'notifikasi'],
                         ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
-                         'icon' => 'pesan'],
+                         'icon' => 'pesan', 'url' => route('chat')],
                         ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
                     ];
                     @endphp

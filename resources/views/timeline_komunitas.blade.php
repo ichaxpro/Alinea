@@ -33,9 +33,9 @@
                         ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
                          'icon' => 'profil', 'url' => route('timeline_profile')],
                         ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
-                         'icon' => 'notifikasi'],
+                         'icon' => 'notifikasi', 'url' => route('timeline_profile')], 
                         ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
-                         'icon' => 'pesan'],
+                         'icon' => 'pesan', 'url' => route('chat')],
                         ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => true, 'icon' => 'community', 'url' => route('timeline_komunitas')]
                     ];
                     @endphp

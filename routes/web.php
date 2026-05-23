@@ -56,6 +56,10 @@ Route::get('/daftar', function() {
     return view('daftar_akun');
 })->name('register');
 
+Route::get('/timeline_notifikasi', function () {
+    return view('timeline_notifikasi');
+})->name('timeline_notifikasi');
+
 Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
