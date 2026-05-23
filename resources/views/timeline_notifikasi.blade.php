@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alinea — Notifikasi Pinjam Buku</title>
-    <meta name="description" content="Lihat aktivitas peminjaman buku antar member di Alinea." />
+    <title>Alinea — Notifikasi</title>
+    <meta name="description" content="Lihat semua aktivitas, suka, komentar, dan interaksi akun Anda di Alinea." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,15 +28,11 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false,
-                         'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
-                         'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => true,
-                         'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
-                         'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false, 'icon' => 'beranda', 'url' => route('timeline_home')],
+                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false, 'icon' => 'profil', 'url' => route('timeline_profile')],
+                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => true,  'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
+                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false, 'icon' => 'pesan', 'url' => route('chat')],
+                        ['id' => 'sidenav-komunitas',  'label' => 'Komunitas',  'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
                     ];
                     @endphp
 
@@ -48,56 +44,56 @@
                         <div class="w-5 h-5 shrink-0 flex items-center justify-center">
                             <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
                         </div>
-
                         <span class="text-sm">{{ $item['label'] }}</span>
                     </{{ $tag }}>
                     @endforeach
                 </div>
             </aside>
 
-            <main class="bg-white border-[1.5px] border-[#444] rounded-2xl overflow-hidden flex flex-col">
+            {{-- ===== MAIN CONTENT ===== --}}
+            <main class="bg-white border-[1.5px] border-[#444] rounded-2xl overflow-hidden flex flex-col flex-1">
                 
                 {{-- Header Halaman Notifikasi --}}
                 <div class="border-b-[1.5px] border-[#444] bg-[#FFDDAF] px-5 py-4 flex items-center justify-between">
-                    <h1 class="text-lg font-bold text-[#444]">Notifikasi Pinjam Buku</h1>
+                    <h1 class="text-lg font-bold text-[#444]">Notifikasi</h1>
                 </div>
 
                 {{-- LIST NOTIFIKASI CONTAINER --}}
                 <div class="divide-y-[1.5px] divide-gray-200">
                     
                     @php
-                    // Data simulasi interaksi pinjam buku peer-to-peer (ketemuan & batas waktu)
+                    // Data simulasi interaksi general (Like, Comment, Follow, System/Community)
                     $notifications = [
                         [
-                            'type' => 'request',
-                            'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
+                            'type' => 'like',
+                            'avatar_from' => '#FFD2D2', 'avatar_to' => '#FFA3A3',
                             'user' => 'Dina Rahmawati',
-                            'meta' => 'Mengajukan Pinjaman',
-                            'body' => 'ingin meminjam buku kamu "The Midnight Library". Dia mengajak ketemuan di Perpustakaan Kota Malang besok jam 15.00 WIB. Ketuk untuk merespons.',
+                            'meta' => 'Menyukai Catatan Anda',
+                            'body' => 'menyukai catatan kutipan buku Anda di "The Midnight Library".',
                             'time' => 'Baru saja'
                         ],
                         [
-                            'type' => 'cod',
-                            'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
+                            'type' => 'comment',
+                            'avatar_from' => '#D4F6FF', 'avatar_to' => '#C7E7FF',
                             'user' => 'Budi Ashcroft',
-                            'meta' => 'Konfirmasi Ketemuan',
-                            'body' => 'Permintaan pinjam buku "Harry Potter" disetujui! Segera chat Budi untuk menentukan lokasi ketemuan. Batas waktu pinjam adalah 14 hari setelah buku diserahkan.',
+                            'meta' => 'Mengomentari Postingan',
+                            'body' => 'membalas ulasan Anda: "Setuju banget! Bab ke-3 benar-benar bikin plot twist yang gak disangka-sangka."',
                             'time' => '12 Menit Lalu'
                         ],
                         [
-                            'type' => 'warning',
-                            'avatar_from' => '#FCE4EC', 'avatar_to' => '#F8BBD0',
-                            'user' => 'Pengingat Sistem',
-                            'meta' => 'Batas Waktu Pinjam',
-                            'body' => 'Masa pinjam buku "Bumi Manusia" dari Ahmad Fauzan tinggal 2 hari lagi. Yuk, segera hubungi Ahmad via chat untuk janjian ketemuan dan mengembalikan bukunya.',
+                            'type' => 'follow',
+                            'avatar_from' => '#E2FFE2', 'avatar_to' => '#A8FFA8',
+                            'user' => 'Ahmad Fauzan',
+                            'meta' => 'Pengikut Baru',
+                            'body' => 'mulai mengikuti Anda. Ikuti balik untuk mulai bertukar pesan dan berbagi rekomendasi buku!',
                             'time' => '2 Jam Lalu'
                         ],
                         [
-                            'type' => 'success',
-                            'avatar_from' => '#D4F6FF', 'avatar_to' => '#C7E7FF',
-                            'user' => 'Ahmad Fauzan',
-                            'meta' => 'Pengembalian Selesai',
-                            'body' => 'telah mengonfirmasi pengembalian buku "Kata". Terima kasih sudah menjaga buku dengan baik dan mengembalikannya tepat waktu!',
+                            'type' => 'community',
+                            'avatar_from' => '#FFE8CC', 'avatar_to' => '#FFD4A3',
+                            'user' => 'Klub Buku Horor Malang',
+                            'meta' => 'Rekomendasi Komunitas',
+                            'body' => 'baru saja dibuat! Berdasarkan preferensi membaca Anda, Anda mungkin tertarik untuk bergabung di komunitas ini.',
                             'time' => '30 Apr'
                         ]
                     ];
@@ -106,22 +102,22 @@
                     @foreach ($notifications as $notif)
                     <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4 items-start">
                         
-                        {{-- Indikator Tipe (Icon Kiri) --}}
-                        <div class="pt-1 flex-shrink-0 w-0 flex justify-center text-center">
-                            @if($notif['type'] === 'request')
-                                <span class="text-blue-500 font-bold text-lg"></span>
-                            @elseif($notif['type'] === 'cod')
-                                <span class="text-purple-500 font-bold text-lg"></span>
-                            @elseif($notif['type'] === 'warning')
-                                <span class="text-amber-500 font-bold text-lg"></span>
+                        {{-- Indikator Tipe Visual Kiri (Opsional untuk Icon/Warna) --}}
+                        <div class="flex-shrink-0 pt-0.5">
+                            @if($notif['type'] === 'like')
+                                <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
+                            @elseif($notif['type'] === 'comment')
+                                <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+                            @elseif($notif['type'] === 'follow')
+                                <div class="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
                             @else
-                                <span class="text-green-500 font-bold text-lg"></span>
+                                <div class="w-2 h-2 rounded-full bg-amber-500 mt-2"></div>
                             @endif
                         </div>
 
                         {{-- Isi Konten --}}
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1">
+                            <div class="flex items-center gap-2 mb-1.5">
                                 {{-- Avatar User / Sistem --}}
                                 <div class="w-7 h-7 rounded-full border border-[#444] flex-shrink-0"
                                      style="background: linear-gradient(135deg, {{ $notif['avatar_from'] }}, {{ $notif['avatar_to'] }})">
@@ -131,10 +127,10 @@
                                 @if($notif['meta'])
                                     <span class="text-xs text-gray-400 truncate">• {{ $notif['meta'] }}</span>
                                 @endif
-                                <span class="text-xs text-gray-300 ml-auto flex-shrink-0">{{ $notif['time'] }}</span>
+                                <span class="text-xs text-gray-400 ml-auto flex-shrink-0">{{ $notif['time'] }}</span>
                             </div>
                             
-                            {{-- Teks Notifikasi --}}
+                            {{-- Teks Detail Notifikasi (Ditata presisi tanpa margin kiri yang terlalu menjorok) --}}
                             <p class="text-xs text-gray-600 leading-relaxed pl-9 break-words">
                                 <strong>{{ $notif['user'] }}</strong> {{ $notif['body'] }}
                             </p>
