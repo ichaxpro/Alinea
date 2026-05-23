@@ -6,12 +6,12 @@
 
 const ALL_GENRES = ['Fiksi','Non-Fiksi','Thriller','Misteri','Romansa','Sci-Fi','Fantasi','Horror','Biografi','Sejarah','Pengembangan Diri','Bisnis','Puisi','Komik'];
 
-const MY_CATALOG = [
-  { id:1, judul:'Pulang', penulis:'Tere Liye', isbn:'978-602-0851-00-7', tahun_terbit:2015, kategori:'Fiksi', foto_sampul:null, is_available:true, status:'tersedia' },
-  { id:2, judul:'Bumi', penulis:'Tere Liye', isbn:'978-602-0851-01-4', tahun_terbit:2014, kategori:'Fantasi', foto_sampul:null, is_available:true, status:'tersedia' },
-  { id:3, judul:'Atomic Habits', penulis:'James Clear', isbn:'978-0-7352-1129-2', tahun_terbit:2018, kategori:'Pengembangan Diri', foto_sampul:null, is_available:false, status:'dipinjam' },
-  { id:4, judul:'Sapiens', penulis:'Yuval Noah Harari', isbn:'978-0-06-231609-7', tahun_terbit:2011, kategori:'Non-Fiksi', foto_sampul:null, is_available:true, status:'tersedia' },
-];
+// const MY_CATALOG = [
+//   { id:1, judul:'Pulang', penulis:'Tere Liye', isbn:'978-602-0851-00-7', tahun_terbit:2015, kategori:'Fiksi', foto_sampul:null, is_available:true, status:'tersedia' },
+//   { id:2, judul:'Bumi', penulis:'Tere Liye', isbn:'978-602-0851-01-4', tahun_terbit:2014, kategori:'Fantasi', foto_sampul:null, is_available:true, status:'tersedia' },
+//   { id:3, judul:'Atomic Habits', penulis:'James Clear', isbn:'978-0-7352-1129-2', tahun_terbit:2018, kategori:'Pengembangan Diri', foto_sampul:null, is_available:false, status:'dipinjam' },
+//   { id:4, judul:'Sapiens', penulis:'Yuval Noah Harari', isbn:'978-0-06-231609-7', tahun_terbit:2011, kategori:'Non-Fiksi', foto_sampul:null, is_available:true, status:'tersedia' },
+// ];
 
 const TRANSACTIONS = [
   { id:1, buku:{ judul:'Harry Potter', penulis:'J.K. Rowling', foto_sampul:null }, pemilik:{ nama:'Dina Rahmawati', kota:'Surabaya' }, tanggal_pinjam:'2026-04-20', tanggal_kembali_rencana:'2026-05-04', tanggal_pengembalian_aktual:null, status_transaksi:'pending', titik_temu_pinjam:'Toko Buku Gramedia Surabaya' },
@@ -23,10 +23,33 @@ const TRANSACTIONS = [
 
 // ── STATE ──
 let activeTab = 'personal';
-let catalogData = [...MY_CATALOG];
+let catalogData = [];
+let catalogLoaded = false;
 let txFilter = 'all';
 let catalogSearch = '';
-let nextCatalogId = MY_CATALOG.length + 1;
+let catalogPage = 1;
+const CATALOG_PER_PAGE = 10;
+
+async function apiCall(method, url, body = null) {
+  const opts = {
+    method,
+    headers: {
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const resp = await fetch(url, opts);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({message: resp.statusText}));
+    throw new Error(err.message || 'Request failed');
+  }
+  return resp.json();
+}
+
 let selectedGenres = [...CURRENT_USER.preferred_genres];
 
 // ── HELPERS ──
@@ -85,7 +108,13 @@ function switchTab(tab) {
     p.classList.toggle('hidden', p.dataset.tabPanel !== tab);
   });
   if (tab === 'transaksi') renderTransactions();
-  if (tab === 'katalog') renderCatalog();
+  if (tab === 'katalog') {
+    if (!catalogLoaded) {
+      loadCatalog();
+    } else {
+      renderCatalog();
+    }
+  }
   if (tab === 'personal') renderGenrePicker();
 }
 
@@ -181,6 +210,13 @@ function renderCatalog() {
     return;
   }
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / CATALOG_PER_PAGE));
+  if (catalogPage > totalPages) catalogPage = totalPages;
+  const start = (catalogPage - 1) * CATALOG_PER_PAGE;
+  const paged = filtered.slice(start, start + CATALOG_PER_PAGE);
+
+  // Render table + pagination controls
   list.innerHTML = `
   <div class="overflow-x-auto rounded-2xl border-[1.5px] border-[#444]">
     <table class="w-full text-sm">
@@ -195,7 +231,7 @@ function renderCatalog() {
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100">
-        ${filtered.map(b => `
+        ${paged.map(b => `
         <tr class="hover:bg-gray-50/50 transition-colors" data-book-id="${b.id}">
           <td class="py-3 px-4">
             <div class="flex items-center gap-3">
@@ -227,31 +263,106 @@ function renderCatalog() {
         </tr>`).join('')}
       </tbody>
     </table>
+  </div>
+
+  <!-- Pagination controls -->
+  <div class="flex items-center justify-between mt-4">
+    <p class="text-xs text-gray-400">Halaman ${catalogPage} dari ${totalPages}</p>
+    <div class="flex items-center gap-2">
+      <button data-catalog-page="prev" ${catalogPage <= 1 ? 'disabled' : ''}
+              class="px-3 py-1.5 text-xs font-medium rounded-lg border-[1.5px] border-[#444] transition-colors
+                     ${catalogPage <= 1 ? 'opacity-30 cursor-not-allowed bg-gray-50' : 'bg-white hover:bg-[#FFDDAF] cursor-pointer'}">
+        Prev
+      </button>
+      ${Array.from({length: totalPages}, (_, i) => i + 1).map(p => `
+        <button data-catalog-page="${p}"
+                class="w-8 h-8 rounded-lg text-xs font-medium border-[1.5px] transition-colors cursor-pointer
+                       ${p === catalogPage ? 'bg-[#FFDDAF] border-[#444] text-[#444] font-bold' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-400'}">
+          ${p}
+        </button>
+      `).join('')}
+      <button data-catalog-page="next" ${catalogPage >= totalPages ? 'disabled' : ''}
+              class="px-3 py-1.5 text-xs font-medium rounded-lg border-[1.5px] border-[#444] transition-colors
+                     ${catalogPage >= totalPages ? 'opacity-30 cursor-not-allowed bg-gray-50' : 'bg-white hover:bg-[#FFDDAF] cursor-pointer'}">
+        Next
+      </button>
+    </div>
   </div>`;
 
-  // Toggle handlers
+  // Toggle availability handlers
   list.querySelectorAll('[data-toggle-avail]').forEach(cb => {
-    cb.addEventListener('change', () => {
+    cb.addEventListener('change', async () => {
       const id = parseInt(cb.dataset.toggleAvail);
       const book = catalogData.find(b=>b.id===id);
-      if (book) { book.is_available = cb.checked; toast(cb.checked?`"${book.judul}" dibuka untuk peminjaman`:`"${book.judul}" ditutup dari peminjaman`); }
+      if (!book) return;
+
+      const prev = book.is_available;
+      book.is_available = cb.checked;
+
+      try {
+        const updated = await apiCall('PATCH', `/personal-books/${id}`, {
+          is_available: cb.checked,
+        });
+        Object.assign(book, updated);
+        toast(cb.checked ? `"${book.judul}" dibuka untuk peminjaman` : `"${book.judul}" ditutup dari peminjaman`);
+      } catch (err) {
+        book.is_available = prev; 
+        cb.checked = prev;
+        toast('Gagal mengubah status', 'error');
+      }
     });
   });
 
   // Delete handlers
   list.querySelectorAll('[data-delete-book]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const id = parseInt(btn.dataset.deleteBook);
       const book = catalogData.find(b=>b.id===id);
-      if (book && book.status==='dipinjam') { toast('Buku sedang dipinjam, tidak bisa dihapus','error'); return; }
-      if (confirm(`Hapus "${book?.judul}" dari koleksi?`)) {
-        catalogData = catalogData.filter(b=>b.id!==id);
+      if (!book) {
+        return;
+      }
+
+      if (book.status == 'dipinjam') {
+        toast('Buku sedang dipinjam, tidak bisa dihapus', 'error');
+        return;
+      }
+
+      if (!confirm(`Hapus "${book.judul}" dari koleksi?`)) {
+        return;
+      }
+
+      try {
+        await apiCall('DELETE', `/personal-books/${id}`);
+        catalogData = catalogData.filter(b => b.id !== id);
         renderCatalog();
         renderSidebarProfile();
         toast('Buku berhasil dihapus');
+      } catch (err) {
+        toast(err.message, 'error');
       }
     });
   });
+
+  // Pagination click handlers
+  list.querySelectorAll('[data-catalog-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.catalogPage;
+      if (val === 'prev' && catalogPage > 1) catalogPage--;
+      else if (val === 'next' && catalogPage < totalPages) catalogPage++;
+      else if (val !== 'prev' && val !== 'next') catalogPage = Number(val);
+      renderCatalog();
+    });
+  });
+}
+
+async function loadCatalog() {
+  try {
+    catalogData = await apiCall('GET', '/personal-books');
+    catalogLoaded = true;
+    renderCatalog();
+  } catch (err) {
+    toast('Gagal memuat koleksi', 'error');
+  }
 }
 
 // ── GOOGLE BOOKS API ──
@@ -322,6 +433,43 @@ function parseBookVolume(volume) {
   };
 }
 
+function searchLocalBooks(query) {
+  const local = window.__FEATURED_BOOKS__ || [];
+  const q = query.toLowerCase();
+  return local
+    .filter(b =>
+      b.judul.toLowerCase().includes(q) || b.penulis.toLowerCase().includes(q)
+    )
+    .map(b => ({
+      judul: b.judul,
+      penulis: b.penulis,
+      tahun: b.tahun || '',
+      kategori: b.kategori || '',
+      halaman: b.jumlah_halaman || '',
+      isbn: b.isbn || '',
+      coverUrl: b.cover || '',
+      source: 'local',
+    }));
+}
+
+async function fetchOpenLibrary(query) {
+  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=5`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Open Library error: ${res.status}`);
+  const data = await res.json();
+  return (data.docs || []).map(b => ({
+    judul: b.title,
+    penulis: b.author_name?.join(', ') || '',
+    tahun: b.first_publish_year || '',
+    kategori: b.subject ? mapCategory(b.subject.slice(0, 3)) : 'Fiksi',
+    halaman: '',
+    deskripsi: b.description || b.subtitle || '',
+    isbn: b.isbn?.[0] || '',
+    coverUrl: b.cover_i ? `https://covers.openlibrary.org/b/id/${b.cover_i}-L.jpg` : '',
+    source: 'openlibrary',
+  }));
+}
+
 // ── BOOK SEARCH (Autocomplete) ──
 let searchDebounceTimer = null;
 let currentSearchAbort = null;
@@ -372,79 +520,65 @@ async function searchBooks(query, retryCount = 0) {
 
   showSearchSpinner(true);
 
+  const localResults = searchLocalBooks(query);
+
+  let apiResults = [];
   try {
     const smartQuery = buildSearchQuery(query);
     const keyParam = GOOGLE_BOOKS_KEY ? `&key=${GOOGLE_BOOKS_KEY}` : '';
     const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(smartQuery)}&maxResults=8&printType=books&orderBy=relevance${keyParam}`;
-    console.log('[Alinea] Searching Google Books:', url);
 
     const response = await fetch(url, {
       signal: currentSearchAbort.signal,
-      headers: { 'Accept': 'application/json' },
+      headers: {'Accept': 'application/json'},
     });
-    console.log('[Alinea] API response status:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('[Alinea] API error response:', errorText);
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('[Alinea] Found', data.totalItems, 'results');
-
-    if (data.totalItems && data.items?.length) {
-      const books = data.items.map(parseBookVolume);
-      showSearchResults(books);
-      showSearchSpinner(false);
-      return;
-    }
-
-    // If first query returned nothing, try alternative query strategy
-    if (retryCount === 0) {
-      // If we used intitle:, retry without it. If plain, try intitle:.
-      const wordCount = query.trim().split(/\s+/).length;
-      const altQuery = wordCount <= 2 ? query.trim() : `intitle:${query.trim()}`;
-      console.log('[Alinea] No results, trying alternative query:', altQuery);
-
-      try {
-        const fallbackUrl = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(altQuery)}&maxResults=8&printType=books&orderBy=relevance${keyParam}`;
-        const fallbackResp = await fetch(fallbackUrl, {
-          signal: currentSearchAbort.signal,
-          headers: { 'Accept': 'application/json' },
-        });
-        if (fallbackResp.ok) {
-          const fallbackData = await fallbackResp.json();
-          if (fallbackData.totalItems && fallbackData.items?.length) {
-            const books = fallbackData.items.map(parseBookVolume);
-            showSearchResults(books);
-            showSearchSpinner(false);
-            return;
-          }
-        }
-      } catch (fallbackErr) {
-        console.warn('[Alinea] Fallback search also failed:', fallbackErr.message);
+    if (response.ok) {
+      const data = await response.json();
+      if (data.totalItems && data.items?.length) {
+        apiResults = data.items.map(parseBookVolume);
       }
     }
 
-    showSearchResults([]);
-    showSearchSpinner(false);
-    return;
+    if (apiResults.length == 0 && retryCount == 0) {
+      const wordCount = query.trim().split(/\s+/).length;
+      const altQuery = wordCount <= 2 ? query.trim() : `intitle:${query.trim()}`;
+      const fallbackUrl = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(altQuery)}&maxResults=8&printType=books&orderBy=relevance${keyParam}`;
+      const fbResp = await fetch(fallbackUrl, { signal: currentSearchAbort.signal });
+      if (fbResp.ok) {
+        const fbData = await fbResp.json();
+        if (fbData.totalItems && fbData.items?.length) {
+          apiResults = fbData.items.map(parseBookVolume);
+        }
+      }
+    }
   } catch (err) {
-    if (err.name === 'AbortError') {
+    if (err.name == 'AbortError') {
       showSearchSpinner(false);
       return;
     }
-    console.error('[Alinea] Google Books API error:', err.message, err);
-    // Retry once on network/fetch errors
-    if (retryCount < 1) {
-      console.log('[Alinea] Retrying search in 1s...');
-      setTimeout(() => searchBooks(query, retryCount + 1), 1000);
-      return;
-    }
-    showSearchResults(null); // null = error state
-    showSearchSpinner(false);
+    console.warn('[Alinea] Google Books error:', err.message);
   }
+
+  if (apiResults.length == 0) {
+    try {
+      apiResults = await fetchOpenLibrary(query);
+    } catch (e) {
+      console.warn('[Alinea] Open Library failed');
+    }
+  }
+
+  const seen = new Set(localResults.map(b => b.judul.toLowerCase()));
+  const merged = [...localResults];
+  for (const b of apiResults) {
+    if (!seen.has(b.judul.toLowerCase())) {
+      seen.add(b.judul.toLowerCase());
+      merged.push(b);
+    }
+  }
+
+  showSearchResults(merged);
+  showSearchSpinner(false);
 }
 
 function showSearchSpinner(show) {
@@ -628,36 +762,34 @@ function closeAddBookModal() {
   hideBookPreview();
 }
 
-function handleAddBook(e) {
+async function handleAddBook(e) {
   e.preventDefault();
   const fd = new FormData(e.target);
-  const judul = fd.get('judul')?.trim();
-  const penulis = fd.get('penulis')?.trim();
-  const isbn = fd.get('isbn')?.trim() || '';
-  const tahun = parseInt(fd.get('tahun_terbit'));
-  const kategori = fd.get('kategori');
-  const coverUrl = fd.get('foto_sampul') || null;
-  const halaman = parseInt(fd.get('halaman')) || null;
+  const data = {
+    judul: fd.get('judul')?.trim(),
+    penulis: fd.get('penulis')?.trim(),
+    isbn: fd.get('isbn')?.trim() || undefined,
+    tahun_terbit: parseInt(fd.get('tahun_terbit')) || undefined,
+    kategori: fd.get('kategori') || 'Fiksi',
+    cover_url: fd.get('foto_sampul') || undefined,
+    jumlah_halaman: parseInt(fd.get('halaman')) || undefined,
+  };
 
-  if (!judul||!penulis) { toast('Judul dan penulis wajib diisi','error'); return; }
+  if (!data.judul || !data.penulis) {
+    toast('Judul dan penulis wajib diisi', 'error');
+    return;
+  }
 
-  catalogData.push({
-    id: nextCatalogId++,
-    judul,
-    penulis,
-    isbn: isbn || '—',
-    tahun_terbit: tahun || new Date().getFullYear(),
-    kategori: kategori || 'Fiksi',
-    foto_sampul: coverUrl,
-    halaman,
-    is_available: true,
-    status: 'tersedia',
-  });
-
-  closeAddBookModal();
-  renderCatalog();
-  renderSidebarProfile();
-  toast(`"${judul}" berhasil ditambahkan!`);
+  try {
+    const book = await apiCall('POST', '/personal-books', data);
+    catalogData.unshift(book);
+    closeAddBookModal();
+    renderCatalog();
+    renderSidebarProfile();
+    toast(`"${book.judul}" berhasil ditambahkan!`);
+  } catch (err) {
+    toast(err.message, 'error');
+  }
 }
 
 // ── PASSWORD ──
@@ -743,7 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Catalog search
   const catSearch = $('#catalog-search');
   if (catSearch) {
-    catSearch.addEventListener('input', (e) => { catalogSearch = e.target.value; renderCatalog(); });
+    catSearch.addEventListener('input', (e) => {
+      catalogSearch = e.target.value;
+      catalogPage = 1;
+      renderCatalog();
+    })
   }
 
   // Add book

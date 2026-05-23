@@ -5,7 +5,7 @@
                     <!-- Logo -->
                     <a href="{{ route('beranda') }}" class="flex items-center gap-2 group py-16">
                         <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <img fill="none" src="img/alinealogo.svg" class="h-7">
+                            <img fill="none" src="/img/alinealogo.svg" class="h-7">
                         </div>
                     </a>
 

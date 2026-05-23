@@ -12,30 +12,32 @@
 // Struktur ini sudah match dengan skema migration
 // ══════════════════════════════════════
 
-const BOOK_DATA = {
-  id: 1,
-  judul: 'Pulang',
-  penulis: 'Tere Liye',
-  penerbit: 'Republika',
-  tahun_terbit: 2015,
-  jumlah_halaman: 406,
-  bahasa: 'Indonesia',
-  isbn: '978-602-0851-00-7',
-  kategori: 'Fiksi',
-  sinopsis: 'Bujang, si "Tukang Pukul" Keluarga Tong, besar di dunia ekonomi bayangan yang penuh intrik. Meski tangguh, ia harus hadapi pengkhianatan besar. Di balik aksi menegangkan, Bujang mencari makna "pulang" sejati: menaklukkan rasa takut, berdamai dengan masa lalu, dan kembali kepada jati diri serta Tuhan.',
-  foto_sampul: null, // null = pakai gradient placeholder
-  status: 'tersedia',
-  owners: [
-    { id: 1, name: 'Alinea Library', location: 'Jakarta Pusat' },
-    { id: 2, name: 'Ichachellow', location: 'Bandung' },
-    { id: 3, name: 'Budi Santoso', location: 'Surabaya' }
-  ],
-  genres: ['Horror', 'Thriller'],
-  // Statistik rating (dihitung dari reviews)
-  rating_avg: 4.6,
-  rating_count: 200,
-  rating_distribution: { 5: 156, 4: 32, 3: 8, 2: 3, 1: 1 },
-};
+// const BOOK_DATA = {
+//   id: 1,
+//   judul: 'Pulang',
+//   penulis: 'Tere Liye',
+//   penerbit: 'Republika',
+//   tahun_terbit: 2015,
+//   jumlah_halaman: 406,
+//   bahasa: 'Indonesia',
+//   isbn: '978-602-0851-00-7',
+//   kategori: 'Fiksi',
+//   sinopsis: 'Bujang, si "Tukang Pukul" Keluarga Tong, besar di dunia ekonomi bayangan yang penuh intrik. Meski tangguh, ia harus hadapi pengkhianatan besar. Di balik aksi menegangkan, Bujang mencari makna "pulang" sejati: menaklukkan rasa takut, berdamai dengan masa lalu, dan kembali kepada jati diri serta Tuhan.',
+//   foto_sampul: null, // null = pakai gradient placeholder
+//   status: 'tersedia',
+//   owners: [
+//     { id: 1, name: 'Alinea Library', location: 'Jakarta Pusat' },
+//     { id: 2, name: 'Ichachellow', location: 'Bandung' },
+//     { id: 3, name: 'Budi Santoso', location: 'Surabaya' }
+//   ],
+//   genres: ['Horror', 'Thriller'],
+//   // Statistik rating (dihitung dari reviews)
+//   rating_avg: 4.6,
+//   rating_count: 200,
+//   rating_distribution: { 5: 156, 4: 32, 3: 8, 2: 3, 1: 1 },
+// };
+
+
 
 const REVIEWS = [
   { id:1, name:'Budi Ashcroft', initial:'B', rating:5, date:'6 Hari Lalu', text:'Novel ini paket lengkap! Tere Liye menggabungkan thriller aksi ekonomi bayangan dengan pesan filosofis mendalam. Perjalanan Bujang sangat ikonik, mengajarkan bahwa sejauh apa pun kaki melangkah, kita harus kembali ke akar jati diri. Alurnya cepat, penuh kejutan, dan emosional. Sangat layak dibaca!', helpful:30 },
@@ -351,7 +353,7 @@ function closePinjamModal() { pinjamModalOverlay.classList.remove('active'); doc
 
 // Handle Pinjam button click: show owners first
 document.getElementById('pinjamBtn').addEventListener('click', () => {
-  renderOwnersTable(window.__BOOK_DATA__ || BOOK_DATA);
+  renderOwnersTable(window.__BOOK_DATA__);
   openOwnersModal();
 });
 
@@ -427,7 +429,7 @@ function showToast(msg) {
 
 document.addEventListener('DOMContentLoaded', () => {
   // Kalau nanti data dari DB, cukup ganti: const book = window.__BOOK_DATA__ || BOOK_DATA;
-  const book = window.__BOOK_DATA__ || BOOK_DATA;
+  const book = window.__BOOK_DATA__;
 
   renderBookDetail(book);
   renderRatingBreakdown(book);

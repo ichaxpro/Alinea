@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres'])]
 #[Hidden(['password', 'remember_token'])]
@@ -30,5 +31,9 @@ class User extends Authenticatable
             'password' => 'hashed',
             'preferred_genres' => 'array',
         ];
+    }
+
+    public function personalBooks(): HasMany {
+        return $this->hasMany(PersonalBook::class);
     }
 }
