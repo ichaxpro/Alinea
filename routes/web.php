@@ -33,6 +33,7 @@ Route::get('/timeline_home', function () {
 
 
 Route::get('/timeline_komunitas', [KlubController::class, 'timelineKomunitas'])->name('timeline_komunitas');
+Route::post('/timeline_komunitas/posts', [KlubController::class, 'storeTimelinePost'])->name('timeline_posts.store');
 
 Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
