@@ -33,7 +33,7 @@
                         ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => true,
                          'icon' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 'url' => route('timeline_profile')],
                         ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
-                         'icon' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'],
+                         'icon' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', 'url' => route('timeline_notifikasi')],
                         ['id' => 'sidenav-pesan',      'label' => 'Chat',      'active' => false,
                          'icon' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/>', 'url' => route('chat')],
                         ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 
