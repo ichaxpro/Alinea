@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AvatarController;
 use App\Http\Controllers\Api\ChatController;
 use App\Models\User;
+use App\Models\BookClub;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,46 @@ Route::post('/register', [App\Http\Controllers\Api\AuthController::class, 'regis
 Route::post('/login',    [App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::post('/logout',   [App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/upload-avatar', [AvatarController::class, 'upload'])->middleware('auth:sanctum');
+
+
+Route::get('/search', function(Illuminate\Http\Request $request) {
+    $q = $request->input('q', '');
+
+    if (strlen(trim($q)) < 2) {
+        return response()->json(['users' => [], 'clubs' => [], 'books' => []]);
+    }
+
+    $users = User::where(function($query) use ($q) {
+        $query->where('name', 'like', "%{$q}%")
+            ->orWhere('username', 'like', "%{$q}%");
+    })
+    ->where('id', '!=', Auth::id())
+    ->select('id', 'name', 'username', 'foto_profil')
+    ->limit(5)
+    ->get()
+    ->map(fn($u) => [
+        'id'        => $u->id,
+        'name'      => $u->name,
+        'username'  => $u->username ?? '',
+        'initial'   => strtoupper(substr($u->name, 0, 1)),
+    ]);
+
+    $clubs = BookClub::where('nama_klub', 'like', "%{$q}$")
+        ->limit(5)
+        ->get()
+        ->map(function($c) {
+            $memberCount = 0;
+            if (Schema::hasTable('klub_member')) {
+                $memberCount = DB::table('klub_member')
+                    ->where('id_klub', $c->id)
+                    ->count();
+            }
+            return [
+                'id'        => $c->id,
+                'nama_klub' => $c->nama_klub,
+            ];
+        });
+});
 
 /*
 |--------------------------------------------------------------------------

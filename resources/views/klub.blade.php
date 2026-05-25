@@ -15,13 +15,13 @@
     @vite(['resources/css/app.css', 'resources/js/klub.js'])
 </head>
 
-<body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
+<body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased flex flex-col">
 
     {{-- ========== NAVBAR ========== --}}
     <x-navbar></x-navbar>
 
     {{-- ========== MAIN CONTENT ========== --}}
-    <main class="pt-14">
+    <main class="pt-14 flex-1">
         <div class="max-w-275 mx-auto px-4 sm:px-6 py-8">
 
             {{-- Toolbar: Search + Filters + Create --}}
