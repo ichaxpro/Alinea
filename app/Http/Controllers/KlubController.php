@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\BookClub;
 use App\Models\FeaturedBook;
+use App\Models\TimelinePost;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class KlubController extends Controller
@@ -51,6 +54,7 @@ class KlubController extends Controller
             ->orderByRaw("CASE klub_member.role_di_klub WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END")
             ->select([
                 'users.id as user_id',
+                'users.foto_profil',
                 'users.name',
                 'users.username',
                 'klub_member.role_di_klub as role',
@@ -66,7 +70,8 @@ class KlubController extends Controller
 
         $ownerName = $ownerUser?->name ?? 'Admin';
         $ownerUsername = $ownerUser?->username ?? null;
-        $ownerAvatar = $this->avatarUrl($ownerUsername, $ownerName);
+        // Prefer uploaded avatar on the User model (avatar_url) when available
+        $ownerAvatar = $ownerUser?->avatar_url ?? $this->avatarUrl($ownerUsername, $ownerName);
 
         $membersData = $this->clubMemberRows($club)->map(function ($member) use ($club) {
             $name = $member->name ?: 'Member';
@@ -79,24 +84,48 @@ class KlubController extends Controller
                 $role = 'admin';
             }
 
+            // Prefer user's uploaded profile photo if present
+            if (!empty($member->foto_profil)) {
+                try {
+                    $avatar = Storage::disk('public')->url($member->foto_profil);
+                } catch (\Throwable $e) {
+                    $avatar = $this->avatarUrl($username, $name);
+                }
+            } else {
+                $avatar = $this->avatarUrl($username, $name);
+            }
+
             return [
                 'id' => $member->user_id,
                 'name' => $name,
                 'username' => $username,
-                'avatar' => $this->avatarUrl($username, $name),
+                'avatar' => $avatar,
                 'role' => $role,
             ];
         })->values();
 
         if ($membersData->isEmpty() && $ownerUser) {
-            $membersData->push($this->memberPayload($ownerUser, 'owner'));
+            // Ensure owner appears in members list with their real avatar when no klub_member rows exist
+            $ownerPayload = $this->memberPayload($ownerUser, 'owner');
+            // If owner has uploaded foto_profil, override avatar
+            if (!empty($ownerUser?->foto_profil)) {
+                try {
+                    $ownerPayload['avatar'] = Storage::disk('public')->url($ownerUser->foto_profil);
+                } catch (\Throwable $e) {
+                    // keep existing avatar
+                }
+            } elseif (!empty($ownerUser?->avatar_url)) {
+                $ownerPayload['avatar'] = $ownerUser->avatar_url;
+            }
+
+            $membersData->push($ownerPayload);
         }
 
-        // Determine admin from klub_member (if any); fallback to owner
+        // Determine admin from klub_member (if any); fallback to owner. Prefer uploaded avatar when available.
         $adminMember = $membersData->firstWhere('role', 'admin');
         $adminName = $adminMember['name'] ?? $ownerName;
         $adminUsername = $adminMember['username'] ?? $ownerUsername;
-        $adminAvatar = $this->avatarUrl($adminUsername, $adminName);
+        $adminAvatar = $adminMember['avatar'] ?? $ownerUser?->avatar_url ?? $this->avatarUrl($adminUsername, $adminName);
 
         // Use klub_member rows as the single source of truth for counts
         $membersCount = $membersData->count();
@@ -336,6 +365,7 @@ class KlubController extends Controller
     {
         $popularClubs = collect();
         $joinedClubs = collect();
+        $posts = collect();
 
         $currentUser = Auth::user();
 
@@ -363,6 +393,151 @@ class KlubController extends Controller
             }
         }
 
-        return view('timeline_komunitas', compact('popularClubs', 'joinedClubs'));
+        if (Schema::hasTable('timeline_posts') && $joinedClubs->isNotEmpty()) {
+            $posts = DB::table('timeline_posts')
+                ->leftJoin('users', 'timeline_posts.id_user', '=', 'users.id')
+                ->leftJoin('klub', 'timeline_posts.id_klub', '=', 'klub.id')
+                ->leftJoin(DB::raw('(select id_post, count(*) as comments_count from timeline_comments group by id_post) as comments'), function ($join) {
+                    $join->on('timeline_posts.id', '=', 'comments.id_post');
+                })
+                ->whereIn('klub.nama_klub', $joinedClubs->pluck('nama_klub')->all())
+                ->select([
+                    'timeline_posts.id',
+                    'timeline_posts.media',
+                    'timeline_posts.media_type',
+                    'timeline_posts.media_original_name',
+                    'timeline_posts.media_size',
+                    'timeline_posts.judul_buku_dibahas as book',
+                    'timeline_posts.pesan as body',
+                    'timeline_posts.tag',
+                    'timeline_posts.created_at',
+                    'users.name',
+                    'users.username as handle',
+                    'users.kota as location',
+                    'klub.nama_klub as klub',
+                    'klub.gradient_from as avatar_from',
+                    'klub.gradient_to as avatar_to',
+                    DB::raw('COALESCE(comments.comments_count, 0) as comments'),
+                    DB::raw('0 as likes_base'),
+                ])
+                ->orderByDesc('timeline_posts.created_at')
+                ->get()
+                ->map(function ($post) {
+                    return [
+                        'id' => $post->id,
+                        'name' => $post->name ?? 'Pengguna',
+                        'handle' => $post->handle ? '@' . ltrim($post->handle, '@') : '@pengguna',
+                        'location' => $post->location ?: 'Online',
+                        'time' => $post->created_at ? Carbon::parse($post->created_at)->diffForHumans() : 'Baru saja',
+                        'book' => $post->book,
+                        'klub' => $post->klub,
+                        'body' => $post->body,
+                        'comments' => (string) $post->comments,
+                        'likes_base' => (int) $post->likes_base,
+                        'likes_label' => (string) $post->likes_base,
+                        'liked' => false,
+                        'avatar_from' => $post->avatar_from ?: '#FFDDAF',
+                        'avatar_to' => $post->avatar_to ?: '#C7E7FF',
+                        'tag' => $post->tag ?: 'Post',
+                        'media' => $post->media ?? null,
+                        'media_url' => $post->media ? asset('storage/' . $post->media) : null,
+                        'media_type' => $post->media_type ?? null,
+                        'media_original_name' => $post->media_original_name ?? null,
+                        'media_size' => $post->media_size ?? null,
+                    ];
+                });
+        }
+
+        return view('timeline_komunitas', compact('popularClubs', 'joinedClubs', 'posts'));
+    }
+
+    public function storeTimelinePost(Request $request)
+    {
+        $validated = $request->validate([
+            'id_klub' => ['required', 'integer', Rule::exists('klub', 'id')],
+            'judul_buku_dibahas' => ['nullable', 'string', 'max:120'],
+            'pesan' => ['required', 'string', 'max:250'],
+            'tag' => ['nullable', 'string', 'max:30'],
+            'media' => ['nullable', 'file', 'max:10240'], // max 10MB by default
+        ]);
+
+        $currentUser = $request->user();
+
+        if (!$currentUser) {
+            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
+        }
+
+        if (Schema::hasTable('klub_member')) {
+            $isMember = DB::table('klub_member')
+                ->where('id_klub', $validated['id_klub'])
+                ->where('id_user', $currentUser->id)
+                ->exists();
+
+            if (!$isMember) {
+                return response()->json(['message' => 'Kamu hanya bisa posting ke klub yang kamu ikuti.'], 403);
+            }
+        }
+
+        $mediaPath = null;
+        $mediaType = null;
+        $mediaOriginal = null;
+        $mediaSize = null;
+
+        if ($request->hasFile('media')) {
+            $file = $request->file('media');
+            $mediaPath = $file->store('timeline_media', 'public');
+            $mime = $file->getMimeType() ?: '';
+            if (str_starts_with($mime, 'image/')) {
+                $mediaType = 'image';
+            } elseif (str_starts_with($mime, 'video/')) {
+                $mediaType = 'video';
+            } else {
+                $mediaType = 'file';
+            }
+            $mediaOriginal = $file->getClientOriginalName();
+            $mediaSize = $file->getSize();
+        }
+
+        $post = TimelinePost::create([
+            'id_user' => $currentUser->id,
+            'id_klub' => $validated['id_klub'],
+            'judul_buku_dibahas' => $validated['judul_buku_dibahas'] ?? null,
+            'pesan' => $validated['pesan'],
+            'tag' => $validated['tag'] ?? 'Post',
+            'media' => $mediaPath,
+            'media_type' => $mediaType,
+            'media_original_name' => $mediaOriginal,
+            'media_size' => $mediaSize,
+        ]);
+
+        $club = DB::table('klub')
+            ->where('id', $validated['id_klub'])
+            ->select(['nama_klub', 'gradient_from', 'gradient_to'])
+            ->first();
+
+        return response()->json([
+            'message' => 'Postingan berhasil disimpan.',
+            'post' => [
+                'id' => $post->id,
+                'name' => $currentUser->name,
+                'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
+                'location' => $currentUser->kota ?: 'Online',
+                'time' => 'Baru saja',
+                'book' => $post->judul_buku_dibahas,
+                'klub' => $club?->nama_klub,
+                'body' => $post->pesan,
+                'comments' => '0',
+                'likes_base' => 0,
+                'likes_label' => '0',
+                'liked' => false,
+                'avatar_from' => $club?->gradient_from ?: '#FFDDAF',
+                'avatar_to' => $club?->gradient_to ?: '#C7E7FF',
+                'tag' => $post->tag ?: 'Post',
+                'media_url' => $post->media ? asset('storage/' . $post->media) : null,
+                'media_type' => $post->media_type,
+                'media_original_name' => $post->media_original_name,
+                'media_size' => $post->media_size,
+            ],
+        ], 201);
     }
 }
