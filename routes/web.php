@@ -10,6 +10,7 @@ use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
 use App\Http\Controllers\Api\AvatarController;
+use App\Models\User;
 
 Route::get('/', function () {
     return view('welcome');
@@ -54,15 +55,20 @@ Route::get('/chat', function () {
 })->name('chat');
 
 Route::get('/katalog', function() {
-    return view('katalog', ['featuredBooks' => \App\Models\FeaturedBook::all()]);
+    return view('katalog', ['featuredBooks' => FeaturedBook::all()]);
 })->name('katalog');
 
 Route::get('/detail-buku/{param}', [BookController::class, 'detail'])->name('detail_buku');
 
+Route::get('/user/{id}', function ($id) {
+    $user = User::findOrFail($id);
+    return view('user_profile', compact('user'));
+})->name('user_profile');
+
 Route::get('/dashboard', function() {
     return view('dashboard', [
         'user' => Auth::user(),
-        'featuredBooks' => \App\Models\FeaturedBook::all(),
+        'featuredBooks' => FeaturedBook::all(),
     ]);
 })->middleware('auth')->name('dashboard');
 
