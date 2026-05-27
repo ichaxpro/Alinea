@@ -73,7 +73,19 @@
                 {{-- Composer --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <div class="flex gap-3">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                        @auth
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                @if (Auth::user()->avatar_url)
+                                    <img src="{{ Auth::user()->avatar_url }}" alt="Avatar {{ Auth::user()->name }}" class="w-full h-full object-cover" />
+                                @else
+                                    <span class="text-sm font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
+                        @else
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-[#444]">U</span>
+                            </div>
+                        @endauth
 
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
@@ -168,8 +180,13 @@
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
-                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
-                                 style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                @if (!empty($post['avatar_url']))
+                                    <img src="{{ $post['avatar_url'] }}" alt="Avatar {{ $post['name'] }}" class="w-full h-full object-cover" />
+                                @else
+                                    <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($post['name'] ?? 'U', 0, 1)) }}</span>
+                                @endif
+                            </div>
                             <div class="flex-1">
                                 <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-400">
