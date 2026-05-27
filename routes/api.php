@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AvatarController;
+use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Models\User;
@@ -142,4 +143,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/reviews/{id}/helpful', [ReviewController::class, 'helpful']);
     Route::put('/reviews/{id}', [ReviewController::class, 'update']);
     Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
+
+    Route::get('/bookmarks', [BookmarkController::class, 'index']);
+    Route::post('/bookmarks', [BookmarkController::class, 'store']);
+    Route::get('/bookmarks/check', [BookmarkController::class, 'check']);
 });

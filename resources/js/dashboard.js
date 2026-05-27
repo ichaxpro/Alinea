@@ -124,6 +124,9 @@ function switchTab(tab) {
     }
   }
   if (tab === 'personal') renderGenrePicker();
+  if (tab === 'tersimpan') {
+    loadBookmarks();
+  }
 }
 
 // ── GENRE PICKER ──
@@ -892,6 +895,64 @@ function handleSaveProfile(e) {
   CURRENT_USER.preferred_genres = [...selectedGenres];
   toast('Profil berhasil disimpan!');
   renderSidebarProfile();
+}
+
+async function loadBookmarks() {
+  const list = document.getElementById('bookmarks-list');
+  const empty = document.getElementById('bookmarks-empty');
+  if (!list) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/bookmarks', {headers: {Accept: 'application/json'}});
+    const data = await res.json();
+    const books = data.data ?? [];
+
+    list.innerHTML = '';
+
+    if (books.length === 0) {
+      list.classList.add('hidden');
+      empty?.classList.remove('hidden');
+      return;
+    }
+
+    list.classList.remove('hidden');
+    empty?.classList.add('hidden');
+
+    books.forEach(book => {
+      const url = book.identifier_type === 'db' ? `/detail-buku/${book.book_identifier}` : `/detail-buku/${book.book_identifier}`;
+
+      const card = document.createElement('a');
+      card.href = url;
+      card.className = 'group block rounded-2xl overflow-hidden border-[1.5px] border-gray-200 hover:border-[#444] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md';
+            card.innerHTML = `
+                <div class="aspect-[2/3] overflow-hidden bg-gradient-to-br from-[#D4F6FF] to-[#FFDDAF]">
+                    ${book.foto_sampul
+                        ? `<img src="${escapeHtml(book.foto_sampul)}" alt="${escapeHtml(book.judul)}" class="w-full h-full object-cover" />`
+                        : `<div class="w-full h-full flex items-center justify-center">
+                               <span class="text-3xl font-black text-[#444]/30">${escapeHtml(book.judul.charAt(0))}</span>
+                           </div>`
+                    }
+                </div>
+                <div class="p-3">
+                    <p class="font-bold text-[13px] text-[#444] leading-tight line-clamp-2 mb-0.5">${escapeHtml(book.judul)}</p>
+                    <p class="text-[11px] text-gray-400 truncate">${escapeHtml(book.penulis ?? '')}</p>
+                    ${book.kategori ? `<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FFDDAF]/40 text-[#444]">${escapeHtml(book.kategori)}</span>` : ''}
+                </div>
+            `;
+            list.appendChild(card);
+    });
+  } catch (e) {
+    console.error('Gagal load bookmarks: ', e);
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) {
+    return '';
+  }
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function renderSidebarProfile() {
