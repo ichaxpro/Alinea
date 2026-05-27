@@ -151,8 +151,12 @@ function renderBookDetail(book) {
   ).join(''));
 
   // Info grid
-  const statusColor = book.status === 'tersedia' ? 'text-[#22c55e]' : 'text-red-500';
-  const statusText = book.status === 'tersedia' ? 'Tersedia' : 'Dipinjam';
+  const owners = window.__BOOK_DATA__.owners ?? [];
+  const isAvailable = owners.length > 0;
+
+  const statusColor = isAvailable ? 'text-[#22c55e]' : 'text-red-500';
+  const statusText = isAvailable ? 'Tersedia' : 'Tidak Tersedia';
+
   const infoItems = [
     ['Penerbit', book.penerbit],
     ['ISBN', book.isbn],
@@ -165,6 +169,14 @@ function renderBookDetail(book) {
       <span class="text-[0.85rem] font-medium text-[#444444]">${value}</span>
     </div>
   `).join(''));
+
+  const pinjamBtn = document.getElementById('pinjamBtn');
+  if (!isAvailable) {
+    pinjamBtn.disabled = true;
+    pinjamBtn.style.opacity = '0.45';
+    pinjamBtn.style.cursor = 'not-allowed';
+    pinjamBtn.title = 'Belum ada pemilik yang meminjamkan buku ini.'
+  }
 }
 
 // ══════════════════════════════════════
