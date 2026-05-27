@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AvatarController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Models\User;
 use App\Models\BookClub;
 use Illuminate\Support\Facades\Schema;
@@ -135,4 +136,10 @@ Route::middleware(['web', 'auth'])->group(function () {
                 'initial'    => strtoupper(substr($u->name, 0, 1)),
             ]);
     });
+
+    Route::get('/reviews/{bookIdentifier}', [ReviewController::class, 'index']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::post('/reviews/{id}/helpful', [ReviewController::class, 'helpful']);
+    Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 });

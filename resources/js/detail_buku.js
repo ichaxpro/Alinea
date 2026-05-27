@@ -39,16 +39,32 @@
 
 
 
-const REVIEWS = [
-  { id:1, name:'Budi Ashcroft', initial:'B', rating:5, date:'6 Hari Lalu', text:'Novel ini paket lengkap! Tere Liye menggabungkan thriller aksi ekonomi bayangan dengan pesan filosofis mendalam. Perjalanan Bujang sangat ikonik, mengajarkan bahwa sejauh apa pun kaki melangkah, kita harus kembali ke akar jati diri. Alurnya cepat, penuh kejutan, dan emosional. Sangat layak dibaca!', helpful:30 },
-  { id:2, name:'Siti Rahmawati', initial:'S', rating:5, date:'2 Minggu Lalu', text:'Buku ini luar biasa! Tere Liye berhasil membuat saya terpaku dari halaman pertama sampai terakhir. Karakter Bujang ditulis dengan sangat baik — penuh lapisan emosi dan kompleksitas. Ending-nya bikin nangis.', helpful:24 },
-  { id:3, name:'Andi Wijaya', initial:'A', rating:4, date:'3 Minggu Lalu', text:'Ceritanya sangat menarik dengan plot twist yang tidak terduga. Satu-satunya kekurangan adalah beberapa bagian di tengah yang terasa agak lambat. Tapi secara keseluruhan, ini adalah salah satu karya terbaik Tere Liye.', helpful:18 },
-  { id:4, name:'Dewi Lestari', initial:'D', rating:5, date:'1 Bulan Lalu', text:'Pulang adalah novel yang sempurna untuk siapa pun yang suka thriller dengan sentuhan emosional. World-building ekonomi bayangannya detail dan meyakinkan. Sangat recommended!', helpful:15 },
-  { id:5, name:'Reza Pratama', initial:'R', rating:5, date:'1 Bulan Lalu', text:'Masterpiece dari Tere Liye. Buku ini mengajarkan banyak hal tentang keberanian, pengorbanan, dan arti pulang yang sesungguhnya. Wajib baca untuk semua pecinta sastra Indonesia.', helpful:12 },
-  { id:6, name:'Fitri Handayani', initial:'F', rating:4, date:'2 Bulan Lalu', text:'Bagus banget! Alur ceritanya bikin penasaran dan gak bisa stop baca. Karakter-karakternya hidup dan relatable. Tere Liye memang penulis kelas wahid.', helpful:9 },
-  { id:7, name:'Hendra Gunawan', initial:'H', rating:5, date:'2 Bulan Lalu', text:'Ini buku ke-10 Tere Liye yang saya baca dan tetap tidak mengecewakan. Pulang punya tempat spesial di hati saya. Ceritanya tentang pencarian jati diri sangat universal.', helpful:7 },
-  { id:8, name:'Maya Putri', initial:'M', rating:3, date:'3 Bulan Lalu', text:'Ceritanya oke tapi menurut saya agak terlalu panjang di beberapa bagian. Mungkin bisa lebih ringkas. Tapi ending-nya sangat memuaskan.', helpful:5 },
-];
+// const REVIEWS = [
+//   { id:1, name:'Budi Ashcroft', initial:'B', rating:5, date:'6 Hari Lalu', text:'Novel ini paket lengkap! Tere Liye menggabungkan thriller aksi ekonomi bayangan dengan pesan filosofis mendalam. Perjalanan Bujang sangat ikonik, mengajarkan bahwa sejauh apa pun kaki melangkah, kita harus kembali ke akar jati diri. Alurnya cepat, penuh kejutan, dan emosional. Sangat layak dibaca!', helpful:30 },
+//   { id:2, name:'Siti Rahmawati', initial:'S', rating:5, date:'2 Minggu Lalu', text:'Buku ini luar biasa! Tere Liye berhasil membuat saya terpaku dari halaman pertama sampai terakhir. Karakter Bujang ditulis dengan sangat baik — penuh lapisan emosi dan kompleksitas. Ending-nya bikin nangis.', helpful:24 },
+//   { id:3, name:'Andi Wijaya', initial:'A', rating:4, date:'3 Minggu Lalu', text:'Ceritanya sangat menarik dengan plot twist yang tidak terduga. Satu-satunya kekurangan adalah beberapa bagian di tengah yang terasa agak lambat. Tapi secara keseluruhan, ini adalah salah satu karya terbaik Tere Liye.', helpful:18 },
+//   { id:4, name:'Dewi Lestari', initial:'D', rating:5, date:'1 Bulan Lalu', text:'Pulang adalah novel yang sempurna untuk siapa pun yang suka thriller dengan sentuhan emosional. World-building ekonomi bayangannya detail dan meyakinkan. Sangat recommended!', helpful:15 },
+//   { id:5, name:'Reza Pratama', initial:'R', rating:5, date:'1 Bulan Lalu', text:'Masterpiece dari Tere Liye. Buku ini mengajarkan banyak hal tentang keberanian, pengorbanan, dan arti pulang yang sesungguhnya. Wajib baca untuk semua pecinta sastra Indonesia.', helpful:12 },
+//   { id:6, name:'Fitri Handayani', initial:'F', rating:4, date:'2 Bulan Lalu', text:'Bagus banget! Alur ceritanya bikin penasaran dan gak bisa stop baca. Karakter-karakternya hidup dan relatable. Tere Liye memang penulis kelas wahid.', helpful:9 },
+//   { id:7, name:'Hendra Gunawan', initial:'H', rating:5, date:'2 Bulan Lalu', text:'Ini buku ke-10 Tere Liye yang saya baca dan tetap tidak mengecewakan. Pulang punya tempat spesial di hati saya. Ceritanya tentang pencarian jati diri sangat universal.', helpful:7 },
+//   { id:8, name:'Maya Putri', initial:'M', rating:3, date:'3 Bulan Lalu', text:'Ceritanya oke tapi menurut saya agak terlalu panjang di beberapa bagian. Mungkin bisa lebih ringkas. Tapi ending-nya sangat memuaskan.', helpful:5 },
+// ];
+
+let REVIEWS = [];
+let currentSort = 'newest';
+let editingReviewId = null;
+
+function getCsrf() {
+  return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+}
+
+function getBookId() {
+  return String(window.__BOOK_DATA__?.id ?? '');
+}
+
+function getBookIdType() {
+  return window.__BOOK_DATA__?.book_identifier_type ?? 'db';
+}
 
 const SIMILAR_BOOKS = [
   { title:'Bumi', author:'Tere Liye', color:'from-[#C7E7FF] to-[#D4F6FF]', rating:4.8, initial:'B' },
@@ -76,6 +92,56 @@ function setTextById(id, text) {
 function setHtmlById(id, html) {
   const el = document.getElementById(id);
   if (el) el.innerHTML = html;
+}
+
+// Hitung ulang statistik rating dari array REVIEWS lokal dan update UI langsung
+function refreshRatingStats() {
+  const book  = window.__BOOK_DATA__;
+  const total = REVIEWS.length;
+
+  const avg = total > 0
+    ? REVIEWS.reduce((sum, r) => sum + r.rating, 0) / total
+    : 0;
+
+  const dist = {};
+  REVIEWS.forEach(r => { dist[r.rating] = (dist[r.rating] || 0) + 1; });
+
+  book.rating_avg          = Math.round(avg * 10) / 10;
+  book.rating_count        = total;
+  book.rating_distribution = dist;
+
+  // Update header rating badge
+  setHtmlById('bookRating', `
+    <div class="flex gap-0.5">${starsHtml(book.rating_avg)}</div>
+    <span class="text-[0.85rem] text-text/60">
+      <strong class="text-text font-bold">${book.rating_avg}</strong> (${book.rating_count} Ulasan)
+    </span>
+  `);
+
+  // Update rating breakdown bars
+  renderRatingBreakdown(book);
+}
+
+function updateUlasanButton(hasReviewed, myReviewId) {
+  const btn = document.getElementById('tulisUlasanBtn');
+  if (!btn) {
+    return;
+  }
+
+  if (hasReviewed && myReviewId) {
+    btn.className = 'inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-text bg-white rounded-full border-[1.5px] border-[#ddd] transition-all duration-200 hover:-translate-y-px hover:border-text hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]';
+    btn.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
+      Edit Ulasan`;
+
+    btn.dataset.myReviewId = myReviewId;
+  } else {
+    btn.className = 'inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]';
+    btn.innerHTML = `
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
+      Tulis Ulasan
+    `;
+    delete btn.dataset.myReviewId;
+  }
 }
 
 // ══════════════════════════════════════
@@ -196,13 +262,22 @@ function renderReviews(reset = false) {
     card.innerHTML = `
       <div class="flex items-center justify-between mb-3.5">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.85rem] font-bold text-[#444444]">${r.initial}</div>
+          ${r.avatar_url
+            ? `<img src="${r.avatar_url}" alt="${r.name}" class="w-10 h-10 rounded-full object-cover shrink-0" />`
+            : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.85rem] font-bold text-[#444444] shrink-0">${r.initial}</div>`
+          }
           <div>
             <span class="text-[0.9rem] font-bold text-[#444444]">${r.name}</span>
             <span class="text-[0.75rem] text-[#444444]/40 ml-2">${r.date}</span>
           </div>
         </div>
-        <div class="flex gap-0.5 text-[0.85rem]">${starsHtml(r.rating, 'text-[0.85rem]')}</div>
+        <div class="flex items-center gap-2">
+          <div class="flex gap-0.5 text-[0.85rem]">${starsHtml(r.rating, 'text-[0.85rem]')}</div>
+          ${window.__USER__ && r.user_id == window.__USER__.id ? `
+            <button class="btn-edit-review text-[0.72rem] font-semibold text-[#444444]/50 hover:text-[#444444] transition-colors px-2 py-0.5 rounded-md hover:bg-[#f5f5f5]" data-id="${r.id}">Edit</button>
+            <button class="btn-delete-review text-[0.72rem] font-semibold text-red-400 hover:text-red-600 transition-colors px-2 py-0.5 rounded-md hover:bg-red-50" data-id="${r.id}">Hapus</button>
+          ` : ''}
+        </div>
       </div>
       <p class="text-[0.88rem] leading-[1.75] text-[#444444]/80 mb-4">${r.text}</p>
       <div class="flex items-center justify-between">
@@ -217,6 +292,42 @@ function renderReviews(reset = false) {
   currentReviewPage++;
   const btn = document.getElementById('loadMoreReviews');
   btn.style.display = end >= REVIEWS.length ? 'none' : 'inline-block';
+}
+
+async function loadReviews() {
+  const bookId = getBookId();
+  if (!bookId) return;
+
+  try {
+    const res  = await fetch(`/api/reviews/${bookId}`);
+    const data = await res.json();
+
+    REVIEWS = data.reviews ?? [];
+
+    // Restore the current user's voted state from server data
+    helpfulVotes.clear();
+    REVIEWS.forEach(r => { if (r.my_vote) helpfulVotes.add(r.id); });
+
+    updateUlasanButton(data.has_reviewed, data.my_review_id);
+
+    const book = window.__BOOK_DATA__;
+    book.rating_avg          = data.rating_avg;
+    book.rating_count        = data.rating_count;
+    book.rating_distribution = data.rating_distribution;
+
+    // Update header rating dengan data real dari DB (bukan dari Google Books API)
+    setHtmlById('bookRating', `
+      <div class="flex gap-0.5">${starsHtml(book.rating_avg)}</div>
+      <span class="text-[0.85rem] text-text/60">
+        <strong class="text-text font-bold">${book.rating_avg}</strong> (${book.rating_count} Ulasan)
+      </span>
+    `);
+
+    renderRatingBreakdown(book);
+    renderReviews(true);
+  } catch (err) {
+    console.error('Gagal memuat ulasan: ', err);
+  }
 }
 
 // ══════════════════════════════════════
@@ -271,7 +382,10 @@ function renderOwnersTable(book, filterLoc = 'all') {
     <tr class="border-b-[1.5px] border-[#eee] last:border-0 hover:bg-[#FBFBFB] transition-colors">
       <td class="py-4 px-4">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.7rem] font-bold text-[#444444]">${owner.name[0].toUpperCase()}</div>
+          ${owner.avatar_url
+            ? `<img src="${owner.avatar_url}" alt="${owner.name}" class="w-8 h-8 rounded-full object-cover shrink-0" />`
+            : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.7rem] font-bold text-[#444444]">${owner.name[0].toUpperCase()}</div>`
+          }
           <span class="text-[0.9rem] font-semibold text-[#444444]">${owner.name}</span>
         </div>
       </td>
@@ -287,24 +401,110 @@ function renderOwnersTable(book, filterLoc = 'all') {
 // EVENT HANDLERS
 // ══════════════════════════════════════
 
-// Helpful vote toggle
-document.getElementById('reviewsList').addEventListener('click', e => {
-  const btn = e.target.closest('.btn-helpful');
+// Edit review
+document.getElementById('reviewsList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.btn-edit-review');
   if (!btn) return;
+
   const id = Number(btn.dataset.id);
   const review = REVIEWS.find(r => r.id === id);
   if (!review) return;
 
-  if (helpfulVotes.has(id)) {
-    helpfulVotes.delete(id); review.helpful--;
+  openModal(review);
+});
+
+document.getElementById('reviewsList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.btn-delete-review');
+  if (!btn) return;
+  const id = Number(btn.dataset.id);
+  
+  if (!confirm('Hapus ulasan ini? Tindakan ini tidak bisa dibatalkan.')) return;
+  btn.disabled    = true;
+  btn.textContent = 'Menghapus...';
+  try {
+    const res = await fetch(`/api/reviews/${id}`, {
+      method:  'DELETE',
+      headers: { 'X-CSRF-TOKEN': getCsrf() },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.message ?? 'Gagal menghapus ulasan.');
+      btn.disabled    = false;
+      btn.textContent = 'Hapus';
+      return;
+    }
+
+    REVIEWS = REVIEWS.filter(r => r.id !== id);
+    updateUlasanButton(false, null);
+    refreshRatingStats();
+    renderReviews(true);
+    showToast('🗑️ Ulasan berhasil dihapus.');
+  } catch (err) {
+    showToast('Terjadi kesalahan jaringan.');
+    console.error(err);
+    btn.disabled    = false;
+    btn.textContent = 'Hapus';
+  }
+});
+
+// Helpful vote toggle
+const helpfulPending = new Set(); // guard against double-click while fetch is in flight
+document.getElementById('reviewsList').addEventListener('click', async (e) => {
+  const btn = e.target.closest('.btn-helpful');
+  if (!btn) return;
+
+  const id = Number(btn.dataset.id);
+  if (helpfulPending.has(id)) return;
+
+  const review = REVIEWS.find(r => r.id === id);
+  if (!review) return;
+
+  const alreadyVoted = helpfulVotes.has(id);
+
+  // Optimistic UI
+  if (alreadyVoted) {
+    helpfulVotes.delete(id);
+    review.helpful--;
     btn.classList.remove('border-[#FFDDAF]', 'bg-[#FFDDAF]');
     btn.classList.add('border-[#ddd]', 'bg-white');
   } else {
-    helpfulVotes.add(id); review.helpful++;
+    helpfulVotes.add(id);
+    review.helpful++;
     btn.classList.remove('border-[#ddd]', 'bg-white');
     btn.classList.add('border-[#FFDDAF]', 'bg-[#FFDDAF]');
   }
   btn.textContent = `Membantu (${review.helpful})`;
+
+  helpfulPending.add(id);
+  try {
+    const res  = await fetch(`/api/reviews/${id}/helpful`, {
+      method:  'POST',
+      headers: { 'X-CSRF-TOKEN': getCsrf() },
+    });
+    const data = await res.json();
+
+    // Reconcile with server's authoritative count + voted state
+    review.helpful   = data.helpful;
+    review.my_vote   = data.voted;
+    if (data.voted) { helpfulVotes.add(id); } else { helpfulVotes.delete(id); }
+    btn.textContent = `Membantu (${data.helpful})`;
+
+  } catch (err) {
+    // Rollback optimistic update on network error
+    if (alreadyVoted) {
+      helpfulVotes.add(id); review.helpful++;
+      btn.classList.remove('border-[#ddd]', 'bg-white');
+      btn.classList.add('border-[#FFDDAF]', 'bg-[#FFDDAF]');
+    } else {
+      helpfulVotes.delete(id); review.helpful--;
+      btn.classList.remove('border-[#FFDDAF]', 'bg-[#FFDDAF]');
+      btn.classList.add('border-[#ddd]', 'bg-white');
+    }
+    btn.textContent = `Membantu (${review.helpful})`;
+    console.error('Gagal vote helpful', err);
+  } finally {
+    helpfulPending.delete(id);
+  }
 });
 
 // Load more
@@ -312,10 +512,69 @@ document.getElementById('loadMoreReviews').addEventListener('click', () => rende
 
 // Review modal
 const modalOverlay = document.getElementById('reviewModalOverlay');
-function openModal() { modalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
-function closeModal() { modalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
+function openModal(reviewToEdit = null) { 
+  const user = window.__USER__;
+  if (user) {
+    const avatarEl = document.getElementById('modalUserAvatar');
+    if (user.avatar_url) {
+      avatarEl.innerHTML = `<img src="${user.avatar_url}" alt="${user.name}" class="w-full h-full object-cover rounded-full" />`;
+    } else {
+      avatarEl.textContent = user.name[0].toUpperCase();
+    }
+    document.getElementById('modalUserName').textContent = user.name;
+  }
 
-document.getElementById('tulisUlasanBtn').addEventListener('click', openModal);
+  if (reviewToEdit) {
+    editingReviewId = reviewToEdit.id;
+    document.querySelector('#reviewModal h3').textContent = 'Edit Ulasan';
+    document.getElementById('submitReviewBtn').textContent = 'Simpan Perubahan';
+    document.getElementById('reviewText').value = reviewToEdit.text;
+
+    pickedRating = reviewToEdit.rating;
+    starPicker.querySelectorAll('.pick-star').forEach(s => s.classList.toggle('active', Number(s.dataset.val) <= pickedRating));
+  } else {
+    editingReviewId = null;
+    document.querySelector('#reviewModal h3').textContent = 'Tulis Ulasan';
+    document.getElementById('submitReviewBtn').textContent = 'Kirim Ulasan';
+    document.getElementById('reviewText').value = '';
+    pickedRating = 0;
+    starPicker.querySelectorAll('.pick-star').forEach(s => {
+      s.classList.remove('active');
+      s.style.color = '#ddd';
+    });
+  }
+  modalOverlay.classList.add('active'); 
+  document.body.style.overflow = 'hidden'; 
+}
+
+function closeModal() { 
+  modalOverlay.classList.remove('active'); 
+  document.body.style.overflow = ''; 
+  editingReviewId = null;
+}
+
+document.getElementById('tulisUlasanBtn').addEventListener('click', () => {
+  if (!window.__AUTH__) {
+    showToast('Kamu harus login untuk menulis ulasan.');
+    setTimeout(() => window.location.href = '/login', 1500);
+    return;
+  }
+
+  const btn = document.getElementById('tulisUlasanBtn');
+  const myReviewId = Number(btn.dataset.myReviewId);
+
+  if (myReviewId) {
+    const myReview = REVIEWS.find(r => r.id === myReviewId);
+    if (myReview) {
+      openModal(myReview);
+    } else {
+      openModal();
+    }
+  } else {
+    openModal();
+  }
+});
+
 document.getElementById('reviewModalClose').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
@@ -343,20 +602,77 @@ starPicker.addEventListener('mouseleave', () => {
 });
 
 // Submit review
-document.getElementById('submitReviewBtn').addEventListener('click', () => {
-  const name = document.getElementById('reviewName').value.trim();
+document.getElementById('submitReviewBtn').addEventListener('click', async () => {
   const text = document.getElementById('reviewText').value.trim();
-  if (!name || !text || pickedRating === 0) { showToast('⚠️ Lengkapi semua field dan pilih rating'); return; }
+  if (!text || pickedRating === 0) { showToast('Lengkapi semua field dan pilih rating'); return; }
 
-  REVIEWS.unshift({ id: Date.now(), name, initial: name[0].toUpperCase(), rating: pickedRating, date: 'Baru saja', text, helpful: 0 });
-  renderReviews(true);
-  closeModal();
-  document.getElementById('reviewName').value = '';
-  document.getElementById('reviewText').value = '';
-  pickedRating = 0;
-  starPicker.querySelectorAll('.pick-star').forEach(s => s.classList.remove('active'));
-  showToast('✅ Ulasan berhasil dikirim!');
-  document.getElementById('reviewsSection').scrollIntoView({ behavior: 'smooth' });
+  const btn = document.getElementById('submitReviewBtn');
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+  
+  try {
+    let res, data;
+
+    if (editingReviewId) {
+      res = await fetch(`/api/reviews/${editingReviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': getCsrf(),
+        },
+        body: JSON.stringify({rating: pickedRating, ulasan: text}),
+      });
+    } else {
+       res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': getCsrf(),
+        },
+        body: JSON.stringify({
+          book_identifier: getBookId(),
+          book_identifier_type: getBookIdType(),
+          rating: pickedRating,
+          ulasan: text,
+        }),
+      });
+    }
+
+    data = await res.json();
+
+    if (!res.ok) {
+      showToast(`${data.message ?? 'Gagal mengirim ulasan.'}`);
+      return;
+    }
+
+    if (editingReviewId) {
+      const idx = REVIEWS.findIndex(r => r.id === editingReviewId);
+      if (idx !== -1) REVIEWS[idx] = data.review;
+      showToast('Ulasan berhasil diperbarui');
+    } else {
+      REVIEWS.unshift(data.review);
+      updateUlasanButton(true, data.review.id);
+      showToast('Ulasan berhasil dikirim');
+    }
+
+    // Hitung ulang statistik rating dari array lokal langsung
+    refreshRatingStats();
+    renderReviews(true);
+
+    closeModal();
+    document.getElementById('reviewText').value = '';
+    pickedRating = 0;
+    starPicker.querySelectorAll('.pick-star').forEach(s => s.classList.remove('active'));
+    document.getElementById('reviewsSection').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    showToast('Terjadi kesalahan jaringan.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingReviewId ? 'Simpan Perubahan' : 'Kirim Ulasan';
+  }
 });
 
 // Save button
@@ -436,6 +752,7 @@ document.getElementById('submitPinjamBtn').addEventListener('click', () => {
 
 // Sort reviews
 document.getElementById('sortSelect').addEventListener('change', function() {
+  currentSort = this.value;
   const sorters = {
     newest: (a,b) => b.id - a.id, oldest: (a,b) => a.id - b.id,
     highest: (a,b) => b.rating - a.rating, lowest: (a,b) => a.rating - b.rating,
@@ -465,6 +782,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderBookDetail(book);
   renderRatingBreakdown(book);
-  renderReviews();
+  loadReviews();
   renderSimilarBooks();
 });

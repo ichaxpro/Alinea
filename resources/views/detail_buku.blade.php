@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="pageTitle">Detail Buku | Alinea</title>
   <meta name="description" id="pageDescription" content="Detail buku dan ulasan di Alinea — platform baca buku komunitas." />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,6 +13,8 @@
   
   <script>
     window.__BOOK_DATA__ = {!! json_encode($bookData) !!};
+    window.__AUTH__ = {{ Auth::check() ? 'true' : 'false' }};
+    window.__USER__ = {!! Auth::check() ? json_encode(['id' => Auth::id(), 'name' => Auth::user()->name, 'avatar_url' => Auth::user()->avatar_url]) : 'null' !!}
   </script>
   @vite(['resources/css/app.css', 'resources/js/detail_buku.js'])
 
@@ -153,9 +156,10 @@
               <span class="pick-star text-[1.8rem] text-[#ddd] cursor-pointer transition-all duration-150 ease-in-out hover:text-[#F5C518] hover:scale-110" data-val="5">★</span>
             </div>
           </div>
-          <div class="mb-5">
-            <label for="reviewName" class="block text-[0.78rem] font-bold text-[#444444] mb-2 uppercase tracking-[0.04em]">Nama</label>
-            <input type="text" id="reviewName" placeholder="Nama kamu" class="w-full font-['Poppins'] text-[0.88rem] text-[#444444] border-[1.5px] border-[#e0e0e0] rounded-xl px-4 py-3 outline-none transition-colors duration-200 bg-[#FBFBFB] focus:border-[#FFDDAF]" />
+          <div class="mb-5 flex items-center gap-3 py-3 px-4 bg-[#FBFBFB] rounded-xl border-[1.5px] border-[#E0E0E0]">
+            <div id="modalUserAvatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.8rem] font-bold text-[#444444] shrink-0"></div>
+            <span id="modalUserName" class="text-[0.88rem] font-semibold text-[#444444]"></span>
+            <span class="ml-auto text-[0.72rem] text-text/40">Menulis sebagai kamu</span>
           </div>
           <div class="mb-5">
             <label for="reviewText" class="block text-[0.78rem] font-bold text-[#444444] mb-2 uppercase tracking-[0.04em]">Ulasan</label>
