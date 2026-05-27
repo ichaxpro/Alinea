@@ -94,4 +94,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
     Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
     Route::post('/upload-avatar', [AvatarController::class, 'upload']);
+    Route::get('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'timelineComments'])->name('timeline_posts.comments.index');
+    Route::post('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
 });
