@@ -61,4 +61,8 @@ class User extends Authenticatable
             return asset('storage/' . $this->foto_profil);
         }
     }
+
+    public function bookmarks(): HasMany {
+        return $this->hasMany(Bookmark::class);
+    }
 }

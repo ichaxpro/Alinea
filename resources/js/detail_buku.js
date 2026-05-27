@@ -7,49 +7,6 @@
    window.__BOOK_DATA__ = {!! json_encode($book) !!};
 ═══════════════════════════════════════════ */
 
-// ══════════════════════════════════════
-// DUMMY DATA — ganti dengan data dari DB nanti
-// Struktur ini sudah match dengan skema migration
-// ══════════════════════════════════════
-
-// const BOOK_DATA = {
-//   id: 1,
-//   judul: 'Pulang',
-//   penulis: 'Tere Liye',
-//   penerbit: 'Republika',
-//   tahun_terbit: 2015,
-//   jumlah_halaman: 406,
-//   bahasa: 'Indonesia',
-//   isbn: '978-602-0851-00-7',
-//   kategori: 'Fiksi',
-//   sinopsis: 'Bujang, si "Tukang Pukul" Keluarga Tong, besar di dunia ekonomi bayangan yang penuh intrik. Meski tangguh, ia harus hadapi pengkhianatan besar. Di balik aksi menegangkan, Bujang mencari makna "pulang" sejati: menaklukkan rasa takut, berdamai dengan masa lalu, dan kembali kepada jati diri serta Tuhan.',
-//   foto_sampul: null, // null = pakai gradient placeholder
-//   status: 'tersedia',
-//   owners: [
-//     { id: 1, name: 'Alinea Library', location: 'Jakarta Pusat' },
-//     { id: 2, name: 'Ichachellow', location: 'Bandung' },
-//     { id: 3, name: 'Budi Santoso', location: 'Surabaya' }
-//   ],
-//   genres: ['Horror', 'Thriller'],
-//   // Statistik rating (dihitung dari reviews)
-//   rating_avg: 4.6,
-//   rating_count: 200,
-//   rating_distribution: { 5: 156, 4: 32, 3: 8, 2: 3, 1: 1 },
-// };
-
-
-
-// const REVIEWS = [
-//   { id:1, name:'Budi Ashcroft', initial:'B', rating:5, date:'6 Hari Lalu', text:'Novel ini paket lengkap! Tere Liye menggabungkan thriller aksi ekonomi bayangan dengan pesan filosofis mendalam. Perjalanan Bujang sangat ikonik, mengajarkan bahwa sejauh apa pun kaki melangkah, kita harus kembali ke akar jati diri. Alurnya cepat, penuh kejutan, dan emosional. Sangat layak dibaca!', helpful:30 },
-//   { id:2, name:'Siti Rahmawati', initial:'S', rating:5, date:'2 Minggu Lalu', text:'Buku ini luar biasa! Tere Liye berhasil membuat saya terpaku dari halaman pertama sampai terakhir. Karakter Bujang ditulis dengan sangat baik — penuh lapisan emosi dan kompleksitas. Ending-nya bikin nangis.', helpful:24 },
-//   { id:3, name:'Andi Wijaya', initial:'A', rating:4, date:'3 Minggu Lalu', text:'Ceritanya sangat menarik dengan plot twist yang tidak terduga. Satu-satunya kekurangan adalah beberapa bagian di tengah yang terasa agak lambat. Tapi secara keseluruhan, ini adalah salah satu karya terbaik Tere Liye.', helpful:18 },
-//   { id:4, name:'Dewi Lestari', initial:'D', rating:5, date:'1 Bulan Lalu', text:'Pulang adalah novel yang sempurna untuk siapa pun yang suka thriller dengan sentuhan emosional. World-building ekonomi bayangannya detail dan meyakinkan. Sangat recommended!', helpful:15 },
-//   { id:5, name:'Reza Pratama', initial:'R', rating:5, date:'1 Bulan Lalu', text:'Masterpiece dari Tere Liye. Buku ini mengajarkan banyak hal tentang keberanian, pengorbanan, dan arti pulang yang sesungguhnya. Wajib baca untuk semua pecinta sastra Indonesia.', helpful:12 },
-//   { id:6, name:'Fitri Handayani', initial:'F', rating:4, date:'2 Bulan Lalu', text:'Bagus banget! Alur ceritanya bikin penasaran dan gak bisa stop baca. Karakter-karakternya hidup dan relatable. Tere Liye memang penulis kelas wahid.', helpful:9 },
-//   { id:7, name:'Hendra Gunawan', initial:'H', rating:5, date:'2 Bulan Lalu', text:'Ini buku ke-10 Tere Liye yang saya baca dan tetap tidak mengecewakan. Pulang punya tempat spesial di hati saya. Ceritanya tentang pencarian jati diri sangat universal.', helpful:7 },
-//   { id:8, name:'Maya Putri', initial:'M', rating:3, date:'3 Bulan Lalu', text:'Ceritanya oke tapi menurut saya agak terlalu panjang di beberapa bagian. Mungkin bisa lebih ringkas. Tapi ending-nya sangat memuaskan.', helpful:5 },
-// ];
-
 let REVIEWS = [];
 let currentSort = 'newest';
 let editingReviewId = null;
@@ -676,9 +633,57 @@ document.getElementById('submitReviewBtn').addEventListener('click', async () =>
 });
 
 // Save button
-document.getElementById('simpanBtn').addEventListener('click', function() {
-  this.classList.toggle('saved');
-  showToast(this.classList.contains('saved') ? '🔖 Buku disimpan!' : '🔖 Buku dihapus dari simpanan');
+document.getElementById('simpanBtn').addEventListener('click', async () => {
+  if (!window.__AUTH__) {
+    showToast('Kamu harus login untuk menyimpan buku.', 'info');
+    return;
+  }
+
+  const book = window.__BOOK_DATA__;
+  const btn = document.getElementById('simpanBtn');
+  const isCurrentlySaved = btn.classList.contains('saved');
+
+  btn.classList.toggle('saved');
+
+  try {
+    const res = await fetch('/api/bookmarks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"').content,
+      },
+      body: JSON.stringify({
+        book_identifier: String(book.id),
+        identifier_type: book.book_identifier_type,
+        judul: book.judul,
+        penulis: book.penulis ?? '',
+        foto_sampul: book.foto_sampul ?? null,
+        kategori: book.kategori ?? '',
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message ?? 'Gagal');
+    }
+
+    if (data.bookmarked) {
+      btn.classList.add('saved');
+      showToast('Buku disimpan di Dashboard', 'success');
+    } else {
+      btn.classList.remove('saved');
+      showToast('Buku dihapus dari Dashboard', 'info');
+    }
+  } catch (e) {
+    if (isCurrentlySaved) {
+      btn.classList.add('saved');
+    } else {
+      btn.classList.remove('saved');
+      showToast('Gagal menyimpan buku. Coba lagi.', 'error');
+    }
+  }
 });
 
 // Owners modal
@@ -784,4 +789,33 @@ document.addEventListener('DOMContentLoaded', () => {
   renderRatingBreakdown(book);
   loadReviews();
   renderSimilarBooks();
+
+  async function initBookmarkState() {
+    if (!window.__AUTH__) {
+      return;
+    }
+
+    const book = window.__BOOK_DATA__;
+    const identifier = book.id;
+    const identifierType = book.book_identifier_type;
+
+    try {
+      const res = await fetch (
+        `/api/bookmarks/check?book_identifier=${encodeURIComponent(identifier)}&identifier_type=${encodeURIComponent(identifierType)}`,
+        {headers: {'Accept': 'application/json'}}
+      );
+      const data = await res.json();
+
+      const btn = document.getElementById('simpanBtn');
+      if (data.bookmarked) {
+        btn.classList.add('saved');
+      } else {
+        btn.classList.remove('saved');
+      }
+    } catch (e) {
+      console.error('Gagal cek status bookmark: ', e);
+    }
+  }
+
+  initBookmarkState();
 });
