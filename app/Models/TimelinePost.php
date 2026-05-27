@@ -1,0 +1,37 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class TimelinePost extends Model
+{
+    protected $fillable = [
+        'id_user',
+        'id_klub',
+        'judul_buku_dibahas',
+        'pesan',
+        'tag',
+        'media',
+        'media_type',
+        'media_original_name',
+        'media_size',
+    ];
+
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(BookClub::class, 'id_klub');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(TimelineComment::class, 'id_post');
+    }
+}

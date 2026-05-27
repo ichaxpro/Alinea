@@ -61,6 +61,7 @@
                                 ['key'=>'pengajuan','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>','label'=>'Pengajuan Pinjam'],
                                 ['key'=>'transaksi','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>','label'=>'Riwayat Peminjaman'],
                                 ['key'=>'katalog','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>','label'=>'Katalog Buku'],
+                                ['key'=>'tersimpan','icon'=>'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>','label'=>'Buku Tersimpan'],
                             ];
                             @endphp
                             @foreach($tabs as $i => $tab)
@@ -259,6 +260,27 @@
                             </div>
 
                             <div id="catalog-list"></div>
+                        </div>
+                    </div>
+
+                    <div data-tab-panel="tersimpan" class="hidden">
+                        <div class="bg-white border-[1.5px] border-text rounded-2xl p-6 md:p-8">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-10 h-10 rounded-xl bg-accent/30 flex items-center justify-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+                                </div>
+                                <div>
+                                    <h2 class="font-bold text-lg">Buku Tersimpan</h2>
+                                    <p class="text-xs text-gray-400">Koleksi buku yang tersimpan</p>
+                                </div>
+                            </div>
+                            <div id="bookmarks-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            </div>
+                            <div id="bookmarks-empty" class="hidden text-center py-16">
+                                <svg class="mx-auto mb-3 text-gray-200" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                <p class="text-sm text-gray-400 font-medium">Belum ada buku tersimpan</p>
+                                <p class="text-xs text-gray-300 mt-1">Jelajahi katalog dan simpan buku favoritmu!</p>
+                            </div>
                         </div>
                     </div>
 

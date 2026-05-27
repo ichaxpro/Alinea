@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alinea — Timeline Komunitas</title>
     <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -72,7 +73,19 @@
                 {{-- Composer --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <div class="flex gap-3">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                        @auth
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 overflow-hidden flex items-center justify-center">
+                                @if (Auth::user()->avatar_url)
+                                    <img src="{{ Auth::user()->avatar_url }}" alt="Avatar {{ Auth::user()->name }}" class="w-full h-full object-cover" />
+                                @else
+                                    <span class="text-sm font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                @endif
+                            </div>
+                        @else
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-[#444]">U</span>
+                            </div>
+                        @endauth
 
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
@@ -105,6 +118,9 @@
                                     @endforelse
                                 </select>
                             </div>
+
+                            {{-- Hidden file input for media attachments --}}
+                            <input type="file" id="composer-media" class="hidden" accept="image/*,video/*,*/*" />
 
 
 
@@ -158,56 +174,19 @@
                 </div>
 
                 {{-- Post feed --}}
-                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
-                    @php
-                    $joinedClubNames = $joinedClubs->pluck('nama_klub')->values()->all();
-                    $posts = [
-                        [
-                            'id' => 1, 'name' => 'Budi Ashcroft', 'handle' => '@isoba__',
-                            'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter', 'klub' => 'Dunia Fantasi',
-                            'body' => 'Menurut kalian, apakah tindakan Dumbledore menutupi fakta penting dari Harry di awal cerita bisa dibenarkan? Saya merasa itu terlalu membebani Harry.',
-                            'comments' => '45', 'likes_base' => 120, 'likes_label' => '120',
-                            'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
-                            'tag' => 'Diskusi',
-                        ],
-                        [
-                            'id' => 2, 'name' => 'Dina Rahmawati', 'handle' => '@dina_r',
-                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library', 'klub' => 'Dunia Fantasi',
-                            'body' => 'Ada yang bisa kasih rekomendasi buku dengan vibe yang mirip The Midnight Library? Butuh cerita yang ringan tapi memberikan makna mendalam tentang pilihan hidup.',
-                            'comments' => '24', 'likes_base' => 89, 'likes_label' => '89',
-                            'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Rekomendasi',
-                        ],
-                        [
-                            'id' => 3, 'name' => 'Ahmad Fauzan', 'handle' => '@afauzan_',
-                            'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Bumi Manusia', 'klub' => 'Sastra Nusantara',
-                            'body' => 'Baru menyelesaikan diskusi tentang Minke di pertemuan minggu lalu. Memang karakter Minke sangat kompleks. Jangan lupa pertemuan minggu depan kita akan bahas buku kedua!',
-                            'comments' => '12', 'likes_base' => 54, 'likes_label' => '54',
-                            'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Pengumuman',
-                        ],
-                        [
-                            'id' => 4, 'name' => 'Reza Mahendra', 'handle' => '@reza_m',
-                            'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'And Then There Were None', 'klub' => 'Pengulik Kebenaran',
-                            'body' => 'Siapa yang sudah baca buku Agatha Christie ini? Jujur endingnya sangat tidak tertebak! Bagaimana cara kalian menyusun teori saat membaca genre misteri seperti ini?',
-                            'comments' => '31', 'likes_base' => 102, 'likes_label' => '102',
-                            'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
-                            'tag' => 'Tanya Jawab',
-                        ],
-                    ];
-
-                    $visiblePosts = collect($posts)
-                        ->filter(fn ($post) => in_array($post['klub'], $joinedClubNames, true))
-                        ->values();
-                    @endphp
-
-                    @forelse ($visiblePosts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors" data-post-klub="{{ $post['klub'] }}">
+                <div id="feed-panel" data-post-store-url="{{ route('timeline_posts.store') }}" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
+                    @forelse ($posts as $post)
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors" data-post-klub="{{ $post['klub'] }}" data-post-id="{{ $post['id'] }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
-                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
-                                 style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                @if (!empty($post['avatar_url']))
+                                    <img src="{{ $post['avatar_url'] }}" alt="Avatar {{ $post['name'] }}" class="w-full h-full object-cover" />
+                                @else
+                                    <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($post['name'] ?? 'U', 0, 1)) }}</span>
+                                @endif
+                            </div>
                             <div class="flex-1">
                                 <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-400">
@@ -228,14 +207,27 @@
 
                         {{-- Tags: Book and Club --}}
                         <div class="flex flex-wrap gap-2 mb-3">
+                            @if (!empty($post['book']))
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
                                 📖 {{ $post['book'] }}
                             </div>
+                            @endif
                             <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
                                 👥 {{ $post['klub'] }}
                             </div>
                         </div>
                         
+                        {{-- Media (server-rendered) --}}
+                        @if (!empty($post['media_url']))
+                            @if (($post['media_type'] ?? '') === 'image')
+                                <div class="mb-3"><img src="{{ $post['media_url'] }}" alt="media" class="w-full h-auto max-h-96 object-contain rounded-lg"/></div>
+                            @elseif (($post['media_type'] ?? '') === 'video')
+                                <div class="mb-3"><video src="{{ $post['media_url'] }}" controls class="w-full h-auto rounded-lg"></video></div>
+                            @else
+                                <div class="mb-3 text-sm"><a href="{{ $post['media_url'] }}" class="underline">{{ $post['media_original_name'] ?? 'Unduh file' }}</a></div>
+                            @endif
+                        @endif
+
                         {{-- Body --}}
                         <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 

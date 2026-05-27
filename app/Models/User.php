@@ -38,9 +38,31 @@ class User extends Authenticatable
         return $this->hasMany(PersonalBook::class);
     }
 
+    public function timelinePosts(): HasMany
+    {
+        return $this->hasMany(TimelinePost::class, 'id_user');
+    }
+
+    public function timelineComments(): HasMany
+    {
+        return $this->hasMany(TimelineComment::class, 'id_user');
+    }
+
     protected $appends = ['avatar_url'];
 
     public function getAvatarUrlAttribute(): ?string {
-        return $this->foto_profil ? Storage::disk('public')->url($this->foto_profil) : null;
+        if (! $this->foto_profil) {
+            return null;
+        }
+
+        try {
+            return Storage::disk('public')->url($this->foto_profil);
+        } catch (\Throwable $e) {
+            return asset('storage/' . $this->foto_profil);
+        }
+    }
+
+    public function bookmarks(): HasMany {
+        return $this->hasMany(Bookmark::class);
     }
 }

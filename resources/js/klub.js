@@ -797,3 +797,20 @@ document.addEventListener('keydown', (e) => {
 // ── Init ──
 populateCategories();
 applyFilters();
+
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    const highlightId = params.get('highlight');
+    if (highlightId) {
+        const club = CLUBS.find(c => c.id == Number(highlightId));
+        if (club) {
+            setTimeout(() => openModal(club), 300);
+        } else {
+            getClubPayload(highlightId).then(data => {
+                const c = mapClub(data);
+                CLUBS.unshift(c);
+                openModal(c);
+            }).catch(() => {});
+        }
+    }
+})

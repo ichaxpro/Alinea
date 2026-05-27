@@ -60,6 +60,7 @@ class BookController extends Controller
             'rating_avg' => (float) ($book->rating_avg ?? 0),
             'rating_count' => (int) ($book->rating_count ?? 0),
             'rating_distribution' => (object) [],
+            'book_identifier_type' => 'db',
         ];
     }
 
@@ -117,6 +118,7 @@ class BookController extends Controller
             'rating_avg' => (float) ($info['averageRating'] ?? 0),
             'rating_count' => (int) ($info['ratingCount'] ?? 0),
             'rating_distribution' => (object) [],
+            'book_identifier_type' => 'google',
         ];
     }
 
@@ -140,6 +142,7 @@ class BookController extends Controller
                     'id' => $pb->user->id,
                     'name' => $pb->user->name ?? $pb->user->username,
                     'location' => $pb->user->kota ?? 'Indonesia',
+                    'avatar_url' => $pb->user->avatar_url,
                 ];
             }
         }

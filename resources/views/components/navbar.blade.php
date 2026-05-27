@@ -1,4 +1,6 @@
 <!-- =================== NAVBAR =================== -->
+<meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
+<meta name="google-books-key" content="{{ config('services.google_books.key') }}">
         <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
@@ -70,7 +72,7 @@
                 </div>
             </div>
         </nav>
-
+        @vite(['resources/js/global-search.js'])
          <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex-col items-center justify-center text-center">
             <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Tutup Menu">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
