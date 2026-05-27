@@ -86,11 +86,7 @@ class KlubController extends Controller
 
             // Prefer user's uploaded profile photo if present
             if (!empty($member->foto_profil)) {
-                try {
-                    $avatar = Storage::disk('public')->url($member->foto_profil);
-                } catch (\Throwable $e) {
-                    $avatar = $this->avatarUrl($username, $name);
-                }
+                $avatar = asset('storage/' . $member->foto_profil);
             } else {
                 $avatar = $this->avatarUrl($username, $name);
             }
@@ -109,11 +105,7 @@ class KlubController extends Controller
             $ownerPayload = $this->memberPayload($ownerUser, 'owner');
             // If owner has uploaded foto_profil, override avatar
             if (!empty($ownerUser?->foto_profil)) {
-                try {
-                    $ownerPayload['avatar'] = Storage::disk('public')->url($ownerUser->foto_profil);
-                } catch (\Throwable $e) {
-                    // keep existing avatar
-                }
+                $ownerPayload['avatar'] = asset('storage/' . $ownerUser->foto_profil);
             } elseif (!empty($ownerUser?->avatar_url)) {
                 $ownerPayload['avatar'] = $ownerUser->avatar_url;
             }
@@ -414,6 +406,7 @@ class KlubController extends Controller
                     'users.name',
                     'users.username as handle',
                     'users.kota as location',
+                    'users.foto_profil',
                     'klub.nama_klub as klub',
                     'klub.gradient_from as avatar_from',
                     'klub.gradient_to as avatar_to',
@@ -436,6 +429,7 @@ class KlubController extends Controller
                         'likes_base' => (int) $post->likes_base,
                         'likes_label' => (string) $post->likes_base,
                         'liked' => false,
+                        'avatar_url' => $post->foto_profil ? asset('storage/' . $post->foto_profil) : null,
                         'avatar_from' => $post->avatar_from ?: '#FFDDAF',
                         'avatar_to' => $post->avatar_to ?: '#C7E7FF',
                         'tag' => $post->tag ?: 'Post',
