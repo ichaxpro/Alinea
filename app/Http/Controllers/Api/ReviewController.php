@@ -160,7 +160,7 @@ class ReviewController extends Controller
             'rating'     => $r->rating,
             'date'       => $r->created_at->diffForHumans(),
             'text'       => $r->ulasan,
-            'helpful'    => $r->helpful,
+            'helpful'    => (int) ($r->helpful ?? 0),
             'my_vote'    => $myVote,
         ];
     }
