@@ -11,6 +11,7 @@ use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
 use App\Http\Controllers\Api\AvatarController;
 use App\Models\User;
+use App\Models\PersonalBook;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,8 +25,18 @@ Route::get('/daftar_akun', function () {
     return view('daftar_akun');
 })->name('daftar');
 
+// Route::get('/pinjam', function () {
+//     return view('pinjam');
+// })->name('pinjam');
+
 Route::get('/pinjam', function () {
-    return view('pinjam');
+    // Ambil semua buku yang tersedia, berserta data pemiliknya
+    $books = PersonalBook::with('user')
+                ->where('is_available', true)
+                ->where('status', 'tersedia')
+                ->latest()
+                ->get();
+    return view('pinjam', compact('books'));
 })->name('pinjam');
 
 Route::get('/timeline_home', function () {
@@ -88,10 +99,20 @@ Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
 
+use App\Http\Controllers\Api\TransactionController;
+
 Route::middleware('auth')->group(function () {
     Route::get('/personal-books', [PersonalBookController::class, 'index']);
     Route::post('/personal-books', [PersonalBookController::class, 'store']);
     Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
     Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
     Route::post('/upload-avatar', [AvatarController::class, 'upload']);
+    
+    // Transactions
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/transactions/incoming', [TransactionController::class, 'incomingRequests']);
+    Route::get('/transactions/outgoing', [TransactionController::class, 'outgoingRequests']);
+    Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus']);
+    Route::patch('/transactions/{transaction}/request-return', [TransactionController::class, 'requestReturn']);
+    Route::patch('/transactions/{transaction}/accept-return', [TransactionController::class, 'acceptReturn']);
 });

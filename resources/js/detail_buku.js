@@ -360,7 +360,7 @@ function renderOwnersTable(book, filterLoc = 'all') {
       </td>
       <td class="py-4 px-4 text-[0.85rem] text-[#444444]/70">${owner.location}</td>
       <td class="py-4 px-4 text-center">
-        <button class="btn-pilih-owner px-4 py-1.5 text-[0.8rem] font-bold text-[#444444] bg-white border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB]" data-name="${owner.name}">Pilih</button>
+        <button class="btn-pilih-owner px-4 py-1.5 text-[0.8rem] font-bold text-[#444444] bg-white border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB]" data-name="${owner.name}" data-pbid="${owner.personal_book_id}">Pilih</button>
       </td>
     </tr>
   `).join('');
@@ -741,12 +741,15 @@ document.addEventListener('keydown', e => {
   }
 });
 
+let selectedPersonalBookId = null;
+
 // Handle owner selection
 document.getElementById('ownersTableBody').addEventListener('click', (e) => {
   const btn = e.target.closest('.btn-pilih-owner');
   if (!btn) return;
   
   const selectedOwnerName = btn.dataset.name;
+  selectedPersonalBookId = btn.dataset.pbid;
   
   // Update pinjam modal with selected owner
   setTextById('pinjamBookOwner', selectedOwnerName);
@@ -756,15 +759,47 @@ document.getElementById('ownersTableBody').addEventListener('click', (e) => {
 });
 
 // Submit pinjam request
-document.getElementById('submitPinjamBtn').addEventListener('click', () => {
+document.getElementById('submitPinjamBtn').addEventListener('click', async () => {
   const durasi = document.getElementById('durasiPeminjaman').value.trim();
   const titik = document.getElementById('titikTemu').value.trim();
   if (!durasi || !titik) { showToast('⚠️ Lengkapi durasi dan titik temu'); return; }
   
-  closePinjamModal();
-  document.getElementById('durasiPeminjaman').value = '';
-  document.getElementById('titikTemu').value = '';
-  showToast('📚 Permintaan peminjaman diajukan! Cek notifikasi secara berkala.');
+  if (!selectedPersonalBookId) { showToast('⚠️ Pilih pemilik buku terlebih dahulu.'); return; }
+  
+  const btn = document.getElementById('submitPinjamBtn');
+  btn.disabled = true;
+  btn.textContent = 'Memproses...';
+
+  try {
+      const response = await fetch('/transactions', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+              'Accept': 'application/json'
+          },
+          body: JSON.stringify({ 
+              book_id: selectedPersonalBookId, 
+              titik_temu: titik, 
+              durasi_hari: parseInt(durasi) 
+          })
+      });
+
+      if (response.ok) {
+          closePinjamModal();
+          document.getElementById('durasiPeminjaman').value = '';
+          document.getElementById('titikTemu').value = '';
+          showToast('📚 Permintaan peminjaman diajukan! Cek notifikasi secara berkala.');
+      } else {
+          const err = await response.json();
+          showToast('⚠️ Gagal mengirim pengajuan: ' + (err.message || 'Error'));
+      }
+  } catch (error) {
+      showToast('⚠️ Terjadi kesalahan jaringan.');
+  } finally {
+      btn.disabled = false;
+      btn.textContent = 'Kirim Pengajuan';
+  }
 });
 
 // Sort reviews

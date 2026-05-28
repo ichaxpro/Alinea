@@ -862,5 +862,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Boot ───────────────────────────────────────────────────────────────
     buildEmojiPicker();
-    fetchConversations();
+    fetchConversations().then(() => {
+        // Auto-open chat if user_id is in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUserId = urlParams.get('user_id');
+        if (targetUserId) {
+            startNewConversation({ id: parseInt(targetUserId) });
+            
+            // Clean up the URL so refreshing doesn't create duplicate requests
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
 });
