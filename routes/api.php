@@ -139,6 +139,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             ]);
     });
 
+    Route::get('/reviews/stats', [ReviewController::class, 'stats']);
     Route::get('/reviews/{bookIdentifier}', [ReviewController::class, 'index']);
     Route::post('/reviews', [ReviewController::class, 'store']);
     Route::post('/reviews/{id}/helpful', [ReviewController::class, 'helpful']);

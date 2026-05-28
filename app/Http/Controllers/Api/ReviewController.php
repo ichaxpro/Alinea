@@ -164,4 +164,24 @@ class ReviewController extends Controller
             'my_vote'    => $myVote,
         ];
     }
+
+    public function stats(Request $request) {
+        $ids = $request->input('ids', []);
+
+        $stats = BookReview::whereIn('book_identifier', $ids)
+            ->selectRaw('book_identifier, ROUND(AVG(rating), 1) as rating_avg, COUNT(*) as rating_count')
+            ->groupBy('book_identifier')
+            ->get()
+            ->keyBy('book_identifier');
+
+            $result = [];
+            foreach ($ids as $id) {
+                $result[$id] = [
+                    'rating_avg'        => (float) ($stats[$id]->rating_avg ?? 0),
+                    'rating_count'      => (int) ($stats[$id]->rating_count ?? 0),
+                ];
+            }
+
+            return response()->json(['stats' => $result]);
+    }
 }
