@@ -11,6 +11,10 @@ class TimelineComment extends Model
         'id_post',
         'id_user',
         'isi_komentar',
+        'media',
+        'media_type',
+        'media_original_name',
+        'media_size',
     ];
 
     public function post(): BelongsTo

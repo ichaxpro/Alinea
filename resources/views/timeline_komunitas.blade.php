@@ -7,6 +7,8 @@
     <title>Alinea — Timeline Komunitas</title>
     <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <meta name="user-name" content="{{ Auth::check() ? Auth::user()->name : '' }}" />
+    <meta name="user-avatar-url" content="{{ Auth::check() && Auth::user()->avatar_url ? Auth::user()->avatar_url : '' }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -234,10 +236,10 @@
                         {{-- Actions --}}
                         <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
                             {{-- Comment --}}
-                            <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar"
+                            <button id="comment-btn-{{ $post['id'] }}" data-comment-toggle aria-label="Komentar"
                                     class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
                                 <x-icon-comment fill="none" />
-                                <span>{{ $post['comments'] }}</span>
+                                <span data-comment-count>{{ $post['comments'] }}</span>
                             </button>
 
                             {{-- Like --}}
@@ -261,6 +263,63 @@
                                     <x-icon-share fill="none" />
                                 </button>
                             </div>
+                        </div>
+
+                        <div data-comments-panel class="hidden mt-4 pt-4 border-t border-gray-100" data-comments-loaded="false"
+                             data-comments-url="{{ route('timeline_posts.comments.index', $post['id']) }}"
+                             data-comments-store-url="{{ route('timeline_posts.comments.store', $post['id']) }}">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-sm font-bold text-[#444]">Komentar</h4>
+                                <span class="text-xs text-gray-400">Klik icon komentar untuk membuka</span>
+                            </div>
+
+                            <div data-comment-list class="space-y-3 mb-4"></div>
+
+                            @auth
+                                <form data-comment-form class="flex gap-3 items-start">
+                                    <div class="w-9 h-9 rounded-full border border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center flex-shrink-0">
+                                        @if (Auth::user()->avatar_url)
+                                            <img src="{{ Auth::user()->avatar_url }}" alt="Avatar {{ Auth::user()->name }}" class="w-full h-full object-cover" />
+                                        @else
+                                            <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <textarea data-comment-input rows="1" maxlength="500" placeholder="Tulis komentar..."
+                                                  class="w-full border-[1.5px] border-gray-200 rounded-xl px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
+                                        <input type="file" data-comment-media-input class="hidden" accept="image/*,video/*,*/*" />
+                                        <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" data-comment-media-trigger="image" aria-label="Unggah gambar komentar" title="Unggah gambar"
+                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                                                    </svg>
+                                                </button>
+                                                <button type="button" data-comment-media-trigger="video" aria-label="Unggah video komentar" title="Unggah video"
+                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                                    </svg>
+                                                </button>
+                                                <button type="button" data-comment-media-trigger="file" aria-label="Lampirkan file komentar" title="Lampirkan file"
+                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                                    </svg>
+                                                </button>
+                                                <span data-comment-media-label class="text-xs text-gray-400"></span>
+                                            </div>
+                                            <button type="submit" data-comment-submit
+                                                    class="bg-[#FFDDAF] text-[#444] font-bold text-sm px-4 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">
+                                                Kirim
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            @else
+                                <div class="text-sm text-gray-400">Silakan login untuk menulis komentar.</div>
+                            @endauth
                         </div>
                     </article>
                     @empty

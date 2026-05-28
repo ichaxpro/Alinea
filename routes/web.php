@@ -115,4 +115,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus']);
     Route::patch('/transactions/{transaction}/request-return', [TransactionController::class, 'requestReturn']);
     Route::patch('/transactions/{transaction}/accept-return', [TransactionController::class, 'acceptReturn']);
+    Route::get('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'timelineComments'])->name('timeline_posts.comments.index');
+    Route::post('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
 });

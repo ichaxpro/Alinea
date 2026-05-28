@@ -7,6 +7,7 @@ use App\Models\BookClub;
 use App\Models\FeaturedBook;
 use App\Models\TimelinePost;
 use Illuminate\Validation\Rule;
+use App\Models\TimelineComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,25 @@ use Illuminate\Support\Str;
 
 class KlubController extends Controller
 {
+    private function timelineCommentPayload(TimelineComment $comment): array
+    {
+        $author = $comment->author;
+
+        return [
+            'id' => $comment->id,
+            'name' => $author?->name ?? 'Pengguna',
+            'handle' => $author?->username ? '@' . ltrim($author->username, '@') : '@pengguna',
+            'avatar_url' => $author?->avatar_url ?? null,
+            'body' => $comment->isi_komentar,
+            'media' => $comment->media,
+            'media_url' => $comment->media ? asset('storage/' . $comment->media) : null,
+            'media_type' => $comment->media_type,
+            'media_original_name' => $comment->media_original_name,
+            'media_size' => $comment->media_size,
+            'time' => $comment->created_at ? Carbon::parse($comment->created_at)->diffForHumans() : 'Baru saja',
+        ];
+    }
+
     private function avatarUrl(?string $username, ?string $name = null): ?string
     {
         $seed = $username ?: $name;
@@ -234,6 +254,75 @@ class KlubController extends Controller
         }
 
         return response()->json($this->clubPayload($club->fresh(), $user->id));
+    }
+
+    public function timelineComments(TimelinePost $post)
+    {
+        $comments = $post->comments()
+            ->with('author:id,name,username,foto_profil')
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn (TimelineComment $comment) => $this->timelineCommentPayload($comment));
+
+        return response()->json([
+            'comments' => $comments,
+        ]);
+    }
+
+    public function storeTimelineComment(Request $request, TimelinePost $post)
+    {
+        $currentUser = Auth::user();
+
+        if (!$currentUser) {
+            return response()->json([
+                'message' => 'Silakan login untuk mengirim komentar.',
+            ], 401);
+        }
+
+        $validated = $request->validate([
+            'isi_komentar' => ['required', 'string', 'max:500'],
+            'media' => ['nullable', 'file', 'max:10240'],
+        ]);
+
+        $mediaPath = null;
+        $mediaType = null;
+        $mediaOriginalName = null;
+        $mediaSize = null;
+
+        if ($request->hasFile('media')) {
+            $file = $request->file('media');
+            $mediaPath = $file->store('timeline_comments', 'public');
+            $mime = $file->getMimeType() ?: '';
+
+            if (str_starts_with($mime, 'image/')) {
+                $mediaType = 'image';
+            } elseif (str_starts_with($mime, 'video/')) {
+                $mediaType = 'video';
+            } else {
+                $mediaType = 'file';
+            }
+
+            $mediaOriginalName = $file->getClientOriginalName();
+            $mediaSize = $file->getSize();
+        }
+
+        $comment = TimelineComment::create([
+            'id_post' => $post->id,
+            'id_user' => $currentUser->id,
+            'isi_komentar' => $validated['isi_komentar'],
+            'media' => $mediaPath,
+            'media_type' => $mediaType,
+            'media_original_name' => $mediaOriginalName,
+            'media_size' => $mediaSize,
+        ]);
+
+        $comment->load('author:id,name,username,foto_profil');
+
+        return response()->json([
+            'message' => 'Komentar berhasil dikirim.',
+            'comment' => $this->timelineCommentPayload($comment),
+            'comments_count' => $post->comments()->count(),
+        ], 201);
     }
 
     public function leave(Request $request, BookClub $club)
@@ -524,6 +613,7 @@ class KlubController extends Controller
                 'likes_base' => 0,
                 'likes_label' => '0',
                 'liked' => false,
+                'avatar_url' => $currentUser->avatar_url,
                 'avatar_from' => $club?->gradient_from ?: '#FFDDAF',
                 'avatar_to' => $club?->gradient_to ?: '#C7E7FF',
                 'tag' => $post->tag ?: 'Post',
