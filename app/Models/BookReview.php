@@ -9,6 +9,7 @@ class BookReview extends Model
 {
     protected $fillable = ['book_identifier', 'book_identifier_type', 'user_id', 'rating', 'ulasan', 'helpful'];
     protected $casts = ['rating' => 'integer', 'helpful' => 'integer'];
+    protected $attributes = ['helpful' => 0];
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }

@@ -27,11 +27,13 @@ let catalogPage = 1;
 const CATALOG_PER_PAGE = 10;
 
 async function apiCall(method, url, body = null) {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   const opts = {
     method,
     headers: {
       'Accept': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-TOKEN': csrfToken,
     },
   };
   if (body) {

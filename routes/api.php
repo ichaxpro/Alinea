@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AvatarController;
 use App\Http\Controllers\Api\BookmarkController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\BookController;
 use App\Models\User;
 use App\Models\BookClub;
 use Illuminate\Support\Facades\Schema;
@@ -147,4 +148,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
     Route::post('/bookmarks', [BookmarkController::class, 'store']);
     Route::get('/bookmarks/check', [BookmarkController::class, 'check']);
+
+    Route::get('/books/{param}/similar', [BookController::class, 'similarBooks']);
 });
