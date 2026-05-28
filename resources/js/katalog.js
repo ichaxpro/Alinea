@@ -69,8 +69,8 @@ function parseBookVolume(volume) {
     judul: judul + subtitle,
     penulis: info.authors?.join(', ') || '',
     tahun: info.publishedDate ? parseInt(info.publishedDate.substring(0, 4)) : '',
-    rating_avg: info.averageRating || 0,
-    rating_count: info.ratingsCount || 0,
+    rating_avg: 0,
+    rating_count: 0,
     sinopsis: info.description || '',
     genres: [mapCategory(info.categories)],
     cover: coverUrl || null,
@@ -140,137 +140,6 @@ async function fetchBooks(query) {
   return merged;
 }
 
-// const BOOKS = [
-//   {
-//     id: 1, judul: 'Pulang', penulis: 'Tere Liye', tahun: 2015,
-//     rating_avg: 4.6, rating_count: 200,
-//     sinopsis: 'Bujang, Si Tukang Pukul Keluarga Tong, Mencari Arti Pulang Di Dunia Bayangan Yang Penuh Intrik Dan Pengkhianatan.',
-//     genres: ['Horror', 'Thriller'],
-//     gradient_from: '#FFDDAF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-//   {
-//     id: 2, judul: 'Bumi', penulis: 'Tere Liye', tahun: 2014,
-//     rating_avg: 4.8, rating_count: 350,
-//     sinopsis: 'Raib, Ali, dan Seli memulai petualangan luar biasa ke klan-klan misterius di dunia paralel yang penuh keajaiban.',
-//     genres: ['Fantasy', 'Adventure'],
-//     gradient_from: '#C7E7FF', gradient_to: '#D4F6FF',
-//     cover: null,
-//   },
-//   {
-//     id: 3, judul: 'Laut Bercerita', penulis: 'Leila S. Chudori', tahun: 2017,
-//     rating_avg: 4.7, rating_count: 180,
-//     sinopsis: 'Kisah aktivis mahasiswa yang menghilang di era Orde Baru, diceritakan lewat suara mereka yang ditenggelamkan laut.',
-//     genres: ['Sastra', 'Sejarah'],
-//     gradient_from: '#D4F6FF', gradient_to: '#FFDDAF',
-//     cover: null,
-//   },
-//   {
-//     id: 4, judul: 'Cantik Itu Luka', penulis: 'Eka Kurniawan', tahun: 2002,
-//     rating_avg: 4.5, rating_count: 145,
-//     sinopsis: 'Dewi Ayu bangkit dari kubur dan menyaksikan dunia yang dipenuhi kekerasan, kecantikan, dan kutukan tak berujung.',
-//     genres: ['Sastra', 'Realisme Magis'],
-//     gradient_from: '#FFDDAF', gradient_to: '#D4F6FF',
-//     cover: null,
-//   },
-//   {
-//     id: 5, judul: 'Supernova: Ksatria, Puteri, dan Bintang Jatuh', penulis: 'Dee Lestari', tahun: 2001,
-//     rating_avg: 4.4, rating_count: 290,
-//     sinopsis: 'Dua sahabat menulis novel yang mengubah kehidupan orang-orang di sekitarnya lewat perjalanan spiritual dan sains.',
-//     genres: ['Fiksi', 'Filosofi'],
-//     gradient_from: '#C7E7FF', gradient_to: '#FFDDAF',
-//     cover: null,
-//   },
-//   {
-//     id: 6, judul: 'Filosofi Teras', penulis: 'Henry Manampiring', tahun: 2018,
-//     rating_avg: 4.6, rating_count: 410,
-//     sinopsis: 'Pengantar filsafat Stoa yang dikemas ringan dan praktis untuk menghadapi kecemasan hidup modern.',
-//     genres: ['Non-Fiksi', 'Filosofi'],
-//     gradient_from: '#D4F6FF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-//   {
-//     id: 7, judul: 'Hujan', penulis: 'Tere Liye', tahun: 2016,
-//     rating_avg: 4.3, rating_count: 165,
-//     sinopsis: 'Lail dan Esok, dua remaja yang tumbuh bersama di tengah bencana alam dan teknologi masa depan yang menghapus ingatan.',
-//     genres: ['Romance', 'Sci-Fi'],
-//     gradient_from: '#FFDDAF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-//   {
-//     id: 8, judul: 'Perahu Kertas', penulis: 'Dee Lestari', tahun: 2009,
-//     rating_avg: 4.2, rating_count: 230,
-//     sinopsis: 'Kugy dan Keenan mengejar mimpi masing-masing — menulis dongeng dan melukis — sambil tersesat dalam cinta.',
-//     genres: ['Romance', 'Drama'],
-//     gradient_from: '#C7E7FF', gradient_to: '#D4F6FF',
-//     cover: null,
-//   },
-//   {
-//     id: 9, judul: 'Negeri 5 Menara', penulis: 'A. Fuadi', tahun: 2009,
-//     rating_avg: 4.5, rating_count: 320,
-//     sinopsis: 'Enam sahabat di pesantren bermimpi mengunjungi menara-menara dunia, diiringi mantra "Man Jadda Wajada".',
-//     genres: ['Inspirasi', 'Drama'],
-//     gradient_from: '#D4F6FF', gradient_to: '#FFDDAF',
-//     cover: null,
-//   },
-//   {
-//     id: 10, judul: 'Ronggeng Dukuh Paruk', penulis: 'Ahmad Tohari', tahun: 1982,
-//     rating_avg: 4.7, rating_count: 120,
-//     sinopsis: 'Srintil menjadi ronggeng yang dikagumi, namun terjebak dalam pusaran tragedi politik dan budaya Jawa.',
-//     genres: ['Sastra', 'Klasik'],
-//     gradient_from: '#FFDDAF', gradient_to: '#D4F6FF',
-//     cover: null,
-//   },
-//   {
-//     id: 11, judul: 'Sapiens', penulis: 'Yuval Noah Harari', tahun: 2011,
-//     rating_avg: 4.8, rating_count: 500,
-//     sinopsis: 'Menelusuri sejarah umat manusia dari zaman batu hingga era revolusi sains dan apa artinya menjadi manusia.',
-//     genres: ['Non-Fiksi', 'Sejarah'],
-//     gradient_from: '#C7E7FF', gradient_to: '#FFDDAF',
-//     cover: null,
-//   },
-//   {
-//     id: 12, judul: 'Atomic Habits', penulis: 'James Clear', tahun: 2018,
-//     rating_avg: 4.9, rating_count: 620,
-//     sinopsis: 'Panduan praktis untuk membangun kebiasaan baik dan menghancurkan kebiasaan buruk lewat perubahan kecil yang konsisten.',
-//     genres: ['Non-Fiksi', 'Self-Help'],
-//     gradient_from: '#D4F6FF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-//   {
-//     id: 13, judul: 'Matahari', penulis: 'Tere Liye', tahun: 2016,
-//     rating_avg: 4.6, rating_count: 195,
-//     sinopsis: 'Lanjutan petualangan Raib dan kawan-kawan menghadapi kekuatan gelap yang mengancam seluruh klan paralel.',
-//     genres: ['Fantasy', 'Adventure'],
-//     gradient_from: '#FFDDAF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-//   {
-//     id: 14, judul: 'Dilan 1990', penulis: 'Pidi Baiq', tahun: 2014,
-//     rating_avg: 4.1, rating_count: 380,
-//     sinopsis: 'Kisah cinta Dilan dan Milea di Bandung tahun 1990, penuh gombalan khas dan kenangan SMA yang tak terlupakan.',
-//     genres: ['Romance', 'Drama'],
-//     gradient_from: '#C7E7FF', gradient_to: '#D4F6FF',
-//     cover: null,
-//   },
-//   {
-//     id: 15, judul: 'The Alchemist', penulis: 'Paulo Coelho', tahun: 1988,
-//     rating_avg: 4.5, rating_count: 450,
-//     sinopsis: 'Santiago, gembala Andalusia, mengejar mimpinya menemukan harta karun di Piramida Mesir dan menemukan makna hidup.',
-//     genres: ['Fiksi', 'Inspirasi'],
-//     gradient_from: '#D4F6FF', gradient_to: '#FFDDAF',
-//     cover: null,
-//   },
-//   {
-//     id: 16, judul: 'Laskar Pelangi', penulis: 'Andrea Hirata', tahun: 2005,
-//     rating_avg: 4.6, rating_count: 540,
-//     sinopsis: 'Sepuluh anak dari Belitung berjuang meraih pendidikan dan mimpi di tengah keterbatasan, dipimpin Bu Muslimah yang tangguh.',
-//     genres: ['Inspirasi', 'Drama'],
-//     gradient_from: '#FFDDAF', gradient_to: '#C7E7FF',
-//     cover: null,
-//   },
-// ];
-
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
@@ -313,6 +182,20 @@ function showToast(msg) {
   document.getElementById('toastContainer').appendChild(t);
   setTimeout(() => t.classList.add('show'), 10);
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
+}
+
+async function fetchRatingStats(ids) {
+  if (!ids.length) return {};
+  try {
+    const params = new URLSearchParams();
+    ids.forEach(id => params.append('ids[]', id));
+    const res = await fetch(`/api/reviews/stats?${params}`);
+    const data = await res.json();
+    return data.stats ?? {};
+  } catch (e) {
+    console.warn('Gagal fetch rating stats: ', e);
+    return {};
+  }
 }
 
 // ══════════════════════════════════════
@@ -590,6 +473,17 @@ searchInput.addEventListener('input', () => {
       const books = await fetchBooks(query);
       window.__BOOKS_DATA__ = books;
       applyFilters();
+      const allIds = books.map(b => b.google_id || String(b.id)).filter(Boolean);
+      const stats = await fetchRatingStats(allIds);
+      window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => {
+        const key = b.google_id || String(b.id);
+        const s = stats[key];
+        if (s) {
+          return {...b, rating_avg: s.rating_avg, rating_count: s.rating_count};
+        }
+        return b;
+      });
+      applyFilters(false);
     } catch (err) {
       showToast('Gagal mencari buku');
       window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
@@ -631,7 +525,7 @@ resetBtn.addEventListener('click', () => {
   sortSelect.value = 'rating-desc';
   window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
   applyFilters();
-  showToast('🔄 Filter telah direset');
+  showToast('Filter telah direset');
 });
 
 // Scroll-to-top button
@@ -647,8 +541,17 @@ scrollTopBtn.addEventListener('click', () => {
 // INIT
 // ══════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
   populateGenres();
   applyFilters();
+
+  const ids = window.__FEATURED_BOOKS__.map(b => String(b.id));
+  const stats = await fetchRatingStats(ids);
+  window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => ({
+    ...b,
+    rating_avg: stats[String(b.id)]?.rating_avg ?? b.rating_avg,
+    rating_count: stats[String(b.id)]?.rating_count ?? b.rating_count,
+  }));
+  applyFilters(false);
 });
