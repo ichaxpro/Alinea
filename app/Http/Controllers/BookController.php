@@ -143,6 +143,7 @@ class BookController extends Controller
                     'name' => $pb->user->name ?? $pb->user->username,
                     'location' => $pb->user->kota ?? 'Indonesia',
                     'avatar_url' => $pb->user->avatar_url,
+                    'personal_book_id' => $pb->id,
                 ];
             }
         }

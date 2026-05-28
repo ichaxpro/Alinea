@@ -13,18 +13,9 @@ const ALL_GENRES = ['Fiksi','Non-Fiksi','Thriller','Misteri','Romansa','Sci-Fi',
 //   { id:4, judul:'Sapiens', penulis:'Yuval Noah Harari', isbn:'978-0-06-231609-7', tahun_terbit:2011, kategori:'Non-Fiksi', foto_sampul:null, is_available:true, status:'tersedia' },
 // ];
 
-const TRANSACTIONS = [
-  { id:1, buku:{ judul:'Harry Potter', penulis:'J.K. Rowling', foto_sampul:null }, pemilik:{ nama:'Dina Rahmawati', kota:'Surabaya' }, tanggal_pinjam:'2026-04-20', tanggal_kembali_rencana:'2026-05-04', tanggal_pengembalian_aktual:null, status_transaksi:'pending', titik_temu_pinjam:'Toko Buku Gramedia Surabaya' },
-  { id:2, buku:{ judul:'The Midnight Library', penulis:'Matt Haig', foto_sampul:null }, pemilik:{ nama:'Ahmad Fauzan', kota:'Bandung' }, tanggal_pinjam:'2026-04-15', tanggal_kembali_rencana:'2026-04-29', tanggal_pengembalian_aktual:null, status_transaksi:'on_loan', titik_temu_pinjam:'Kafe Kopi Kenangan Bandung' },
-  { id:3, buku:{ judul:'Laskar Pelangi', penulis:'Andrea Hirata', foto_sampul:null }, pemilik:{ nama:'Reza Mahendra', kota:'Jakarta' }, tanggal_pinjam:'2026-03-01', tanggal_kembali_rencana:'2026-03-15', tanggal_pengembalian_aktual:null, status_transaksi:'on_loan', titik_temu_pinjam:'Perpustakaan UI Depok' },
-  { id:4, buku:{ judul:'Filosofi Teras', penulis:'Henry Manampiring', foto_sampul:null }, pemilik:{ nama:'Siti Rahmawati', kota:'Yogyakarta' }, tanggal_pinjam:'2026-02-10', tanggal_kembali_rencana:'2026-02-24', tanggal_pengembalian_aktual:'2026-02-22', status_transaksi:'returned', titik_temu_pinjam:'Malioboro Mall' },
-  { id:5, buku:{ judul:'Negeri 5 Menara', penulis:'A. Fuadi', foto_sampul:null }, pemilik:{ nama:'Maya Putri', kota:'Malang' }, tanggal_pinjam:'2026-01-05', tanggal_kembali_rencana:'2026-01-19', tanggal_pengembalian_aktual:'2026-01-20', status_transaksi:'returned', titik_temu_pinjam:'Alun-Alun Malang' },
-];
+let TRANSACTIONS = [];
 
-const PENGAJUAN_PINJAM = [
-  { id:1, buku:{ judul:'Atomic Habits', penulis:'James Clear', foto_sampul:null }, peminjam:{ nama:'Budi Santoso', kota:'Surabaya' }, tanggal_pinjam:'2026-06-01', tanggal_kembali_rencana:'2026-06-15', status:'pending', titik_temu:'Toko Kopi Kulo' },
-  { id:2, buku:{ judul:'Sapiens', penulis:'Yuval Noah Harari', foto_sampul:null }, peminjam:{ nama:'Rina Wati', kota:'Jakarta' }, tanggal_pinjam:'2026-05-25', tanggal_kembali_rencana:'2026-06-08', status:'accepted', titik_temu:'Stasiun Tugu' },
-];
+let PENGAJUAN_PINJAM = [];
 
 // ── STATE ──
 let activeTab = 'personal';
@@ -63,24 +54,26 @@ const $$ = s => document.querySelectorAll(s);
 const fmt = d => { if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}); };
 
 function isOverdue(tx) {
-  if (tx.status_transaksi !== 'on_loan') return false;
+  if (tx.status_transaksi !== 'on_loan' && tx.status_transaksi !== 'accepted') return false;
   return new Date(tx.tanggal_kembali_rencana) < new Date();
 }
 
 function getTxStatus(tx) {
-  if (tx.status_transaksi === 'pending') return 'pending';
+  if (['pending', 'rejected'].includes(tx.status_transaksi)) return 'pending';
   if (tx.status_transaksi === 'returned') return 'returned';
-  if (tx.status_transaksi === 'on_loan' && isOverdue(tx)) return 'overdue';
-  if (tx.status_transaksi === 'on_loan') return 'on_loan';
+  if (['on_loan', 'accepted', 'pending_return'].includes(tx.status_transaksi)) {
+      if (isOverdue(tx)) return 'overdue';
+      return 'on_loan';
+  }
   return tx.status_transaksi;
 }
 
 function statusLabel(s) {
-  const m = { pending:'Pengajuan', on_loan:'Sedang Dipinjam', overdue:'Terlambat', returned:'Dikembalikan', accepted:'Diterima', rejected:'Ditolak', cancelled:'Dibatalkan' };
+  const m = { pending:'Pengajuan', on_loan:'Sedang Dipinjam', overdue:'Terlambat', returned:'Dikembalikan', accepted:'Diterima', rejected:'Ditolak', cancelled:'Dibatalkan', pending_return:'Proses Pengembalian' };
   return m[s]||s;
 }
 function statusColor(s) {
-  const m = { pending:'bg-yellow-100 text-yellow-700 border-yellow-300', on_loan:'bg-blue-100 text-blue-700 border-blue-300', overdue:'bg-red-100 text-red-700 border-red-300', returned:'bg-green-100 text-green-700 border-green-300', accepted:'bg-emerald-100 text-emerald-700 border-emerald-300', rejected:'bg-gray-100 text-gray-500 border-gray-300', cancelled:'bg-gray-100 text-gray-400 border-gray-300' };
+  const m = { pending:'bg-yellow-100 text-yellow-700 border-yellow-300', on_loan:'bg-blue-100 text-blue-700 border-blue-300', overdue:'bg-red-100 text-red-700 border-red-300', returned:'bg-green-100 text-green-700 border-green-300', accepted:'bg-emerald-100 text-emerald-700 border-emerald-300', rejected:'bg-gray-100 text-gray-500 border-gray-300', cancelled:'bg-gray-100 text-gray-400 border-gray-300', pending_return:'bg-orange-100 text-orange-700 border-orange-300' };
   return m[s]||'bg-gray-100 text-gray-500 border-gray-300';
 }
 
@@ -114,8 +107,8 @@ function switchTab(tab) {
   $$('[data-tab-panel]').forEach(p => {
     p.classList.toggle('hidden', p.dataset.tabPanel !== tab);
   });
-  if (tab === 'transaksi') renderTransactions();
-  if (tab === 'pengajuan') renderPengajuan();
+  if (tab === 'transaksi') loadTransactions();
+  if (tab === 'pengajuan') loadPengajuan();
   if (tab === 'katalog') {
     if (!catalogLoaded) {
       loadCatalog();
@@ -149,6 +142,25 @@ function renderGenrePicker() {
 }
 
 // ── TRANSACTIONS ──
+async function loadTransactions() {
+  try {
+    const data = await apiCall('GET', '/transactions/outgoing');
+    TRANSACTIONS = data.map(tx => ({
+        id: tx.id,
+        buku: { judul: tx.book.judul, penulis: tx.book.penulis, foto_sampul: tx.book.cover_url },
+        pemilik: { nama: tx.owner.name, kota: tx.owner.kota },
+        tanggal_pinjam: tx.tanggal_pinjam_rencana,
+        tanggal_kembali_rencana: tx.tanggal_kembali_rencana,
+        tanggal_pengembalian_aktual: tx.tanggal_pengembalian_aktual,
+        status_transaksi: tx.status,
+        titik_temu_pinjam: tx.titik_temu
+    }));
+    renderTransactions();
+  } catch(err) {
+    toast('Gagal memuat riwayat peminjaman', 'error');
+  }
+}
+
 function renderTransactions() {
   const list = $('#tx-list');
   if (!list) return;
@@ -187,7 +199,7 @@ function renderTransactions() {
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <h3 class="font-bold text-[15px] text-[#444] truncate">${tx.buku.judul}</h3>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] flex-shrink-0 ${statusColor(s)}">${statusLabel(s)}</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] flex-shrink-0 ${statusColor(tx.status_transaksi)}">${statusLabel(tx.status_transaksi)}</span>
           </div>
           <p class="text-xs text-gray-400 mb-2">${tx.buku.penulis}</p>
           <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
@@ -198,7 +210,10 @@ function renderTransactions() {
           ${tx.tanggal_pengembalian_aktual ? `<p class="text-xs text-green-600 mt-1 font-medium">✓ Dikembalikan ${fmt(tx.tanggal_pengembalian_aktual)}</p>` : ''}
           ${urgency ? `<p class="mt-1">${urgency}</p>` : ''}
           ${overdueDay ? `<p class="mt-1">${overdueDay}</p>` : ''}
-          <p class="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Titik temu: ${tx.titik_temu_pinjam}</p>
+          <div class="flex items-center justify-between mt-1.5">
+            <p class="text-xs text-gray-400 flex items-center gap-1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Titik temu: ${tx.titik_temu_pinjam}</p>
+            ${(tx.status_transaksi === 'accepted' || tx.status_transaksi === 'on_loan') ? `<button onclick="handleReturnRequest(${tx.id})" class="px-4 py-1.5 text-[11px] font-bold text-[#444] bg-[#FFDDAF] hover:bg-[#ffcf90] border-[1.5px] border-[#444] rounded-lg transition-colors cursor-pointer">Kembalikan Buku</button>` : ''}
+          </div>
         </div>
       </div>
     </div>`;
@@ -206,17 +221,63 @@ function renderTransactions() {
 }
 
 // ── PENGAJUAN PINJAM ──
-window.handlePengajuanAction = function(id, action) {
-  const p = PENGAJUAN_PINJAM.find(x => x.id === id);
-  if (!p) return;
-  if (action === 'terima') {
-    p.status = 'accepted';
-    toast('Pengajuan diterima! Silakan negosiasi di chat.', 'success');
-  } else if (action === 'tolak') {
-    p.status = 'rejected';
-    toast('Pengajuan ditolak.', 'info');
+async function loadPengajuan() {
+  try {
+    const data = await apiCall('GET', '/transactions/incoming');
+    PENGAJUAN_PINJAM = data.map(tx => ({
+        id: tx.id,
+        buku: { judul: tx.book.judul, penulis: tx.book.penulis },
+        peminjam: { id: tx.borrower.id, nama: tx.borrower.name, kota: tx.borrower.kota },
+        tanggal_pinjam: tx.tanggal_pinjam_rencana,
+        tanggal_kembali_rencana: tx.tanggal_kembali_rencana,
+        status: tx.status,
+        titik_temu: tx.titik_temu
+    }));
+    renderPengajuan();
+  } catch(err) {
+    toast('Gagal memuat pengajuan pinjam', 'error');
   }
-  renderPengajuan();
+}
+
+window.handleReturnRequest = async function(id) {
+  try {
+      await apiCall('PATCH', `/transactions/${id}/request-return`);
+      toast('Permintaan pengembalian dikirim!', 'success');
+      loadTransactions();
+  } catch(err) {
+      toast('Gagal meminta pengembalian', 'error');
+  }
+};
+
+window.handlePengajuanAction = async function(id, action) {
+  const status = action === 'terima' ? 'accepted' : 'rejected';
+  try {
+      await apiCall('PATCH', `/transactions/${id}/status`, { status });
+      
+      const p = PENGAJUAN_PINJAM.find(x => x.id === id);
+      if (p) p.status = status;
+      
+      if (action === 'terima') {
+          toast('Pengajuan diterima! Silakan negosiasi di chat.', 'success');
+          catalogLoaded = false;
+      } else {
+          toast('Pengajuan ditolak.', 'info');
+      }
+      renderPengajuan();
+  } catch(err) {
+      toast('Gagal mengupdate status', 'error');
+  }
+};
+
+window.handleAcceptReturn = async function(id) {
+  try {
+      await apiCall('PATCH', `/transactions/${id}/accept-return`);
+      toast('Buku berhasil dikembalikan!', 'success');
+      catalogLoaded = false;
+      loadPengajuan();
+  } catch(err) {
+      toast('Gagal memproses pengembalian', 'error');
+  }
 };
 
 function renderPengajuan() {
@@ -238,14 +299,20 @@ function renderPengajuan() {
         <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
           <button onclick="handlePengajuanAction(${p.id}, 'tolak')" class="px-4 py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border-[1.5px] border-red-200 rounded-lg transition-colors cursor-pointer">Tolak</button>
           <button onclick="handlePengajuanAction(${p.id}, 'terima')" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] hover:bg-[#ffcf90] border-[1.5px] border-[#444] rounded-lg transition-colors cursor-pointer">Terima</button>
-          <a href="/chat" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>
+          <a href="/chat?user_id=${p.peminjam.id}" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>
+        </div>
+      `;
+    } else if (p.status === 'pending_return') {
+      actions = `
+        <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
+          <button onclick="handleAcceptReturn(${p.id})" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] hover:bg-[#ffcf90] border-[1.5px] border-[#444] rounded-lg transition-colors cursor-pointer">Terima Pengembalian</button>
+          <a href="/chat?user_id=${p.peminjam.id}" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>
         </div>
       `;
     } else {
       actions = `
         <div class="flex items-center gap-2 mt-3 sm:mt-0 sm:ml-auto">
-          <span class="text-xs font-medium ${p.status === 'accepted' ? 'text-green-600' : 'text-red-500'}">${p.status === 'accepted' ? '✓ Diterima' : '✕ Ditolak'}</span>
-          ${p.status === 'accepted' ? `<a href="/chat" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>` : ''}
+          ${p.status === 'accepted' ? `<a href="/chat?user_id=${p.peminjam.id}" class="px-4 py-2 text-xs font-bold text-[#444] bg-[#C7E7FF] hover:bg-[#b0dcff] border-[1.5px] border-[#444] rounded-lg transition-colors flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat</a>` : ''}
         </div>
       `;
     }
@@ -259,6 +326,7 @@ function renderPengajuan() {
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <h3 class="font-bold text-[15px] text-[#444] truncate">${p.buku.judul}</h3>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] flex-shrink-0 ${statusColor(p.status)}">${statusLabel(p.status)}</span>
           </div>
           <p class="text-xs text-gray-400 mb-2">${p.buku.penulis}</p>
           <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
@@ -327,7 +395,15 @@ function renderCatalog() {
           </td>
           <td class="py-3 px-4 text-xs text-gray-400 font-mono hidden sm:table-cell">${b.isbn}</td>
           <td class="py-3 px-4 hidden md:table-cell"><span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#D4F6FF] text-[#444] border-[1.5px] border-[#444]/20">${b.kategori}</span></td>
-          <td class="py-3 px-4 text-center"><span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] ${b.status==='tersedia' ? 'bg-green-50 text-green-600 border-green-200' : 'bg-amber-50 text-amber-600 border-amber-200'}">${b.status==='tersedia'?'Tersedia':'Dipinjam'}</span></td>
+          <td class="py-3 px-4 text-center">
+            ${b.status === 'dipinjam' 
+              ? `<span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] bg-amber-50 text-amber-600 border-amber-200">Dipinjam</span>`
+              : (b.is_available 
+                  ? `<span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] bg-green-50 text-green-600 border-green-200">Tersedia</span>`
+                  : `<span class="inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold border-[1.5px] bg-gray-50 text-gray-500 border-gray-200">Tidak Tersedia</span>`
+                )
+            }
+          </td>
           <td class="py-3 px-4 text-center">
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" class="sr-only peer" data-toggle-avail="${b.id}" ${b.is_available?'checked':''} ${b.status==='dipinjam'?'disabled':''}>
@@ -384,6 +460,7 @@ function renderCatalog() {
         });
         Object.assign(book, updated);
         toast(cb.checked ? `"${book.judul}" dibuka untuk peminjaman` : `"${book.judul}" ditutup dari peminjaman`);
+        renderCatalog(); // Re-render to update the status text in the table
       } catch (err) {
         book.is_available = prev; 
         cb.checked = prev;

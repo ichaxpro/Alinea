@@ -56,7 +56,9 @@ class User extends Authenticatable
         }
 
         try {
-            return Storage::disk('public')->url($this->foto_profil);
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+            return $disk->url($this->foto_profil);
         } catch (\Throwable $e) {
             return asset('storage/' . $this->foto_profil);
         }
@@ -65,4 +67,9 @@ class User extends Authenticatable
     public function bookmarks(): HasMany {
         return $this->hasMany(Bookmark::class);
     }
+
+    public function borrowedBooks()
+{
+    return $this->hasMany(Transaction::class, 'borrower_id');
+}
 }
