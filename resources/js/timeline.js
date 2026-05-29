@@ -137,6 +137,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bindPostActions(document);
 
+    // Follow Button
+    const followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', async () => {
+            const url = followBtn.dataset.followUrl;
+            followBtn.disabled = true;
+            followBtn.textContent = '...';
+
+            try {
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    },
+                });
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.message || 'Gagal');
+
+                const nowFollowing = result.following;
+                followBtn.dataset.following = nowFollowing ? 'true' : 'false';
+                followBtn.textContent = nowFollowing ? 'Following' : 'Follow';
+                followBtn.className = 'ml-auto px-5 py-2 rounded-full text-sm font-bold border-2 border-text transition-colors cursor-pointer ' + (nowFollowing ? 'bg-[#444] text-white' : 'bg-[#FFDDAF] hover:bg-[#FFCF90]');
+
+                const text = document.querySelector('.text-sm.text-gray-500.mt-2');
+                if (text && result.followers_count !== undefined) {
+                    text.innerHTML = `<span class="font-bold text-[#222]">${followBtn.dataset.followingCount}</span> Following <span class="mx-2">|</span> <span class="font-bold text-[#222]">${result.followers_count}</span> Followers`;
+                }
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                followBtn.disabled = false;
+            }
+        })
+    }
+
     // ── Bookmark toggle ──
 
     // ── Share ──

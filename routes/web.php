@@ -10,6 +10,7 @@ use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
 use App\Http\Controllers\Api\AvatarController;
+use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use App\Models\PersonalBook;
 
@@ -57,9 +58,10 @@ Route::post('/klub/{club}/join', [KlubController::class, 'join'])->name('klub.jo
 Route::post('/klub/{club}/leave', [KlubController::class, 'leave'])->name('klub.leave');
 Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('klub.payload');
 
-Route::get('/timeline_profile', function () {
-    return view('timeline_profile');
-})->name('timeline_profile');
+Route::get('/timeline_profile', [ProfileController::class, 'show'])->name('timeline_profile');
+Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.by_username');
+
+
 
 Route::get('/chat', function () {
     return view('chat');
@@ -117,4 +119,14 @@ Route::middleware('auth')->group(function () {
     Route::patch('/transactions/{transaction}/accept-return', [TransactionController::class, 'acceptReturn']);
     Route::get('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'timelineComments'])->name('timeline_posts.comments.index');
     Route::post('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
+
+    // Profile edit
+    Route::get('/timeline_profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/timeline_profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/timeline_profile/foto', [ProfileController::class, 'updateFoto'])->name('profile.update_foto');
+    Route::post('/u/{user}/follow', [ProfileController::class, 'toggleFollow'])->name('profile.follow');
+
+    Route::post('/profile/reading-books', [ProfileController::class, 'storeReadingBook'])->name('profile.reading-books.store');
+    Route::put('/profile/reading-books/{book}', [ProfileController::class, 'updateReadingBook'])->name('profile.reading-books.update');
+    Route::delete('/profile/reading-books/{book}', [ProfileController::class, 'destroyReadingBook'])->name('profile.reading-books.destroy');
 });
