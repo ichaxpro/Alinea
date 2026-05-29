@@ -12,11 +12,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const currentUserName = document.querySelector('meta[name="user-name"]')?.content ?? '';
     const currentUserAvatar = document.querySelector('meta[name="user-avatar-url"]')?.content ?? '';
-    let selectedMediaFile = null;
+    let selectedMediaFiles = [];
+
+    function renderSelectedMediaSummary(files) {
+        if (!files || !files.length) {
+            return { html: '', text: '' };
+        }
+
+        const names = files.slice(0, 3).map(file => escapeHtml(file.name));
+        const extraCount = files.length - names.length;
+        const summaryText = files.length > 1
+            ? `${files.length} file terpilih`
+            : `${files[0].name}`;
+
+        const chips = names.map(name => `<span class="inline-flex max-w-full items-center rounded-full bg-white border border-gray-200 px-2.5 py-1 text-[11px] text-gray-600 truncate">${name}</span>`).join('');
+        const more = extraCount > 0 ? `<span class="text-[11px] text-gray-400">+${extraCount} lagi</span>` : '';
+
+        return {
+            html: `<div class="flex flex-wrap items-center gap-2">${chips}${more}</div>`,
+            text: summaryText,
+        };
+    }
 
     // Wire composer media buttons to hidden file input
     const mediaInput = document.getElementById('composer-media');
     if (mediaInput) {
+        const composerPreview = document.querySelector('[data-composer-media-preview]');
+        const composerSummary = document.querySelector('[data-composer-media-summary]');
         const btnImage = document.querySelector('button[aria-label="Unggah gambar"]');
         const btnVideo = document.querySelector('button[aria-label="Unggah video"]');
         const btnFile = document.querySelector('button[aria-label="Lampirkan file"]');
@@ -25,12 +47,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnVideo) btnVideo.addEventListener('click', () => { mediaInput.accept = 'video/*'; mediaInput.click(); });
         if (btnFile) btnFile.addEventListener('click', () => { mediaInput.accept = '*/*'; mediaInput.click(); });
 
+        mediaInput.multiple = true;
+
         mediaInput.addEventListener('change', () => {
             if (mediaInput.files && mediaInput.files.length > 0) {
-                selectedMediaFile = mediaInput.files[0];
-                showToast('File terpilih: ' + selectedMediaFile.name);
+                selectedMediaFiles = Array.from(mediaInput.files);
+                const preview = renderSelectedMediaSummary(selectedMediaFiles);
+
+                if (composerPreview && composerSummary) {
+                    composerSummary.innerHTML = preview.html;
+                    composerPreview.classList.remove('hidden');
+                }
+
+                showToast(preview.text);
             } else {
-                selectedMediaFile = null;
+                selectedMediaFiles = [];
+                if (composerPreview && composerSummary) {
+                    composerSummary.innerHTML = '';
+                    composerPreview.classList.add('hidden');
+                }
             }
         });
     }
@@ -242,13 +277,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 let response;
-                if (selectedMediaFile) {
+                if (selectedMediaFiles.length > 0) {
                     const fd = new FormData();
                     fd.append('id_klub', klubId);
                     fd.append('judul_buku_dibahas', titleVal);
                     fd.append('pesan', bodyText);
                     fd.append('tag', activeTag);
-                    fd.append('media', selectedMediaFile);
+                    selectedMediaFiles.forEach(file => {
+                        fd.append('media[]', file);
+                    });
 
                     response = await fetch(storeUrl, {
                         method: 'POST',
@@ -307,6 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (titleInput) titleInput.value = '';
                 if (klubSelect) klubSelect.selectedIndex = 0;
+                if (mediaInput) mediaInput.value = '';
+                selectedMediaFiles = [];
 
                 composerBody.value = '';
                 composerBody.style.height = 'auto';
@@ -366,19 +405,94 @@ document.addEventListener('DOMContentLoaded', () => {
         return '<span class="text-xs font-bold text-[#444]">' + initial + '</span>';
     }
 
-    function renderCommentMediaHtml(comment) {
-        if (!comment?.media_url) return '';
+    function buildAttachmentGallery(attachments, options = {}) {
+        const items = Array.isArray(attachments) ? attachments.filter(Boolean) : [];
+        const imageItems = items.filter(item => item.type === 'image');
+        const otherItems = items.filter(item => item.type !== 'image');
 
-        if (comment.media_type === 'image') {
-            return '<div class="mt-3"><img src="' + comment.media_url + '" alt="Lampiran komentar" class="w-full max-h-72 object-contain rounded-xl border border-gray-200 bg-white" /></div>';
-        }
+            // Render each image using the same single-image styling (stacked), so multi-image posts look like single-image posts
+            const imageSlides = imageItems.map((item, index) => {
+                const caption = item.original_name ? escapeHtml(item.original_name) : 'Lampiran gambar ' + (index + 1);
+                return '<div class="mb-3"><img src="' + item.url + '" alt="' + caption + '" class="w-full max-w-[560px] h-auto object-contain rounded-2xl shadow-sm mx-auto" /></div>';
+            }).join('');
 
-        if (comment.media_type === 'video') {
-            return '<div class="mt-3"><video src="' + comment.media_url + '" controls class="w-full rounded-xl border border-gray-200 bg-black"></video></div>';
-        }
+        const nonImageHtml = otherItems.map(item => {
+            if (item.type === 'video') {
+                return '<div class="mt-3"><video src="' + item.url + '" controls class="w-full h-auto max-h-[560px] rounded-2xl"></video></div>';
+            }
 
-        return '<div class="mt-3 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-xs text-gray-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><a href="' + comment.media_url + '" class="font-medium text-[#444] underline">' + escapeHtml(comment.media_original_name || 'Unduh file') + '</a></div>';
+            return '<div class="mt-3 text-sm"><a href="' + item.url + '" class="underline">' + escapeHtml(item.original_name || 'Unduh file') + '</a></div>';
+        }).join('');
+
+        if (!imageItems.length && !otherItems.length) return '';
+
+        // For consistent design, always render images stacked with the single-image styling
+        return '<div class="mb-3">' + imageSlides + nonImageHtml + '</div>';
+
+        const trackId = 'media-track-' + Math.random().toString(36).slice(2, 10);
+        const counterId = 'media-count-' + Math.random().toString(36).slice(2, 10);
+
+        return '<div class="mb-3" data-media-gallery data-media-gallery-count="' + imageItems.length + '">' +
+            '<div class="relative">' +
+                '<button type="button" data-gallery-prev aria-label="Sebelumnya" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">' +
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>' +
+                '</button>' +
+                '<button type="button" data-gallery-next aria-label="Berikutnya" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">' +
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>' +
+                '</button>' +
+                '<div data-media-track id="' + trackId + '" class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">' +
+                    imageSlides +
+                '</div>' +
+                '<div class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white" data-media-counter id="' + counterId + '">1/' + imageItems.length + '</div>' +
+            '</div>' +
+            nonImageHtml +
+        '</div>';
     }
+
+    function bindMediaGalleries(scope) {
+        scope.querySelectorAll('[data-media-gallery]').forEach(gallery => {
+            if (gallery.dataset.bound === 'true') return;
+            gallery.dataset.bound = 'true';
+
+            const track = gallery.querySelector('[data-media-track]');
+            const counter = gallery.querySelector('[data-media-counter]');
+            const prevBtn = gallery.querySelector('[data-gallery-prev]');
+            const nextBtn = gallery.querySelector('[data-gallery-next]');
+            const count = parseInt(gallery.dataset.mediaGalleryCount || '1', 10);
+
+            if (!track) return;
+
+            const updateCounter = () => {
+                if (!counter) return;
+                const slideWidth = track.clientWidth || 1;
+                const index = Math.min(count, Math.max(1, Math.round(track.scrollLeft / slideWidth) + 1));
+                counter.textContent = index + '/' + count;
+            };
+
+            prevBtn?.addEventListener('click', () => {
+                track.scrollBy({ left: -(track.clientWidth || 1), behavior: 'smooth' });
+            });
+
+            nextBtn?.addEventListener('click', () => {
+                track.scrollBy({ left: (track.clientWidth || 1), behavior: 'smooth' });
+            });
+
+            track.addEventListener('scroll', () => window.requestAnimationFrame(updateCounter), { passive: true });
+            updateCounter();
+        });
+    }
+
+    function renderCommentMediaHtml(comment) {
+        const attachments = Array.isArray(comment?.attachments) && comment.attachments.length
+            ? comment.attachments
+            : (comment?.media_url ? [{ url: comment.media_url, type: comment.media_type, original_name: comment.media_original_name }] : []);
+
+        if (!attachments.length) return '';
+
+        return '<div class="mt-3">' + buildAttachmentGallery(attachments) + '</div>';
+    }
+    bindMediaGalleries(document);
+                        bindMediaGalleries(newPostEl);
 
     function renderCommentActionsHtml() {
         return '<div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">' +
@@ -461,13 +575,15 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            const mediaFile = mediaInput?.files?.[0] || null;
+            const mediaFiles = mediaInput?.files ? Array.from(mediaInput.files) : [];
             let response;
 
-            if (mediaFile) {
+            if (mediaFiles.length > 0) {
                 const formData = new FormData();
                 formData.append('isi_komentar', commentText);
-                formData.append('media', mediaFile);
+                mediaFiles.forEach(file => {
+                    formData.append('media[]', file);
+                });
 
                 response = await fetch(url, {
                     method: 'POST',
@@ -612,7 +728,8 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('change', () => {
                 const label = input.closest('form')?.querySelector('[data-comment-media-label]');
                 if (label) {
-                    label.textContent = input.files && input.files.length ? input.files[0].name : '';
+                    const preview = renderSelectedMediaSummary(input.files ? Array.from(input.files) : []);
+                    label.textContent = preview.text;
                 }
             });
         });
@@ -674,16 +791,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">Book: ' + escapeHtml(post.book) + '</div>'
             : '';
 
-        let mediaHtml = '';
-        if (post.media_url) {
-            if (post.media_type === 'image') {
-                mediaHtml = '<div class="mb-3"><img src="' + post.media_url + '" alt="media" class="w-full max-h-64 object-cover rounded-lg"/></div>';
-            } else if (post.media_type === 'video') {
-                mediaHtml = '<div class="mb-3"><video src="' + post.media_url + '" controls class="w-full max-h-64 rounded-lg"></video></div>';
-            } else {
-                mediaHtml = '<div class="mb-3 text-sm"><a href="' + post.media_url + '" class="underline">' + (post.media_original_name || 'Unduh file') + '</a></div>';
-            }
-        }
+        const attachments = Array.isArray(post.attachments) && post.attachments.length
+            ? post.attachments
+            : (post.media_url ? [{ url: post.media_url, type: post.media_type, original_name: post.media_original_name }] : []);
+
+        const mediaHtml = buildAttachmentGallery(attachments);
 
         article.innerHTML =
             '<div class="flex items-center gap-3 mb-3 justify-between">' +
@@ -758,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '</div>' +
                     '<div class="flex-1">' +
                         '<textarea data-comment-input rows="1" maxlength="500" placeholder="Tulis komentar..." class="w-full border-[1.5px] border-gray-200 rounded-xl px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>' +
-                        '<input type="file" data-comment-media-input class="hidden" accept="image/*,video/*,*/*" />' +
+                        '<input type="file" data-comment-media-input class="hidden" accept="image/*,video/*,*/*" multiple />' +
                         '<div class="flex flex-wrap items-center justify-between gap-2 mt-2">' +
                             '<div class="flex items-center gap-2">' +
                                 '<button type="button" data-comment-media-trigger="image" aria-label="Unggah gambar komentar" title="Unggah gambar" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">' +

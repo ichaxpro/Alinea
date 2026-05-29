@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\BookClub;
 use App\Models\FeaturedBook;
+use App\Models\TimelineAttachment;
 use App\Models\TimelinePost;
 use Illuminate\Validation\Rule;
 use App\Models\TimelineComment;
@@ -18,9 +19,45 @@ use Illuminate\Support\Str;
 
 class KlubController extends Controller
 {
+    private function attachmentPayload(object $attachment): array
+    {
+        return [
+            'id' => $attachment->id,
+            'path' => $attachment->path,
+            'url' => asset('storage/' . $attachment->path),
+            'type' => $attachment->type,
+            'original_name' => $attachment->original_name,
+            'size' => $attachment->size,
+            'sort_order' => $attachment->sort_order,
+        ];
+    }
+
+    private function detectMediaType(?string $mime): string
+    {
+        $mime = $mime ?: '';
+
+        if (str_starts_with($mime, 'image/')) {
+            return 'image';
+        }
+
+        if (str_starts_with($mime, 'video/')) {
+            return 'video';
+        }
+
+        return 'file';
+    }
+
     private function timelineCommentPayload(TimelineComment $comment): array
     {
         $author = $comment->author;
+        $attachments = $comment->relationLoaded('attachments')
+            ? $comment->attachments
+            : $comment->attachments()->get();
+        $payloadAttachments = collect($attachments)
+            ->map(fn ($attachment) => $this->attachmentPayload($attachment))
+            ->values()
+            ->all();
+        $firstAttachment = $payloadAttachments[0] ?? null;
 
         return [
             'id' => $comment->id,
@@ -28,11 +65,12 @@ class KlubController extends Controller
             'handle' => $author?->username ? '@' . ltrim($author->username, '@') : '@pengguna',
             'avatar_url' => $author?->avatar_url ?? null,
             'body' => $comment->isi_komentar,
-            'media' => $comment->media,
-            'media_url' => $comment->media ? asset('storage/' . $comment->media) : null,
-            'media_type' => $comment->media_type,
-            'media_original_name' => $comment->media_original_name,
-            'media_size' => $comment->media_size,
+            'media' => $firstAttachment['path'] ?? $comment->media,
+            'media_url' => $firstAttachment['url'] ?? ($comment->media ? asset('storage/' . $comment->media) : null),
+            'media_type' => $firstAttachment['type'] ?? $comment->media_type,
+            'media_original_name' => $firstAttachment['original_name'] ?? $comment->media_original_name,
+            'media_size' => $firstAttachment['size'] ?? $comment->media_size,
+            'attachments' => $payloadAttachments,
             'time' => $comment->created_at ? Carbon::parse($comment->created_at)->diffForHumans() : 'Baru saja',
         ];
     }
@@ -259,7 +297,7 @@ class KlubController extends Controller
     public function timelineComments(TimelinePost $post)
     {
         $comments = $post->comments()
-            ->with('author:id,name,username,foto_profil')
+            ->with(['author:id,name,username,foto_profil', 'attachments'])
             ->orderBy('created_at')
             ->get()
             ->map(fn (TimelineComment $comment) => $this->timelineCommentPayload($comment));
@@ -281,42 +319,46 @@ class KlubController extends Controller
 
         $validated = $request->validate([
             'isi_komentar' => ['required', 'string', 'max:500'],
-            'media' => ['nullable', 'file', 'max:10240'],
+            'media' => ['nullable'],
+            'media.*' => ['file', 'max:10240'],
         ]);
 
-        $mediaPath = null;
-        $mediaType = null;
-        $mediaOriginalName = null;
-        $mediaSize = null;
+        $files = $request->file('media', []);
+        if ($files instanceof \Illuminate\Http\UploadedFile) {
+            $files = [$files];
+        }
 
-        if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $mediaPath = $file->store('timeline_comments', 'public');
-            $mime = $file->getMimeType() ?: '';
-
-            if (str_starts_with($mime, 'image/')) {
-                $mediaType = 'image';
-            } elseif (str_starts_with($mime, 'video/')) {
-                $mediaType = 'video';
-            } else {
-                $mediaType = 'file';
+        $attachments = [];
+        foreach (array_values($files) as $index => $file) {
+            if (!$file) {
+                continue;
             }
 
-            $mediaOriginalName = $file->getClientOriginalName();
-            $mediaSize = $file->getSize();
+            $path = $file->store('timeline_comments', 'public');
+            $attachments[] = [
+                'path' => $path,
+                'type' => $this->detectMediaType($file->getMimeType()),
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'sort_order' => $index,
+            ];
         }
 
         $comment = TimelineComment::create([
             'id_post' => $post->id,
             'id_user' => $currentUser->id,
             'isi_komentar' => $validated['isi_komentar'],
-            'media' => $mediaPath,
-            'media_type' => $mediaType,
-            'media_original_name' => $mediaOriginalName,
-            'media_size' => $mediaSize,
+            'media' => $attachments[0]['path'] ?? null,
+            'media_type' => $attachments[0]['type'] ?? null,
+            'media_original_name' => $attachments[0]['original_name'] ?? null,
+            'media_size' => $attachments[0]['size'] ?? null,
         ]);
 
-        $comment->load('author:id,name,username,foto_profil');
+        if (!empty($attachments) && Schema::hasTable('timeline_attachments')) {
+            $comment->attachments()->createMany($attachments);
+        }
+
+        $comment->load(['author:id,name,username,foto_profil', 'attachments']);
 
         return response()->json([
             'message' => 'Komentar berhasil dikirim.',
@@ -468,43 +510,63 @@ class KlubController extends Controller
                 $joinedClubs = DB::table('klub_member')
                     ->join('klub', 'klub_member.id_klub', '=', 'klub.id')
                     ->where('klub_member.id_user', $currentUser->id)
-                    ->select(['klub.id', 'klub.nama_klub'])
+                    ->select([
+                        'klub.id',
+                        'klub.nama_klub',
+                    ])
+                    ->distinct()
                     ->orderBy('klub.nama_klub')
                     ->get();
             }
-        }
 
-        if (Schema::hasTable('timeline_posts') && $joinedClubs->isNotEmpty()) {
-            $posts = DB::table('timeline_posts')
-                ->leftJoin('users', 'timeline_posts.id_user', '=', 'users.id')
-                ->leftJoin('klub', 'timeline_posts.id_klub', '=', 'klub.id')
-                ->leftJoin(DB::raw('(select id_post, count(*) as comments_count from timeline_comments group by id_post) as comments'), function ($join) {
-                    $join->on('timeline_posts.id', '=', 'comments.id_post');
-                })
-                ->whereIn('klub.nama_klub', $joinedClubs->pluck('nama_klub')->all())
-                ->select([
-                    'timeline_posts.id',
-                    'timeline_posts.media',
-                    'timeline_posts.media_type',
-                    'timeline_posts.media_original_name',
-                    'timeline_posts.media_size',
-                    'timeline_posts.judul_buku_dibahas as book',
-                    'timeline_posts.pesan as body',
-                    'timeline_posts.tag',
-                    'timeline_posts.created_at',
-                    'users.name',
-                    'users.username as handle',
-                    'users.kota as location',
-                    'users.foto_profil',
-                    'klub.nama_klub as klub',
-                    'klub.gradient_from as avatar_from',
-                    'klub.gradient_to as avatar_to',
-                    DB::raw('COALESCE(comments.comments_count, 0) as comments'),
-                    DB::raw('0 as likes_base'),
-                ])
-                ->orderByDesc('timeline_posts.created_at')
-                ->get()
-                ->map(function ($post) {
+            if (Schema::hasTable('timeline_posts') && $joinedClubs->isNotEmpty()) {
+                $posts = DB::table('timeline_posts')
+                    ->leftJoin('users', 'timeline_posts.id_user', '=', 'users.id')
+                    ->leftJoin('klub', 'timeline_posts.id_klub', '=', 'klub.id')
+                    ->leftJoin(DB::raw('(select id_post, count(*) as comments_count from timeline_comments group by id_post) as comments'), function ($join) {
+                        $join->on('timeline_posts.id', '=', 'comments.id_post');
+                    })
+                    ->whereIn('timeline_posts.id_klub', $joinedClubs->pluck('id')->all())
+                    ->select([
+                        'timeline_posts.id',
+                        'timeline_posts.media',
+                        'timeline_posts.media_type',
+                        'timeline_posts.media_original_name',
+                        'timeline_posts.media_size',
+                        'timeline_posts.judul_buku_dibahas as book',
+                        'timeline_posts.pesan as body',
+                        'timeline_posts.tag',
+                        'timeline_posts.created_at',
+                        'users.name',
+                        'users.username as handle',
+                        'users.kota as location',
+                        'users.foto_profil',
+                        'klub.nama_klub as klub',
+                        'klub.gradient_from as avatar_from',
+                        'klub.gradient_to as avatar_to',
+                        DB::raw('COALESCE(comments.comments_count, 0) as comments'),
+                        DB::raw('0 as likes_base'),
+                    ])
+                    ->orderByDesc('timeline_posts.created_at')
+                    ->get();
+
+                $postAttachments = collect();
+                $postIds = $posts->pluck('id')->all();
+                if (!empty($postIds) && Schema::hasTable('timeline_attachments')) {
+                    $postAttachments = DB::table('timeline_attachments')
+                        ->where('attachable_type', TimelinePost::class)
+                        ->whereIn('attachable_id', $postIds)
+                        ->orderBy('sort_order')
+                        ->orderBy('id')
+                        ->get()
+                        ->groupBy('attachable_id');
+                }
+
+                $posts = $posts->map(function ($post) use ($postAttachments) {
+                    $attachments = $postAttachments->get($post->id, collect());
+                    $payloadAttachments = $attachments->map(fn ($attachment) => $this->attachmentPayload($attachment))->values()->all();
+                    $firstAttachment = $payloadAttachments[0] ?? null;
+
                     return [
                         'id' => $post->id,
                         'name' => $post->name ?? 'Pengguna',
@@ -522,13 +584,15 @@ class KlubController extends Controller
                         'avatar_from' => $post->avatar_from ?: '#FFDDAF',
                         'avatar_to' => $post->avatar_to ?: '#C7E7FF',
                         'tag' => $post->tag ?: 'Post',
-                        'media' => $post->media ?? null,
-                        'media_url' => $post->media ? asset('storage/' . $post->media) : null,
-                        'media_type' => $post->media_type ?? null,
-                        'media_original_name' => $post->media_original_name ?? null,
-                        'media_size' => $post->media_size ?? null,
+                        'media' => $firstAttachment['path'] ?? $post->media ?? null,
+                        'media_url' => $firstAttachment['url'] ?? ($post->media ? asset('storage/' . $post->media) : null),
+                        'media_type' => $firstAttachment['type'] ?? $post->media_type ?? null,
+                        'media_original_name' => $firstAttachment['original_name'] ?? $post->media_original_name ?? null,
+                        'media_size' => $firstAttachment['size'] ?? $post->media_size ?? null,
+                        'attachments' => $payloadAttachments,
                     ];
                 });
+            }
         }
 
         return view('timeline_komunitas', compact('popularClubs', 'joinedClubs', 'posts'));
@@ -541,7 +605,8 @@ class KlubController extends Controller
             'judul_buku_dibahas' => ['nullable', 'string', 'max:120'],
             'pesan' => ['required', 'string', 'max:250'],
             'tag' => ['nullable', 'string', 'max:30'],
-            'media' => ['nullable', 'file', 'max:10240'], // max 10MB by default
+            'media' => ['nullable'],
+            'media.*' => ['file', 'max:10240'],
         ]);
 
         $currentUser = $request->user();
@@ -561,24 +626,25 @@ class KlubController extends Controller
             }
         }
 
-        $mediaPath = null;
-        $mediaType = null;
-        $mediaOriginal = null;
-        $mediaSize = null;
+        $files = $request->file('media', []);
+        if ($files instanceof \Illuminate\Http\UploadedFile) {
+            $files = [$files];
+        }
 
-        if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $mediaPath = $file->store('timeline_media', 'public');
-            $mime = $file->getMimeType() ?: '';
-            if (str_starts_with($mime, 'image/')) {
-                $mediaType = 'image';
-            } elseif (str_starts_with($mime, 'video/')) {
-                $mediaType = 'video';
-            } else {
-                $mediaType = 'file';
+        $attachments = [];
+        foreach (array_values($files) as $index => $file) {
+            if (!$file) {
+                continue;
             }
-            $mediaOriginal = $file->getClientOriginalName();
-            $mediaSize = $file->getSize();
+
+            $path = $file->store('timeline_media', 'public');
+            $attachments[] = [
+                'path' => $path,
+                'type' => $this->detectMediaType($file->getMimeType()),
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'sort_order' => $index,
+            ];
         }
 
         $post = TimelinePost::create([
@@ -587,11 +653,15 @@ class KlubController extends Controller
             'judul_buku_dibahas' => $validated['judul_buku_dibahas'] ?? null,
             'pesan' => $validated['pesan'],
             'tag' => $validated['tag'] ?? 'Post',
-            'media' => $mediaPath,
-            'media_type' => $mediaType,
-            'media_original_name' => $mediaOriginal,
-            'media_size' => $mediaSize,
+            'media' => $attachments[0]['path'] ?? null,
+            'media_type' => $attachments[0]['type'] ?? null,
+            'media_original_name' => $attachments[0]['original_name'] ?? null,
+            'media_size' => $attachments[0]['size'] ?? null,
         ]);
+
+        if (!empty($attachments) && Schema::hasTable('timeline_attachments')) {
+            $post->attachments()->createMany($attachments);
+        }
 
         $club = DB::table('klub')
             ->where('id', $validated['id_klub'])
@@ -621,6 +691,16 @@ class KlubController extends Controller
                 'media_type' => $post->media_type,
                 'media_original_name' => $post->media_original_name,
                 'media_size' => $post->media_size,
+                'attachments' => array_map(function (array $attachment) {
+                    return [
+                        'path' => $attachment['path'],
+                        'url' => asset('storage/' . $attachment['path']),
+                        'type' => $attachment['type'],
+                        'original_name' => $attachment['original_name'],
+                        'size' => $attachment['size'],
+                        'sort_order' => $attachment['sort_order'],
+                    ];
+                }, $attachments),
             ],
         ], 201);
     }
