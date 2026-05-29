@@ -33,7 +33,7 @@ class ProfileController extends Controller
             $this->achievementService->checkAndGrant($user);
         }
 
-        $posts = TimelinePost::with('author')
+        $posts = TimelinePost::with(['author', 'attachments'])
             ->where('id_user', $user->id)
             ->orderByDesc('created_at')
             ->get()
@@ -53,6 +53,11 @@ class ProfileController extends Controller
                 'media_url' => $post->media ? asset('storage/' . $post->media) : null,
                 'media_type' => $post->media_type,
                 'media_original_name' => $post->media_original_name,
+                'attachments' => $post->attachments->map(fn ($attachment) => [
+                    'url' => asset('storage/' . $attachment->path),
+                    'type' => $attachment->type,
+                    'original_name' => $attachment->original_name,
+                ])->values()->all(),
             ]);
 
         $achievements = $user->achievements()->get();
@@ -65,7 +70,7 @@ class ProfileController extends Controller
         $readingNow = $readingBooks->where('reading_status', 'sedang_dibaca');
         $finishedBooks = $readingBooks->where('reading_status', 'selesai');
 
-        $mediaPosts = TimelinePost::with('author')
+        $mediaPosts = TimelinePost::with(['author', 'attachments'])
             ->where('id_user', $user->id)->whereNotNull('media')
             ->orderByDesc('created_at')
             ->get()
@@ -78,9 +83,15 @@ class ProfileController extends Controller
                 'time' => Carbon::parse($post->created_at)->diffForHumans(),
                 'tag' => $post->tag ?: 'Post',
                 'caption' => $post->pesan,
-                'attachments' => $post->media ? [
-                    ['type' => $post->media_type ?: 'image', 'src' => $post->media, 'label' => $post->media_original_name]
-                ] : [],
+                'attachments' => $post->attachments->isNotEmpty()
+                    ? $post->attachments->map(fn ($attachment) => [
+                        'type' => $attachment->type ?: 'image',
+                        'src' => $attachment->path,
+                        'label' => $attachment->original_name,
+                    ])->values()->all()
+                    : ($post->media ? [
+                        ['type' => $post->media_type ?: 'image', 'src' => $post->media, 'label' => $post->media_original_name]
+                    ] : []),
                 'comments' => (string) $post->comments()->count(),
                 'likes_label' => '0', 'liked' => false,
                 ]);
@@ -106,6 +117,7 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request) {
+        /** @var User|null $user */
         $user = Auth::user();
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
@@ -122,6 +134,7 @@ class ProfileController extends Controller
     }
 
     public function updateFoto(Request $request) {
+        /** @var User|null $user */
         $user = Auth::user();
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 

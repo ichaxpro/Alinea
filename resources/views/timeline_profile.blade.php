@@ -173,13 +173,82 @@
                             <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 
                             {{-- Media --}}
-                            @if($post['media_url'] && $post['media_type'] === 'image')
+                            @if(!empty($post['attachments']))
+                                @php
+                                    $galleryImages = collect($post['attachments'])->filter(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
+                                    $otherAttachments = collect($post['attachments'])->reject(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
+                                @endphp
+
+                                @if($galleryImages->count() > 1)
+                                    <div class="mb-4" data-media-gallery data-media-gallery-count="{{ $galleryImages->count() }}">
+                                        <div class="relative">
+                                            <button type="button" data-gallery-prev aria-label="Sebelumnya" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                                            </button>
+                                            <button type="button" data-gallery-next aria-label="Berikutnya" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+                                            </button>
+                                            <div data-media-track class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                                @foreach($galleryImages as $index => $attachment)
+                                                    @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
+                                                    <div class="w-full shrink-0 snap-center flex items-center justify-center rounded-2xl overflow-hidden">
+                                                        <img src="{{ $attachmentUrl }}" alt="media {{ $index + 1 }}" class="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-sm mx-auto">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                            <div data-media-counter class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">1/{{ $galleryImages->count() }}</div>
+                                        </div>
+
+                                        @foreach($otherAttachments as $attachment)
+                                            @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
+                                            @if(($attachment['type'] ?? '') === 'video')
+                                                <div class="mt-4">
+                                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl">
+                                                        <source src="{{ $attachmentUrl }}" type="video/mp4">
+                                                    </video>
+                                                </div>
+                                            @elseif($attachmentUrl)
+                                                <div class="mt-4">
+                                                    <a href="{{ $attachmentUrl }}" download
+                                                       class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                                        <span>{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="space-y-4 mb-4">
+                                        @foreach($post['attachments'] as $attachment)
+                                            @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
+                                            @if(($attachment['type'] ?? '') === 'image')
+                                                <div>
+                                                    <img src="{{ $attachmentUrl }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl shadow-sm mx-auto object-contain">
+                                                </div>
+                                            @elseif(($attachment['type'] ?? '') === 'video')
+                                                <div>
+                                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
+                                                        <source src="{{ $attachmentUrl }}" type="video/mp4">
+                                                    </video>
+                                                </div>
+                                            @elseif($attachmentUrl)
+                                                <div class="mb-3">
+                                                    <a href="{{ $attachmentUrl }}" download
+                                                       class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                                        <span>{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</span>
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @elseif($post['media_url'] && $post['media_type'] === 'image')
                                 <div class="mb-4">
-                                    <img src="{{ $post['media_url'] }}" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
+                                    <img src="{{ $post['media_url'] }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto object-contain bg-white">
                                 </div>
                             @elseif($post['media_url'] && $post['media_type'] === 'video')
                                 <div class="mb-4">
-                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444]">
+                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
                                         <source src="{{ $post['media_url'] }}" type="video/mp4">
                                     </video>
                                 </div>

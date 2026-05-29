@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class TimelinePost extends Model
 {
@@ -33,5 +34,10 @@ class TimelinePost extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(TimelineComment::class, 'id_post');
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(TimelineAttachment::class, 'attachable')->orderBy('sort_order')->orderBy('id');
     }
 }
