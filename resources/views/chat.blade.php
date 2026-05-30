@@ -188,6 +188,70 @@ window.authUser = {
     .media-caption {
         font-size: 13px; margin-top: 4px;
     }
+
+    /* ── Video thumbnail di bubble ────────────────────────── */
+    .video-thumb-wrapper {
+        position: relative;
+        display: inline-block;
+        max-width: 280px;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        line-height: 0;
+    }
+    .video-thumb-wrapper:hover .video-play-btn {
+        background: rgba(0,0,0,0.65);
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+    .video-thumb {
+        display: block;
+        max-width: 280px;
+        max-height: 200px;
+        width: 100%;
+        border-radius: 14px;
+        object-fit: cover;
+    }
+    .video-play-btn {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 48px; height: 48px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s, transform 0.2s;
+        pointer-events: none;
+    }
+    .video-play-btn svg {
+        margin-left: 3px; /* optical center untuk icon play */
+    }
+
+
+    /* ── Media Lightbox Modal ─────────────────────────────── */
+    #mediaModal {
+        display: none;
+        transition: opacity 0.2s ease;
+    }
+    #mediaModal.open {
+        display: flex;
+        animation: fadeInModal 0.2s ease both;
+    }
+    @keyframes fadeInModal {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    #mediaModalContent img,
+    #mediaModalContent video {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 12px;
+        object-fit: contain;
+        animation: zoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.93); }
+        to   { opacity: 1; transform: scale(1); }
+    }
 </style>
 
 </head>
@@ -354,6 +418,29 @@ window.authUser = {
 </section>
 
 </main>
+
+<div id="mediaModal" class="fixed inset-0 z-[60] items-center justify-center p-4" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px)">
+    <button id="mediaModalClose" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white" title="Tutup">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    </button>
+
+    <a id="mediaModalDownload" href="#" download class="absolute top-4 left-2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white" title="Unduh">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+    </a>
+
+    <div id="mediaModalContent" class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center"></div>
+
+    <p id="mediaModalCaption" class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-xs truncate max-w-xs text-center"></p>
+</div>
 
 {{-- ═══════════════ NEW CHAT MODAL ═══════════════ --}}
 <div id="newChatModal"

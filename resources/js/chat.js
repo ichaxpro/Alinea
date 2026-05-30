@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             img.className = 'media-bubble-img';
             img.alt       = msg.media_original_name || 'Gambar';
             img.loading   = 'lazy';
-            img.addEventListener('click', () => window.open(msg.media_url, '_blank'));
+            img.addEventListener('click', () => openMediaModal(msg.media_url, 'image', msg.media_original_name));
             bubble.appendChild(img);
             if (msg.content) {
                 const cap = document.createElement('p');
@@ -317,18 +317,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 bubble.appendChild(cap);
             }
         } else if (msg.media_type === 'video' && msg.media_url) {
-            const video = document.createElement('video');
-            video.src       = msg.media_url;
-            video.controls  = true;
-            video.className = 'media-bubble-video';
-            video.preload   = 'metadata';
-            bubble.appendChild(video);
+            // Wrapper — klik di mana saja → buka modal
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-thumb-wrapper';
+            wrapper.title     = 'Putar video';
+            wrapper.addEventListener('click', () =>
+                openMediaModal(msg.media_url, 'video', msg.media_original_name)
+            );
+
+            // Video hanya untuk ambil thumbnail (tanpa controls)
+            const thumb = document.createElement('video');
+            thumb.src      = msg.media_url;
+            thumb.preload  = 'metadata';
+            thumb.muted    = true;
+            thumb.className = 'video-thumb';
+            // Seek ke 0.1 detik agar browser render frame pertama sebagai thumbnail
+            thumb.addEventListener('loadedmetadata', () => { thumb.currentTime = 0.1; });
+
+            // Tombol play di tengah
+            const playBtn = document.createElement('div');
+            playBtn.className = 'video-play-btn';
+            playBtn.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <polygon points="5,3 19,12 5,21"/>
+            </svg>`;
+
+            wrapper.appendChild(thumb);
+            wrapper.appendChild(playBtn);
+            bubble.appendChild(wrapper);
+
             if (msg.content) {
                 const cap = document.createElement('p');
                 cap.className   = 'media-caption';
                 cap.textContent = msg.content;
                 bubble.appendChild(cap);
             }
+
         } else {
             bubble.textContent = msg.content;
         }
@@ -719,6 +742,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function openMediaModal(url, type, name = '') {
+        const modal = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+        const caption = document.getElementById('mediaModalCaption');
+        const dlBtn = document.getElementById('mediaModalDownload');
+
+        content.innerHTML = '';
+
+        if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = name || 'Gambar';
+            content.appendChild(img);
+        } else if (type === 'video') {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            video.autoplay = true;
+            content.appendChild(video);
+        }
+
+        caption.textContent = name || '';
+        dlBtn.href = url;
+        dlBtn.download = name || 'media';
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => modal.classList.add('open'));
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMediaModal() {
+        const modal   = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+
+        modal.classList.remove('open');
+        content.innerHTML = ''; // hentikan video yang sedang play
+
+        document.body.style.overflow = '';
+    }
+
     // ── SVG helpers ────────────────────────────────────────────────────────
 
     function svgSingleTick() {
@@ -788,6 +852,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('backBtn')?.addEventListener('click', () => history.back());
     document.getElementById('sendBtn')?.addEventListener('click', sendMessage);
+
+    document.getElementById('mediaModalClose')?.addEventListener('click', closeMediaModal);
+
+    document.getElementById('mediaModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('mediaModal')) closeMediaModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMediaModal();
+    });
 
     document.getElementById('attachBtn')?.addEventListener('click', () => {
         document.getElementById('mediaFileInput')?.click();
