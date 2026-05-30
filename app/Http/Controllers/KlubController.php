@@ -572,7 +572,7 @@ class KlubController extends Controller
                         'name' => $post->name ?? 'Pengguna',
                         'handle' => $post->handle ? '@' . ltrim($post->handle, '@') : '@pengguna',
                         'location' => $post->location ?: 'Online',
-                        'time' => $post->created_at ? Carbon::parse($post->created_at)->diffForHumans() : 'Baru saja',
+                        'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                         'book' => $post->book,
                         'klub' => $post->klub,
                         'body' => $post->body,
@@ -606,7 +606,7 @@ class KlubController extends Controller
             'pesan' => ['required', 'string', 'max:250'],
             'tag' => ['nullable', 'string', 'max:30'],
             'media' => ['nullable'],
-            'media.*' => ['file', 'max:10240'],
+            'media.*' => ['file', 'max:35840'],
         ]);
 
         $currentUser = $request->user();
@@ -675,7 +675,7 @@ class KlubController extends Controller
                 'name' => $currentUser->name,
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'location' => $currentUser->kota ?: 'Online',
-                'time' => 'Baru saja',
+                'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : now()->locale('id')->translatedFormat('d M Y, H:i'),
                 'book' => $post->judul_buku_dibahas,
                 'klub' => $club?->nama_klub,
                 'body' => $post->pesan,

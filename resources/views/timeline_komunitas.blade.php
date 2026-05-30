@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alinea — Timeline Komunitas</title>
     <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <meta name="user-name" content="{{ Auth::check() ? Auth::user()->name : '' }}" />
-    <meta name="user-avatar-url" content="{{ Auth::check() && Auth::user()->avatar_url ? Auth::user()->avatar_url : '' }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,9 +33,9 @@
                         ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
                          'icon' => 'profil', 'url' => route('timeline_profile')],
                         ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
-                         'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
+                         'icon' => 'notifikasi'],
                         ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
-                         'icon' => 'pesan', 'url' => route('chat')],
+                         'icon' => 'pesan'],
                         ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => true, 'icon' => 'community', 'url' => route('timeline_komunitas')]
                     ];
                     @endphp
@@ -69,25 +66,21 @@
                         </div>
                     </div>
 
-                    
+                    {{-- Club Filters (Multi-select) --}}
+                    <div class="flex flex-wrap gap-2 pb-1" id="club-filters">
+                        @foreach (['Dunia Fantasi', 'Sastra Nusantara', 'Pengulik Kebenaran'] as $klub)
+                        <button data-klub-filter="{{ $klub }}"
+                                class="text-xs font-medium px-4 py-1.5 rounded-full border-[1.5px] border-gray-300 text-gray-500 hover:border-[#444] hover:text-[#444] transition-colors cursor-pointer bg-white">
+                            {{ $klub }}
+                        </button>
+                        @endforeach
+                    </div>
                 </div>
 
                 {{-- Composer --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <div class="flex gap-3">
-                        @auth
-                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 overflow-hidden flex items-center justify-center">
-                                @if (Auth::user()->avatar_url)
-                                    <img src="{{ Auth::user()->avatar_url }}" alt="Avatar {{ Auth::user()->name }}" class="w-full h-full object-cover" />
-                                @else
-                                    <span class="text-sm font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                @endif
-                            </div>
-                        @else
-                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 flex items-center justify-center">
-                                <span class="text-sm font-bold text-[#444]">U</span>
-                            </div>
-                        @endauth
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
 
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
@@ -103,8 +96,17 @@
                                 @endforeach
                             </div>
 
-                            <input type="text" id="composer-title" placeholder="Judul Buku" maxlength="120"
-                                   class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" />
+                            <div class="relative w-full">
+                                <input type="text" id="composer-title" placeholder="Judul Buku" maxlength="120"
+                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" autocomplete="off" />
+                                
+                                {{-- Autocomplete Dropdown --}}
+                                <div id="composer-autocomplete-dropdown" class="hidden absolute top-full mt-1 w-full bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                                    <ul id="composer-autocomplete-list" class="flex flex-col">
+                                        {{-- Populated by JS --}}
+                                    </ul>
+                                </div>
+                            </div>
 
                             <textarea id="composer-body" data-autogrow placeholder="Apa yang ingin kamu diskusikan dengan member klub?" rows="3"
                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
@@ -113,46 +115,29 @@
                             <div class="w-full">
                                 <select id="composer-klub" class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
                                     <option value="" disabled selected>Pilih Klub Tujuan...</option>
-                                    @forelse ($joinedClubs as $club)
-                                    <option value="{{ $club->id }}">{{ $club->nama_klub }}</option>
-                                    @empty
-                                    <option value="" disabled>Belum ada klub yang diikuti</option>
-                                    @endforelse
+                                    @foreach($joinedClubs as $c)
+                                    <option value="{{ $c->id }}">{{ $c->nama_klub }}</option>
+                                    @endforeach
                                 </select>
                             </div>
-
-                            {{-- Hidden file input for media attachments --}}
-                            <input type="file" id="composer-media" class="hidden" accept="image/*,video/*,*/*" multiple />
-
-                            <div data-composer-media-preview class="hidden rounded-xl border border-dashed border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                                <div class="font-semibold text-[#444]">Media terpilih</div>
-                                <div data-composer-media-summary class="mt-1"></div>
-                            </div>
-
-
 
                             {{-- Footer: media icons | char counter | submit --}}
                             <div class="flex items-center justify-between mt-1">
                                 {{-- Media upload icons --}}
                                 <div class="flex items-center gap-2">
-                                    <button type="button" aria-label="Unggah gambar" title="Unggah gambar"
+                                    <button type="button" aria-label="Unggah gambar" title="Unggah gambar" id="btn-upload-image"
                                             class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                                         </svg>
                                     </button>
-                                    <button type="button" aria-label="Unggah video" title="Unggah video"
+                                    <button type="button" aria-label="Unggah video" title="Unggah video" id="btn-upload-video"
                                             class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
                                         </svg>
                                     </button>
-                                    <button type="button" aria-label="Lampirkan file" title="Lampirkan file"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                                        </svg>
-                                    </button>
+                                    <input type="file" id="composer-media" accept="image/*,video/*" multiple class="hidden" />
                                 </div>
 
                                 {{-- Char counter + submit --}}
@@ -164,36 +149,24 @@
                                     </button>
                                 </div>
                             </div>
+                            <div id="composer-media-preview" class="flex flex-wrap gap-2 mt-2 hidden"></div>
                         </div>
                     </div>
                 </article>
 
-                {{-- Club Filters (Multi-select) --}}
-                <div class="flex flex-wrap gap-2 pt-1 pb-2" id="club-filters">
-                    @forelse ($joinedClubs as $klub)
-                    <button data-klub-filter="{{ $klub->nama_klub }}"
-                            class="text-[13px] font-semibold px-5 py-2 rounded-full border-[1.5px] border-[#444] text-[#444] hover:bg-gray-50 transition-colors cursor-pointer bg-white shadow-sm">
-                        {{ $klub->nama_klub }}
-                    </button>
-                    @empty
-                    <span class="text-sm text-gray-400">Belum ada klub yang diikuti.</span>
-                    @endforelse
-                </div>
-
                 {{-- Post feed --}}
-                <div id="feed-panel" data-post-store-url="{{ route('timeline_posts.store') }}" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs">
+                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs" data-post-store-url="{{ route('timeline_posts.store') }}">
                     @forelse ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors" data-post-klub="{{ $post['klub'] }}" data-post-id="{{ $post['id'] }}">
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors post-item" data-post-klub="{{ $post['klub'] }}" data-post-id="{{ $post['id'] }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
-                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
-                                @if (!empty($post['avatar_url']))
-                                    <img src="{{ $post['avatar_url'] }}" alt="Avatar {{ $post['name'] }}" class="w-full h-full object-cover" />
-                                @else
-                                    <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($post['name'] ?? 'U', 0, 1)) }}</span>
-                                @endif
-                            </div>
+                            @if(!empty($post['avatar_url']))
+                            <img src="{{ $post['avatar_url'] }}" alt="avatar" class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 object-cover" />
+                            @else
+                            <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
+                                 style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                            @endif
                             <div class="flex-1">
                                 <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-400">
@@ -214,91 +187,40 @@
 
                         {{-- Tags: Book and Club --}}
                         <div class="flex flex-wrap gap-2 mb-3">
-                            @if (!empty($post['book']))
+                            @if(!empty($post['book']))
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
                                 📖 {{ $post['book'] }}
                             </div>
                             @endif
+                            @if(!empty($post['klub']))
                             <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
                                 👥 {{ $post['klub'] }}
                             </div>
+                            @endif
                         </div>
                         
-                        {{-- Media moved below body (see insertion after body) --}}
-
                         {{-- Body --}}
                         <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 
-                        {{-- Media (server-rendered) --}}
-                        @if (!empty($post['attachments']))
-                            @php
-                                $galleryImages = collect($post['attachments'])->filter(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
-                                $otherAttachments = collect($post['attachments'])->reject(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
-                            @endphp
-
-                            @if ($galleryImages->count() > 1)
-                                <div class="mb-4" data-media-gallery data-media-gallery-count="{{ $galleryImages->count() }}">
-                                    <div class="relative">
-                                        <button type="button" data-gallery-prev aria-label="Sebelumnya" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
-                                        </button>
-                                        <button type="button" data-gallery-next aria-label="Berikutnya" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
-                                        </button>
-                                        <div data-media-track class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                            @foreach ($galleryImages as $index => $attachment)
-                                                @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                                <div class="w-full shrink-0 snap-center flex items-center justify-center rounded-2xl overflow-hidden">
-                                                    <img src="{{ $attachmentUrl }}" alt="media {{ $index + 1 }}" class="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-sm mx-auto"/>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <div data-media-counter class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">1/{{ $galleryImages->count() }}</div>
-                                    </div>
-
-                                    @foreach ($otherAttachments as $attachment)
-                                        @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                        @if (($attachment['type'] ?? '') === 'video')
-                                            <div class="mt-4">
-                                                <video controls class="w-full max-w-[720px] mx-auto rounded-2xl">
-                                                    <source src="{{ $attachmentUrl }}" type="video/mp4">
-                                                </video>
-                                            </div>
-                                        @elseif($attachmentUrl)
-                                            <div class="mt-3 text-sm"><a href="{{ $attachmentUrl }}" class="underline">{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</a></div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="mb-3 space-y-3">
-                                    @foreach ($post['attachments'] as $attachment)
-                                        @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                        @if (($attachment['type'] ?? '') === 'image')
-                                            <div><img src="{{ $attachmentUrl }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl shadow-sm mx-auto object-contain"/></div>
-                                        @elseif (($attachment['type'] ?? '') === 'video')
-                                            <div><video src="{{ $attachmentUrl }}" controls class="w-full max-w-[720px] mx-auto rounded-2xl"><source src="{{ $attachmentUrl }}" type="video/mp4"></video></div>
-                                        @elseif($attachmentUrl)
-                                            <div class="text-sm"><a href="{{ $attachmentUrl }}" class="underline">{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</a></div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @endif
-                        @elseif (!empty($post['media_url']))
-                            @if (($post['media_type'] ?? '') === 'image')
-                                <div class="mb-3"><img src="{{ $post['media_url'] }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl shadow-sm mx-auto object-contain"/></div>
-                            @elseif (($post['media_type'] ?? '') === 'video')
-                                <div class="mb-3"><video src="{{ $post['media_url'] }}" controls class="w-full max-w-[720px] mx-auto rounded-2xl"><source src="{{ $post['media_url'] }}" type="video/mp4"></video></div>
-                            @else
-                                <div class="mb-3 text-sm"><a href="{{ $post['media_url'] }}" class="underline">{{ $post['media_original_name'] ?? 'Unduh file' }}</a></div>
-                            @endif
+                        {{-- Attachments --}}
+                        @if(!empty($post['attachments']))
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            @foreach($post['attachments'] as $attachment)
+                                @if($attachment['type'] === 'image')
+                                <img src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" alt="Attachment" />
+                                @elseif($attachment['type'] === 'video')
+                                <video src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" controls></video>
+                                @endif
+                            @endforeach
+                        </div>
                         @endif
 
                         {{-- Actions --}}
                         <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
                             {{-- Comment --}}
-                            <button id="comment-btn-{{ $post['id'] }}" data-comment-toggle aria-label="Komentar"
+                            <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar" data-comment-toggle
                                     class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
-                                <x-icon-comment fill="none" />
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                                 <span data-comment-count>{{ $post['comments'] }}</span>
                             </button>
 
@@ -308,7 +230,7 @@
                                     aria-pressed="{{ $post['liked'] ? 'true' : 'false' }}" aria-label="Suka"
                                     class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
                                            {{ $post['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
-                                <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" />
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                                 <span data-like-count>{{ $post['likes_label'] }}</span>
                             </button>
 
@@ -316,75 +238,31 @@
                             <div class="ml-auto flex items-center gap-2">
                                 <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="false" aria-label="Simpan"
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-bookmark fill="none" />
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
                                 </button>
                                 <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-share fill="none" />
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                                 </button>
                             </div>
                         </div>
 
-                        <div data-comments-panel class="hidden mt-4 pt-4 border-t border-gray-100" data-comments-loaded="false"
-                             data-comments-url="{{ route('timeline_posts.comments.index', $post['id']) }}"
-                             data-comments-store-url="{{ route('timeline_posts.comments.store', $post['id']) }}">
-                            <div class="flex items-center justify-between mb-3">
-                                <h4 class="text-sm font-bold text-[#444]">Komentar</h4>
-                                <span class="text-xs text-gray-400">Klik icon komentar untuk membuka</span>
+                        {{-- Comments Section (Hidden by default) --}}
+                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                            <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
+                                {{-- Loaded via AJAX --}}
                             </div>
-
-                            <div data-comment-list class="space-y-3 mb-4"></div>
-
-                            @auth
-                                <form data-comment-form class="flex gap-3 items-start">
-                                    <div class="w-9 h-9 rounded-full border border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center flex-shrink-0">
-                                        @if (Auth::user()->avatar_url)
-                                            <img src="{{ Auth::user()->avatar_url }}" alt="Avatar {{ Auth::user()->name }}" class="w-full h-full object-cover" />
-                                        @else
-                                            <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1">
-                                        <textarea data-comment-input rows="1" maxlength="500" placeholder="Tulis komentar..."
-                                                  class="w-full border-[1.5px] border-gray-200 rounded-xl px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
-                                        <input type="file" data-comment-media-input class="hidden" accept="image/*,video/*,*/*" multiple />
-                                        <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
-                                            <div class="flex items-center gap-2">
-                                                <button type="button" data-comment-media-trigger="image" aria-label="Unggah gambar komentar" title="Unggah gambar"
-                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                                                    </svg>
-                                                </button>
-                                                <button type="button" data-comment-media-trigger="video" aria-label="Unggah video komentar" title="Unggah video"
-                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                                    </svg>
-                                                </button>
-                                                <button type="button" data-comment-media-trigger="file" aria-label="Lampirkan file komentar" title="Lampirkan file"
-                                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                                                    </svg>
-                                                </button>
-                                                <span data-comment-media-label class="text-xs text-gray-400"></span>
-                                            </div>
-                                            <button type="submit" data-comment-submit
-                                                    class="bg-[#FFDDAF] text-[#444] font-bold text-sm px-4 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">
-                                                Kirim
-                                            </button>
-                                        </div>
-                                    </div>
+                            <div class="mt-3 flex gap-2">
+                                <form data-comment-form class="flex gap-3 items-start w-full">
+                                    <input type="text" data-comment-input class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
+                                    <button type="submit" data-comment-submit class="bg-[#FFDDAF] text-[#444] px-4 py-2 rounded-lg font-bold text-sm border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn" data-post-id="{{ $post['id'] }}">Kirim</button>
                                 </form>
-                            @else
-                                <div class="text-sm text-gray-400">Silakan login untuk menulis komentar.</div>
-                            @endauth
+                            </div>
                         </div>
                     </article>
                     @empty
-                    <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 text-sm text-gray-500">
-                        Belum ada post dari klub yang kamu ikuti.
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Belum ada postingan.</p>
                     </div>
                     @endforelse
                 </div>
@@ -408,18 +286,26 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <h2 class="font-bold text-[15px] mb-4">Klub Terpopuler</h2>
 
+                    @php
+                    $trending = [
+                        ['Romance Readers',          '30 Member'],
+                        ['Dunia Fantasi',            '24 Member'],
+                        ['Buku Anak Muda',           '22 Member'],
+                        ['Sastra Nusantara',         '18 Member'],
+                        ['Filsafat Kopi',            '15 Member'],
+                    ];
+                    @endphp
+
                     <ol class="flex flex-col gap-3.5">
-                        @forelse ($popularClubs as $rank => $club)
+                        @foreach ($trending as $rank => $club)
                         <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
                             <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
                             <div>
-                                <span class="font-bold text-[13px] leading-tight block" title="{{ $club->nama_klub }}">{{ \Illuminate\Support\Str::limit($club->nama_klub, 22) }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $club->member_count }} Member</span>
+                                <span class="font-bold text-[13px] leading-tight block">{{ $club[0] }}</span>
+                                <span class="text-[11px] text-gray-400">{{ $club[1] }}</span>
                             </div>
                         </li>
-                        @empty
-                        <li class="text-sm text-gray-400">Belum ada klub yang bisa ditampilkan.</li>
-                        @endforelse
+                        @endforeach
                     </ol>
                 </div>
             </aside>

@@ -32,4 +32,9 @@ class TimelineComment extends Model
     {
         return $this->morphMany(TimelineAttachment::class, 'attachable')->orderBy('sort_order')->orderBy('id');
     }
+
+    public function likes()
+    {
+        return $this->hasMany(TimelineCommentLike::class, 'id_comment');
+    }
 }
