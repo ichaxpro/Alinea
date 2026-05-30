@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -268,6 +269,96 @@ class ChatController extends Controller
         $this->authorize($id);
 
         broadcast(new TypingIndicator($id, Auth::id(), $request->boolean('is_typing')))->toOthers();
+
+        return response()->json(['ok' => true]);
+    }
+
+    // ── User Detail Panel ──────────────────────────────────────────────────────
+
+    /**
+     * GET /api/chat/conversations/{id}/media
+     * Return all non-deleted image & video messages in the conversation.
+     */
+    public function conversationMedia(string $id)
+    {
+        [$userA, $userB] = $this->authorize($id);
+
+        $media = Message::withTrashed()
+            ->where(function ($q) use ($userA, $userB) {
+                // Both directions wrapped together so the filters below
+                // apply to the whole group, not just one branch.
+                $q->where(function ($q2) use ($userA, $userB) {
+                    $q2->where('sender_id', $userA)->where('receiver_id', $userB);
+                })->orWhere(function ($q2) use ($userA, $userB) {
+                    $q2->where('sender_id', $userB)->where('receiver_id', $userA);
+                });
+            })
+            ->whereNotNull('media_url')
+            ->whereNull('deleted_at')
+            ->whereIn('media_type', ['image', 'video'])
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'media_url', 'media_type', 'media_original_name', 'created_at']);
+
+        
+        $formatted = $media->map(fn($m) => [
+            'id' => $m->id,
+            'url' => Storage::disk('public')->url($m->media_url),
+            'type' => $m->media_type,
+            'name' => $m->media_original_name,
+            'created_at' => $m->created_at,
+        ]);
+
+        return response()->json(['data' => $formatted]);
+    }
+
+    /**
+     * DELETE /api/chat/conversations/{id}
+     * Soft-delete all messages in this conversation for the auth user.
+     */
+    public function deleteConversation(string $id)
+    {
+        [$userA, $userB] = $this->authorize($id);
+        $authId  = Auth::id();
+        $otherId = $authId === $userA ? $userB : $userA;
+
+        // Soft-delete messages the auth user sent
+        Message::where('sender_id', $authId)
+            ->where('receiver_id', $otherId)
+            ->delete();
+
+        // Soft-delete messages the auth user received (so chat disappears for them)
+        Message::where('sender_id', $otherId)
+            ->where('receiver_id', $authId)
+            ->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * POST /api/users/{userId}/report
+     */
+    public function reportUser(Request $request, int $userId)
+    {
+        $request->validate(['reason' => 'nullable|string|max:500']);
+
+        \Log::info('User report', [
+            'reporter' => Auth::id(),
+            'reported' => $userId,
+            'reason'   => $request->input('reason'),
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * POST /api/users/{userId}/block
+     */
+    public function blockUser(int $userId)
+    {
+        \Log::info('User block', [
+            'blocker' => Auth::id(),
+            'blocked' => $userId,
+        ]);
 
         return response()->json(['ok' => true]);
     }
