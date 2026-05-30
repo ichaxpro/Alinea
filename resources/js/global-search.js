@@ -237,7 +237,7 @@ function renderResults(users, clubs, books) {
         users.forEach((u) => {
             const idx = currentResults.length;
             html += `
-                <button data-result-idx="${idx}" data-url="/user/${u.id}"
+                <button data-result-idx="${idx}" data-url="${u.username ? `/u/${u.username}` : `/user/${u.id}`}"
                         class="result-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors hover:bg-gray-50 focus:bg-gray-50 outline-none">
                     <div class="w-9 h-9 rounded-full border-[1.5px] border-[#444] flex-shrink-0 overflow-hidden
                                 bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
@@ -253,7 +253,7 @@ function renderResults(users, clubs, books) {
                 </button>
             `;
             // Bug fix: use a plain forward-slash URL, not an escaped one
-            currentResults.push({type: 'user', url: `/user/${u.id}`});
+            currentResults.push({type: 'user', url: u.username ? `/u/${u.username}` : `/user/${u.id}`});
         });
     }
 
