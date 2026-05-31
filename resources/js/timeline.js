@@ -1001,11 +1001,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const bookTag = post.book
-            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">📖 ' + escapeHtml(post.book) + '</div>'
+            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">Book: ' + escapeHtml(post.book) + '</div>'
             : '';
 
         const klubTag = post.klub
-            ? '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">👥 ' + escapeHtml(post.klub) + '</div>'
+            ? '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">Club: ' + escapeHtml(post.klub) + '</div>'
             : '';
 
         const tagsHtml = (bookTag || klubTag)

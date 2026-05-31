@@ -189,12 +189,12 @@
                         <div class="flex flex-wrap gap-2 mb-3">
                             @if(!empty($post['book']))
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
-                                📖 {{ $post['book'] }}
+                                Book: {{ $post['book'] }}
                             </div>
                             @endif
                             @if(!empty($post['klub']))
                             <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
-                                👥 {{ $post['klub'] }}
+                                Club: {{ $post['klub'] }}
                             </div>
                             @endif
                         </div>
