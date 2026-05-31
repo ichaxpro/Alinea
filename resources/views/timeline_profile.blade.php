@@ -97,7 +97,7 @@
                                                 data-following-count="{{ $followingCount }}"
                                                 class="ml-auto px-5 py-2 rounded-full text-sm font-bold border-2 border-[#444] transition-colors cursor-pointer
                                                        {{ $isFollowing ? 'bg-[#444] text-white' : 'bg-[#FFDDAF] hover:bg-[#ffcf90]' }}">
-                                            {{ $isFollowing ? 'Following' : 'Follow' }}
+                                            {{ $isFollowing ? 'Mengikuti' : 'Pengikut' }}
                                         </button>
                                     @endif
                                 @endauth
@@ -109,11 +109,11 @@
 
                             <p class="text-sm text-gray-500 mt-2">
                                 <button type="button" id="profile-following-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer text-left">
-                                    <span class="font-bold text-[#222]">{{ $followingCount }}</span> Following
+                                    <span class="font-bold text-[#222]">{{ $followingCount }}</span> Mengikuti
                                 </button>
                                 <span class="mx-2">|</span>
                                 <button type="button" id="profile-followers-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer text-left">
-                                    <span class="font-bold text-[#222]">{{ $followersCount }}</span> Followers
+                                    <span class="font-bold text-[#222]">{{ $followersCount }}</span> Pengikut
                                 </button>
                             </p>
                         </div>
@@ -491,7 +491,7 @@
     <div id="follow-modal-overlay" class="fixed inset-0 z-999 bg-black/50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
         <div id="follow-modal" class="bg-white rounded-2xl border-[1.5px] border-text w-full max-w-md mx-4 max-h-[80vh] flex flex-col shadow-xl opacity-0 translate-y-4 transition-all duration-200">
             <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
-                <h3 class="text-lg font-bold text-[#222]">Following &amp; Followers</h3>
+                <h3 class="text-lg font-bold text-[#222]">Mengikuti &amp; Pengikut</h3>
                 <button type="button" id="follow-modal-close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-text hover:bg-gray-100 transition-colors cursor-pointer">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2.2"
@@ -504,11 +504,11 @@
 
             <div class="flex border-b border-gray-100">
                 <button type="button" id="follow-tab-following" data-follow-tab="following" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-[#111]">
-                    Following
+                    Mengikuti
                     <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-[#5DA9FF]"></span>
                 </button>
                 <button type="button" id="follow-tab-followers" data-follow-tab="followers" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-gray-400 hover:text-gray-600">
-                    Followers
+                    Pengikut
                     <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-transparent"></span>
                 </button>
             </div>

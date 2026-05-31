@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             ? 'bg-[#444] text-white'
                             : 'bg-[#FFDDAF] hover:bg-[#ffcf90]'
                 }">
-                    ${user.is_following ? 'Following' : 'Follow'}
+                    ${user.is_following ? 'Mengikuti' : 'Pengikut'}
                 </button>
                 `
             }
