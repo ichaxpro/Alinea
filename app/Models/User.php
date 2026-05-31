@@ -44,6 +44,11 @@ class User extends Authenticatable
         return $this->hasMany(TimelinePost::class, 'id_user');
     }
 
+    public function bookmarkedPosts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(TimelinePost::class, 'post_bookmarks', 'id_user', 'id_post')->withTimestamps();
+    }
+
     public function timelineComments(): HasMany
     {
         return $this->hasMany(TimelineComment::class, 'id_user');

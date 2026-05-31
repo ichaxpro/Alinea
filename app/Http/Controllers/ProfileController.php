@@ -49,6 +49,7 @@ class ProfileController extends Controller
                 'tag' => $post->tag ?: 'Post',
                 'comments' => (string) $post->comments()->count(),
                 'likes_base' => 0, 'likes_label' => '0', 'liked' => false,
+                'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
                 'media' => $post->media,
                 'media_url' => $post->media ? asset('storage/' . $post->media) : null,
                 'media_type' => $post->media_type,
@@ -94,6 +95,7 @@ class ProfileController extends Controller
                     ] : []),
                 'comments' => (string) $post->comments()->count(),
                 'likes_label' => '0', 'liked' => false,
+                'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
                 ]);
 
         $followersCount = $user->followersCount();

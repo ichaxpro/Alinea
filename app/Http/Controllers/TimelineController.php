@@ -6,6 +6,7 @@ use App\Models\TimelinePost;
 use App\Models\TimelineComment;
 use App\Models\TimelineCommentLike;
 use App\Models\TimelineLike;
+use App\Models\PostBookmark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,8 @@ class TimelineController extends Controller
                 $likes_label = $likesCount >= 1000 ? round($likesCount/1000, 1) . 'K' : (string) $likesCount;
                 $comments_label = $post->comments_count >= 1000 ? round($post->comments_count/1000, 1) . 'K' : (string) $post->comments_count;
 
+                $bookmarked = $currentUser ? PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false;
+
                 return [
                     'id' => $post->id,
                     'name' => $post->author->name ?? 'Pengguna',
@@ -68,6 +71,7 @@ class TimelineController extends Controller
                     'likes_base' => $likesCount,
                     'likes_label' => $likes_label,
                     'liked' => $liked,
+                    'bookmarked' => $bookmarked,
                     'avatar_url' => $post->author->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author->avatar_url ?? null),
                     'avatar_from' => '#FFDDAF', // Default gradients for personal posts
                     'avatar_to' => '#C7E7FF',
@@ -280,5 +284,86 @@ class TimelineController extends Controller
             'likes_base' => $likesCount,
             'likes_label' => $likes_label,
         ]);
+    }
+
+    public function toggleBookmark(TimelinePost $post)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser) {
+            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
+        }
+
+        $bookmark = PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->first();
+        if ($bookmark) {
+            $bookmark->delete();
+            $bookmarked = false;
+        } else {
+            PostBookmark::create(['id_post' => $post->id, 'id_user' => $currentUser->id]);
+            $bookmarked = true;
+        }
+
+        return response()->json([
+            'bookmarked' => $bookmarked,
+        ]);
+    }
+
+    public function simpanan(Request $request)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser) {
+            return redirect()->route('login');
+        }
+
+        $query = TimelinePost::with(['author', 'attachments', 'likes'])
+            ->withCount('comments')
+            ->whereHas('bookmarkedBy', function ($q) use ($currentUser) {
+                $q->where('users.id', $currentUser->id);
+            })
+            ->orderByDesc('created_at');
+
+        $posts = $query->get()
+            ->map(function ($post) use ($currentUser) {
+                $payloadAttachments = $post->attachments->map(fn($attachment) => [
+                    'id' => $attachment->id,
+                    'path' => $attachment->path,
+                    'url' => asset('storage/' . $attachment->path),
+                    'type' => $attachment->type,
+                    'original_name' => $attachment->original_name,
+                    'size' => $attachment->size,
+                ])->values()->all();
+
+                $firstAttachment = $payloadAttachments[0] ?? null;
+                $likesCount = $post->likes->count();
+                $liked = $currentUser ? $post->likes->contains('id_user', $currentUser->id) : false;
+                
+                $likes_label = $likesCount >= 1000 ? round($likesCount/1000, 1) . 'K' : (string) $likesCount;
+                $comments_label = $post->comments_count >= 1000 ? round($post->comments_count/1000, 1) . 'K' : (string) $post->comments_count;
+
+                return [
+                    'id' => $post->id,
+                    'name' => $post->author->name ?? 'Pengguna',
+                    'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
+                    'location' => $post->author->kota ?: 'Online',
+                    'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'book' => $post->judul_buku_dibahas,
+                    'body' => $post->pesan,
+                    'comments' => $comments_label,
+                    'likes_base' => $likesCount,
+                    'likes_label' => $likes_label,
+                    'liked' => $liked,
+                    'bookmarked' => true,
+                    'klub' => $post->club ? $post->club->nama : null,
+                    'avatar_url' => $post->author->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author->avatar_url ?? null),
+                    'avatar_from' => '#FFDDAF',
+                    'avatar_to' => '#C7E7FF',
+                    'tag' => $post->tag ?: 'Post',
+                    'media' => $firstAttachment['path'] ?? $post->media ?? null,
+                    'media_url' => $firstAttachment['url'] ?? ($post->media ? asset('storage/' . $post->media) : null),
+                    'media_type' => $firstAttachment['type'] ?? $post->media_type ?? null,
+                    'attachments' => $payloadAttachments,
+                ];
+            });
+
+        return view('timeline_simpanan', compact('posts'));
     }
 }

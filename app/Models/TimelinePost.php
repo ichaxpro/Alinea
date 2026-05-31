@@ -45,4 +45,9 @@ class TimelinePost extends Model
     {
         return $this->hasMany(TimelineLike::class, 'id_post');
     }
+
+    public function bookmarkedBy(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'post_bookmarks', 'id_post', 'id_user')->withTimestamps();
+    }
 }

@@ -533,6 +533,10 @@ class KlubController extends Controller
                         $join->on('timeline_posts.id', '=', 'user_like.id_post')
                              ->where('user_like.id_user', '=', $currentUser ? $currentUser->id : 0);
                     })
+                    ->leftJoin('post_bookmarks as user_bookmark', function ($join) use ($currentUser) {
+                        $join->on('timeline_posts.id', '=', 'user_bookmark.id_post')
+                             ->where('user_bookmark.id_user', '=', $currentUser ? $currentUser->id : 0);
+                    })
                     ->whereIn('timeline_posts.id_klub', $joinedClubs->pluck('id')->all())
                     ->select([
                         'timeline_posts.id',
@@ -554,6 +558,7 @@ class KlubController extends Controller
                         DB::raw('COALESCE(comments.comments_count, 0) as comments'),
                         DB::raw('COALESCE(likes.likes_count, 0) as likes_base'),
                         DB::raw('CASE WHEN user_like.id IS NOT NULL THEN 1 ELSE 0 END as is_liked'),
+                        DB::raw('CASE WHEN user_bookmark.id IS NOT NULL THEN 1 ELSE 0 END as is_bookmarked'),
                     ])
                     ->orderByDesc('timeline_posts.created_at')
                     ->get();
@@ -588,6 +593,7 @@ class KlubController extends Controller
                         'likes_base' => (int) $post->likes_base,
                         'likes_label' => $post->likes_base >= 1000 ? round($post->likes_base/1000, 1) . 'K' : (string) $post->likes_base,
                         'liked' => (bool) $post->is_liked,
+                        'bookmarked' => (bool) $post->is_bookmarked,
                         'avatar_url' => $post->foto_profil ? asset('storage/' . $post->foto_profil) : null,
                         'avatar_from' => $post->avatar_from ?: '#FFDDAF',
                         'avatar_to' => $post->avatar_to ?: '#C7E7FF',

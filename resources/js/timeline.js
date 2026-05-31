@@ -1060,13 +1060,44 @@ document.addEventListener('DOMContentLoaded', () => {
         scope.querySelectorAll('[data-bookmark-btn]').forEach(btn => {
             if (btn.dataset.bound === 'true') return;
             btn.dataset.bound = 'true';
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
+                const article = btn.closest('article[data-post-id]');
+                const postId = article?.dataset.postId;
+                if (!postId) return;
+
                 const active = btn.getAttribute('aria-pressed') === 'true';
+                
+                // Optimistic UI
                 btn.setAttribute('aria-pressed', !active);
-                btn.classList.toggle('text-[#444]', !active);
+                btn.classList.toggle('text-yellow-500', !active);
                 btn.classList.toggle('text-gray-400', active);
                 const path = btn.querySelector('path');
-                if (path) path.setAttribute('fill', active ? 'none' : 'currentColor');
+                if (path) path.setAttribute('fill', !active ? 'currentColor' : 'none');
+
+                try {
+                    const res = await fetch(`/timeline/posts/${postId}/bookmark`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        }
+                    });
+                    
+                    if (!res.ok) throw new Error();
+                    const data = await res.json();
+                    
+                    btn.setAttribute('aria-pressed', data.bookmarked);
+                    btn.classList.toggle('text-yellow-500', data.bookmarked);
+                    btn.classList.toggle('text-gray-400', !data.bookmarked);
+                    if (path) path.setAttribute('fill', data.bookmarked ? 'currentColor' : 'none');
+                } catch (e) {
+                    // Revert Optimistic UI
+                    btn.setAttribute('aria-pressed', active);
+                    btn.classList.toggle('text-yellow-500', active);
+                    btn.classList.toggle('text-gray-400', !active);
+                    if (path) path.setAttribute('fill', active ? 'currentColor' : 'none');
+                    showToast('Gagal menyimpan postingan.');
+                }
             });
         });
 

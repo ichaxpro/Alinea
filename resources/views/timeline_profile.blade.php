@@ -33,16 +33,18 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false,
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => request()->routeIs('timeline_home'),
                          'icon' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => true,
+                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => request()->routeIs('timeline_profile'),
                          'icon' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
+                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => request()->routeIs('timeline_notifikasi'),
                          'icon' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', 'url' => route('timeline_notifikasi')],
-                        ['id' => 'sidenav-pesan',      'label' => 'Chat',      'active' => false,
+                        ['id' => 'sidenav-pesan',      'label' => 'Chat',       'active' => request()->routeIs('chat'),
                          'icon' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/>', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 
+                        ['id' => 'sidenav-komunitas',  'label' => 'Komunitas',  'active' => request()->routeIs('timeline_komunitas'), 
                          'icon' => '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 'url' => route('timeline_komunitas')],
+                        ['id' => 'sidenav-simpanan',   'label' => 'Simpanan',   'active' => request()->routeIs('timeline_simpanan'), 
+                         'icon' => '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', 'url' => route('timeline_simpanan')]
                     ];
                     @endphp
 
@@ -145,7 +147,7 @@
                     {{-- Tab: Unggahan --}}
                     <div id="profile-feed-panel" data-profile-panel="unggahan" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
                         @forelse ($posts as $post)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $post['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
                                     @if($post['avatar_url'])
@@ -276,8 +278,8 @@
                                     <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" /><span data-like-count>{{ $post['likes_label'] }}</span>
                                 </button>
                                 <div class="ml-auto flex items-center gap-2">
-                                    <button aria-pressed="false" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-bookmark fill="none" /></button>
-                                    <button aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                    <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
+                                    <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
                                 </div>
                             </div>
                         </article>
@@ -368,7 +370,7 @@
                     {{-- Tab: Media --}}
                     <div data-profile-panel="media" class="hidden mt-5 flex flex-col gap-5">
                         @forelse ($mediaPosts as $media)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $media['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
                                     @if($media['avatar_url'])
@@ -431,8 +433,8 @@
                                     <x-icon-like fill="{{ $media['liked'] ? 'currentColor' : 'none' }}" /><span>{{ $media['likes_label'] }}</span>
                                 </button>
                                 <div class="ml-auto flex items-center gap-2">
-                                    <button aria-pressed="false" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-bookmark fill="none" /></button>
-                                    <button aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                    <button id="bookmark-media-btn-{{ $media['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
+                                    <button id="share-media-btn-{{ $media['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
                                 </div>
                             </div>
                         </article>
