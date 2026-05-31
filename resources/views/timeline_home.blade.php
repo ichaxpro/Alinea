@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alinea — Timeline</title>
     <meta name="description" content="Ikuti timeline buku Alinea — bagikan progres bacaan, ulasan, dan kutipan favoritmu." />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/timeline.js'])
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
 </head>
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
@@ -62,13 +64,13 @@
                 <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100">
                     <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden"
                          role="tablist" aria-label="Pilih umpan">
-                        <button data-tab-btn role="tab" id="tab-for-you" aria-selected="true" aria-controls="feed-panel"
-                                class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full transition-colors cursor-pointer">
-                            For You
+                        <button data-tab-btn role="tab" id="tab-for-you" aria-selected="{{ request('tab', 'untukmu') === 'untukmu' ? 'true' : 'false' }}" aria-controls="feed-panel"
+                                class="flex-1 py-2.5 text-sm {{ request('tab', 'untukmu') === 'untukmu' ? 'font-bold text-[#444] bg-[#FFDDAF]' : 'text-gray-400 hover:bg-gray-50' }} rounded-full transition-colors cursor-pointer">
+                            Untukmu
                         </button>
-                        <button data-tab-btn role="tab" id="tab-following" aria-selected="false" aria-controls="feed-panel"
-                                class="flex-1 py-2.5 text-sm text-gray-400 rounded-full transition-colors cursor-pointer hover:bg-gray-50">
-                            Following
+                        <button data-tab-btn role="tab" id="tab-following" aria-selected="{{ request('tab') === 'mengikuti' ? 'true' : 'false' }}" aria-controls="feed-panel"
+                                class="flex-1 py-2.5 text-sm {{ request('tab') === 'mengikuti' ? 'font-bold text-[#444] bg-[#FFDDAF]' : 'text-gray-400 hover:bg-gray-50' }} rounded-full transition-colors cursor-pointer">
+                            Mengikuti
                         </button>
                     </div>
                 </div>
@@ -81,7 +83,7 @@
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
                             <div class="flex flex-wrap gap-2">
-                                @foreach (['Dibaca', 'Selesai', 'Kutipan', 'Dll'] as $i => $tag)
+                                @foreach (['Dibaca', 'Selesai', 'Kutipan'] as $i => $tag)
                                 <button data-composer-tag id="tag-{{ Str::lower($tag) }}"
                                         class="text-xs font-medium px-4 py-1 rounded-full border-[1.5px] transition-colors cursor-pointer
                                                {{ $i === 0
@@ -92,8 +94,17 @@
                                 @endforeach
                             </div>
 
-                            <input type="text" id="composer-title" placeholder="Judul buku (opsional)..." maxlength="120"
-                                   class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" />
+                            <div class="relative w-full">
+                                <input type="text" id="composer-title" placeholder="Judul buku (opsional)..." maxlength="120"
+                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" autocomplete="off" />
+                                
+                                {{-- Autocomplete Dropdown --}}
+                                <div id="composer-autocomplete-dropdown" class="hidden absolute top-full mt-1 w-full bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                                    <ul id="composer-autocomplete-list" class="flex flex-col">
+                                        {{-- Populated by JS --}}
+                                    </ul>
+                                </div>
+                            </div>
 
                             <textarea id="composer-body" data-autogrow placeholder="Apa yang sedang kamu baca? Bagikan pikiranmu..." rows="3"
                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
@@ -102,85 +113,48 @@
                             <div class="flex items-center justify-between">
                                 {{-- Media upload icons --}}
                                 <div class="flex items-center gap-2">
-                                    <button type="button" aria-label="Unggah gambar" title="Unggah gambar"
+                                    <button type="button" aria-label="Unggah gambar" title="Unggah gambar" id="btn-upload-image"
                                             class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                                         </svg>
                                     </button>
-                                    <button type="button" aria-label="Unggah video" title="Unggah video"
+                                    <button type="button" aria-label="Unggah video" title="Unggah video" id="btn-upload-video"
                                             class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                             <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
                                         </svg>
                                     </button>
-                                    <button type="button" aria-label="Lampirkan file" title="Lampirkan file"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                                        </svg>
-                                    </button>
+                                    <input type="file" id="composer-media" accept="image/*,video/*" multiple class="hidden" />
                                 </div>
 
                                 {{-- Char counter + submit --}}
                                 <div class="flex items-center gap-3">
-                                    <span id="char-counter" data-char-counter class="text-xs text-gray-300">0/250</span>
+                                    <span id="char-counter" data-char-counter class="text-xs text-gray-300">0/500</span>
                                     <button id="kirim-btn"
                                             class="bg-[#FFDDAF] text-[#444] font-bold text-sm px-6 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">
                                         Kirim
                                     </button>
                                 </div>
                             </div>
+                            <div id="composer-media-preview" class="flex flex-wrap gap-2 mt-2 hidden"></div>
                         </div>
                     </div>
                 </article>
 
                 {{-- Post feed --}}
-                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you">
-                    @php
-                    $posts = [
-                        [
-                            'id' => 1, 'name' => 'Budi Ashcroft', 'handle' => '@isoba__',
-                            'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter',
-                            'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajinasi.',
-                            'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
-                            'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
-                            'tag' => 'Dibaca',
-                        ],
-                        [
-                            'id' => 2, 'name' => 'Dina Rahmawati', 'handle' => '@dina_r',
-                            'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library',
-                            'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
-                            'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
-                            'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Selesai',
-                        ],
-                        [
-                            'id' => 3, 'name' => 'Ahmad Fauzan', 'handle' => '@afauzan_',
-                            'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Atomic Habits',
-                            'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
-                            'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
-                            'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
-                            'tag' => 'Ulasan',
-                        ],
-                        [
-                            'id' => 4, 'name' => 'Reza Mahendra', 'handle' => '@reza_m',
-                            'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'Sapiens',
-                            'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
-                            'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
-                            'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
-                            'tag' => 'Dibaca',
-                        ],
-                    ];
-                    @endphp
-
-                    @foreach ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors">
+                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you" data-post-store-url="{{ route('timeline_home.store') }}">
+                    @forelse ($posts as $post)
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors post-item" data-post-id="{{ $post['id'] }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
+                            @if(!empty($post['avatar_url']))
+                            <img src="{{ $post['avatar_url'] }}" alt="avatar" class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 object-cover" />
+                            @else
                             <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
                                  style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                            @endif
                             <div class="flex-1">
                                 <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-400">
@@ -200,20 +174,35 @@
                         </div>
 
                         {{-- Book tag --}}
+                        @if(!empty($post['book']))
                         <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
-                            {{ $post['book'] }}
+                            📖 {{ $post['book'] }}
                         </div>
+                        @endif
                         
                         {{-- Body --}}
                         <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 
+                        {{-- Attachments --}}
+                        @if(!empty($post['attachments']))
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            @foreach($post['attachments'] as $attachment)
+                                @if($attachment['type'] === 'image')
+                                <img src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" alt="Attachment" />
+                                @elseif($attachment['type'] === 'video')
+                                <video src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" controls></video>
+                                @endif
+                            @endforeach
+                        </div>
+                        @endif
+
                         {{-- Actions --}}
                         <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
                             {{-- Comment --}}
-                            <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar"
+                            <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar" data-comment-toggle
                                     class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
                                 <x-icon-comment fill="none" />
-                                <span>{{ $post['comments'] }}</span>
+                                <span data-comment-count>{{ $post['comments'] }}</span>
                             </button>
 
                             {{-- Like --}}
@@ -238,8 +227,25 @@
                                 </button>
                             </div>
                         </div>
+
+                        {{-- Comments Section (Hidden by default) --}}
+                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                            <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
+                                {{-- Loaded via AJAX --}}
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <form data-comment-form class="flex gap-3 items-start w-full">
+                                    <input type="text" data-comment-input class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
+                                    <button type="submit" data-comment-submit class="bg-[#FFDDAF] text-[#444] px-4 py-2 rounded-lg font-bold text-sm border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn" data-post-id="{{ $post['id'] }}">Kirim</button>
+                                </form>
+                            </div>
+                        </div>
                     </article>
-                    @endforeach
+                    @empty
+                    <div class="text-center py-10 text-gray-400">
+                        <p>Belum ada postingan.</p>
+                    </div>
+                    @endforelse
                 </div>
             </main>
 

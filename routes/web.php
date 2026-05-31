@@ -40,9 +40,14 @@ Route::get('/pinjam', function () {
     return view('pinjam', compact('books'));
 })->name('pinjam');
 
-Route::get('/timeline_home', function () {
-    return view('timeline_home');
-})->name('timeline_home');
+use App\Http\Controllers\TimelineController;
+
+Route::get('/timeline_home', [TimelineController::class, 'index'])->name('timeline_home');
+Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
+Route::post('/timeline_home/posts/{post}/like', [TimelineController::class, 'toggleLike'])->name('timeline_home.like');
+Route::get('/timeline_home/posts/{post}/comments', [TimelineController::class, 'comments'])->name('timeline_home.comments');
+Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 'storeComment'])->name('timeline_home.comments.store');
+Route::post('/timeline_home/comments/{comment}/like', [TimelineController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
 
 
 Route::get('/timeline_komunitas', [KlubController::class, 'timelineKomunitas'])->name('timeline_komunitas');
@@ -132,4 +137,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/reading-books', [ProfileController::class, 'storeReadingBook'])->name('profile.reading-books.store');
     Route::put('/profile/reading-books/{book}', [ProfileController::class, 'updateReadingBook'])->name('profile.reading-books.update');
     Route::delete('/profile/reading-books/{book}', [ProfileController::class, 'destroyReadingBook'])->name('profile.reading-books.destroy');
+    
+    Route::get('/api/books/autocomplete', [App\Http\Controllers\BookController::class, 'searchAutocomplete'])->name('api.books.autocomplete');
 });

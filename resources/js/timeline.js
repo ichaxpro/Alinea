@@ -14,31 +14,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentUserAvatar = document.querySelector('meta[name="user-avatar-url"]')?.content ?? '';
     let selectedMediaFiles = [];
 
-    function renderSelectedMediaSummary(files) {
+    function renderSelectedMediaPreview(files) {
         if (!files || !files.length) {
-            return { html: '', text: '' };
+            return '';
         }
 
-        const names = files.slice(0, 3).map(file => escapeHtml(file.name));
-        const extraCount = files.length - names.length;
-        const summaryText = files.length > 1
-            ? `${files.length} file terpilih`
-            : `${files[0].name}`;
+        return files.map((file, index) => {
+            const url = URL.createObjectURL(file);
+            const isImage = file.type.startsWith('image/');
+            const mediaHtml = isImage
+                ? `<img src="${url}" class="w-full h-full object-cover rounded-xl" alt="Preview">`
+                : `<video src="${url}" class="w-full h-full object-cover rounded-xl" muted></video>`;
 
-        const chips = names.map(name => `<span class="inline-flex max-w-full items-center rounded-full bg-white border border-gray-200 px-2.5 py-1 text-[11px] text-gray-600 truncate">${name}</span>`).join('');
-        const more = extraCount > 0 ? `<span class="text-[11px] text-gray-400">+${extraCount} lagi</span>` : '';
-
-        return {
-            html: `<div class="flex flex-wrap items-center gap-2">${chips}${more}</div>`,
-            text: summaryText,
-        };
+            return `
+                <div class="relative w-24 h-24 flex-shrink-0 group">
+                    ${mediaHtml}
+                    <button type="button" data-remove-media="${index}" class="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Hapus media">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            `;
+        }).join('');
     }
+
+    const composerPreview = document.getElementById('composer-media-preview') || document.querySelector('[data-composer-media-preview]');
 
     // Wire composer media buttons to hidden file input
     const mediaInput = document.getElementById('composer-media');
     if (mediaInput) {
-        const composerPreview = document.querySelector('[data-composer-media-preview]');
-        const composerSummary = document.querySelector('[data-composer-media-summary]');
         const btnImage = document.querySelector('button[aria-label="Unggah gambar"]');
         const btnVideo = document.querySelector('button[aria-label="Unggah video"]');
         const btnFile = document.querySelector('button[aria-label="Lampirkan file"]');
@@ -47,25 +50,73 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnVideo) btnVideo.addEventListener('click', () => { mediaInput.accept = 'video/*'; mediaInput.click(); });
         if (btnFile) btnFile.addEventListener('click', () => { mediaInput.accept = '*/*'; mediaInput.click(); });
 
-        mediaInput.multiple = true;
+        mediaInput.multiple = true;        
 
-        mediaInput.addEventListener('change', () => {
+        function bindRemoveButtons() {
+            if (!composerPreview) return;
+            composerPreview.querySelectorAll('[data-remove-media]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.removeMedia, 10);
+                    selectedMediaFiles.splice(index, 1);
+                    composerPreview.innerHTML = renderSelectedMediaPreview(selectedMediaFiles);
+                    if (selectedMediaFiles.length === 0) {
+                        composerPreview.classList.add('hidden');
+                    } else {
+                        bindRemoveButtons();
+                    }
+                });
+            });
+        }
+
+        mediaInput.addEventListener('change', async (e) => {
             if (mediaInput.files && mediaInput.files.length > 0) {
-                selectedMediaFiles = Array.from(mediaInput.files);
-                const preview = renderSelectedMediaSummary(selectedMediaFiles);
+                const newFiles = Array.from(mediaInput.files);
+                if (selectedMediaFiles.length + newFiles.length > 4) {
+                    showToast('Maksimal 4 file (gambar/video) yang dapat diunggah.');
+                    mediaInput.value = '';
+                    return;
+                }
 
-                if (composerPreview && composerSummary) {
-                    composerSummary.innerHTML = preview.html;
+                let validFiles = [];
+                for (const file of newFiles) {
+                    const isVideo = file.type.startsWith('video/');
+                    const maxSizeMB = isVideo ? 35 : 20;
+                    
+                    if (file.size > maxSizeMB * 1024 * 1024) {
+                        showToast(`File "${file.name}" terlalu besar (maks ${maxSizeMB}MB).`);
+                        continue;
+                    }
+
+                    if (isVideo) {
+                        const isValidDuration = await new Promise(resolve => {
+                            const video = document.createElement('video');
+                            video.preload = 'metadata';
+                            video.onloadedmetadata = () => {
+                                window.URL.revokeObjectURL(video.src);
+                                resolve(video.duration <= 60);
+                            };
+                            video.onerror = () => resolve(false);
+                            video.src = window.URL.createObjectURL(file);
+                        });
+
+                        if (!isValidDuration) {
+                            showToast(`Video "${file.name}" lebih dari 1 menit tidak dapat diunggah.`);
+                            continue;
+                        }
+                    }
+                    validFiles.push(file);
+                }
+
+                selectedMediaFiles = selectedMediaFiles.concat(validFiles).slice(0, 4);
+
+                if (composerPreview) {
+                    composerPreview.innerHTML = renderSelectedMediaPreview(selectedMediaFiles);
                     composerPreview.classList.remove('hidden');
+                    bindRemoveButtons();
                 }
 
-                showToast(preview.text);
-            } else {
-                selectedMediaFiles = [];
-                if (composerPreview && composerSummary) {
-                    composerSummary.innerHTML = '';
-                    composerPreview.classList.add('hidden');
-                }
+                showToast(validFiles.length ? `${validFiles.length} file ditambahkan.` : 'Gagal menambahkan file.');
+                mediaInput.value = ''; 
             }
         });
     }
@@ -108,14 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('[data-tab-btn]');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            tabBtns.forEach(b => {
-                b.classList.remove('bg-[#FFDDAF]', 'text-[#444]', 'font-bold');
-                b.classList.add('text-gray-400');
-                b.setAttribute('aria-selected', 'false');
-            });
-            btn.classList.add('bg-[#FFDDAF]', 'text-[#444]', 'font-bold');
-            btn.classList.remove('text-gray-400');
-            btn.setAttribute('aria-selected', 'true');
+            const isFollowing = btn.id === 'tab-following';
+            window.location.href = '?tab=' + (isFollowing ? 'mengikuti' : 'untukmu');
         });
     });
 
@@ -424,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const composerBody = document.getElementById('composer-body');
     const charCounter = document.getElementById('char-counter');
     const kirimBtn = document.getElementById('kirim-btn');
-    const MAX_CHARS = 250;
+    const MAX_CHARS = 500;
 
     if (composerBody) {
         const update = () => {
@@ -454,6 +499,68 @@ document.addEventListener('DOMContentLoaded', () => {
         composerBody.addEventListener('input', update);
     }
 
+    // ── Autocomplete Book Search ──
+    const titleInput = document.getElementById('composer-title');
+    const autocompleteDropdown = document.getElementById('composer-autocomplete-dropdown');
+    const autocompleteList = document.getElementById('composer-autocomplete-list');
+    let autocompleteTimeout = null;
+
+    if (titleInput && autocompleteDropdown && autocompleteList) {
+        titleInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            clearTimeout(autocompleteTimeout);
+
+            if (query.length < 2) {
+                autocompleteDropdown.classList.add('hidden');
+                return;
+            }
+
+            autocompleteTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/books/autocomplete?q=${encodeURIComponent(query)}`);
+                    if (!res.ok) throw new Error();
+                    const books = await res.json();
+
+                    autocompleteList.innerHTML = '';
+                    if (books.length === 0) {
+                        autocompleteList.innerHTML = '<li class="px-4 py-2 text-sm text-gray-500">Tidak ditemukan.</li>';
+                    } else {
+                        books.forEach(book => {
+                            const li = document.createElement('li');
+                            li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-3 border-b border-gray-100 last:border-0';
+                            
+                            const imgSrc = book.cover_url ? book.cover_url : 'https://via.placeholder.com/40x60?text=Buku';
+                            li.innerHTML = `
+                                <img src="${imgSrc}" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" alt="Cover">
+                                <div>
+                                    <div class="font-bold text-[#444]">${escapeHtml(book.judul)}</div>
+                                    <div class="text-xs text-gray-500">${escapeHtml(book.penulis || '')}</div>
+                                </div>
+                            `;
+                            
+                            li.addEventListener('click', () => {
+                                titleInput.value = book.judul;
+                                autocompleteDropdown.classList.add('hidden');
+                            });
+                            
+                            autocompleteList.appendChild(li);
+                        });
+                    }
+                    autocompleteDropdown.classList.remove('hidden');
+                } catch (e) {
+                    autocompleteDropdown.classList.add('hidden');
+                }
+            }, 300);
+        });
+
+        // Hide on outside click
+        document.addEventListener('click', (e) => {
+            if (!titleInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
+                autocompleteDropdown.classList.add('hidden');
+            }
+        });
+    }
+
     // ── Composer submit ──
 
     if (kirimBtn) {
@@ -475,8 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const titleVal = titleInput ? titleInput.value.trim() : '';
 
             const storeUrl = feedPanel?.dataset.postStoreUrl;
-            if (!storeUrl || !klubId) {
-                showToast('Pilih klub tujuan terlebih dahulu.');
+            if (!storeUrl) {
+                showToast('Terjadi kesalahan URL.');
                 return;
             }
 
@@ -486,13 +593,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 let response;
                 if (selectedMediaFiles.length > 0) {
                     const fd = new FormData();
-                    fd.append('id_klub', klubId);
+                    if (klubId) fd.append('id_klub', klubId);
                     fd.append('judul_buku_dibahas', titleVal);
                     fd.append('pesan', bodyText);
                     fd.append('tag', activeTag);
-                    selectedMediaFiles.forEach(file => {
-                        fd.append('media[]', file);
-                    });
+                    
+                    // Compress images
+                    for (const file of selectedMediaFiles) {
+                        if (file.type.startsWith('image/') && typeof browserImageCompression !== 'undefined') {
+                            const options = {
+                                maxSizeMB: 1,
+                                maxWidthOrHeight: 1920,
+                                useWebWorker: true
+                            };
+                            try {
+                                const compressedFile = await browserImageCompression(file, options);
+                                fd.append('media[]', compressedFile, file.name);
+                            } catch (e) {
+                                fd.append('media[]', file); // Fallback to original
+                            }
+                        } else {
+                            fd.append('media[]', file);
+                        }
+                    }
 
                     response = await fetch(storeUrl, {
                         method: 'POST',
@@ -522,29 +645,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (!response.ok) {
+                    if (result.errors) {
+                        const firstError = Object.values(result.errors)[0][0];
+                        throw new Error(firstError);
+                    }
                     throw new Error(result.message || 'Gagal menyimpan postingan.');
                 }
 
-                const newPostEl = createPostElement(result.post);
-                if (newPostEl && feedPanel) {
-                    // Prevent duplicate insertion: if a post with same id already exists, skip.
-                    const existing = feedPanel.querySelector('article[data-post-id="' + result.post.id + '"]');
-                    if (!existing) {
-                        const activeFilters = Array.from(document.querySelectorAll('[data-klub-filter]'))
-                            .filter(b => b.classList.contains('bg-[#FFDDAF]'))
-                            .map(b => b.dataset.klubFilter);
+                try {
+                    const newPostEl = createPostElement(result.post);
+                    if (newPostEl && feedPanel) {
+                        const existing = feedPanel.querySelector('article[data-post-id="' + result.post.id + '"]');
+                        if (!existing) {
+                            const activeFilters = Array.from(document.querySelectorAll('[data-klub-filter]'))
+                                .filter(b => b.classList.contains('bg-[#FFDDAF]'))
+                                .map(b => b.dataset.klubFilter);
 
-                        if (activeFilters.length > 0 && !activeFilters.includes(result.post.klub)) {
-                            newPostEl.style.display = 'none';
+                            if (activeFilters.length > 0 && !activeFilters.includes(result.post.klub)) {
+                                newPostEl.style.display = 'none';
+                            }
+
+                            feedPanel.prepend(newPostEl);
+                            bindPostActions(newPostEl);
+                        } else {
+                            showToast('Postingan sudah ada.');
                         }
-
-                        feedPanel.prepend(newPostEl);
-                        bindPostActions(newPostEl);
-                    } else {
-                        // If existing element was hidden due to active filters, ensure visibility/state updated
-                        // (optional) update existing element content if necessary
-                        showToast('Postingan sudah ada.');
                     }
+                } catch (uiError) {
+                    console.error('Error updating UI with new post:', uiError);
                 }
 
                 showToast(result.message || 'Postingan berhasil dikirim!');
@@ -552,6 +680,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (titleInput) titleInput.value = '';
                 if (klubSelect) klubSelect.selectedIndex = 0;
                 if (mediaInput) mediaInput.value = '';
+                if (composerPreview) {
+                    composerPreview.innerHTML = '';
+                    composerPreview.classList.add('hidden');
+                }
                 selectedMediaFiles = [];
 
                 composerBody.value = '';
@@ -699,13 +831,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return '<div class="mt-3">' + buildAttachmentGallery(attachments) + '</div>';
     }
     bindMediaGalleries(document);
-                        bindMediaGalleries(newPostEl);
 
-    function renderCommentActionsHtml() {
+    function renderCommentActionsHtml(comment) {
+        const liked = comment.liked === true;
+        const count = comment.likes_label || '0';
         return '<div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100">' +
-            '<button type="button" data-comment-love aria-pressed="false" class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-500 transition-colors cursor-pointer">' +
-                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>' +
-                '<span data-comment-love-label>Love</span>' +
+            '<button type="button" data-comment-love data-comment-id="' + escapeHtml(comment.id) + '" data-base="' + escapeHtml(comment.likes_base || 0) + '" aria-pressed="' + (liked ? 'true' : 'false') + '" class="inline-flex items-center gap-1.5 text-xs font-medium ' + (liked ? 'text-red-500' : 'text-gray-400 hover:text-red-500') + ' transition-colors cursor-pointer">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" fill="' + (liked ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>' +
+                '<span data-comment-love-label>' + escapeHtml(count) + '</span>' +
             '</button>' +
         '</div>';
     }
@@ -724,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '</div>' +
                 '<p class="text-sm text-gray-600 leading-relaxed break-words">' + escapeHtml(comment.body || '') + '</p>' +
                 renderCommentMediaHtml(comment) +
-                renderCommentActionsHtml() +
+                renderCommentActionsHtml(comment) +
             '</div>' +
         '</div>';
     }
@@ -753,6 +886,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? comments.map(renderCommentItem).join('')
                 : '<div class="text-sm text-gray-400">Belum ada komentar. Jadilah yang pertama.</div>';
 
+            bindPostActions(list);
             panel.dataset.commentsLoaded = 'true';
         } catch (error) {
             panel.dataset.commentsLoaded = 'false';
@@ -824,6 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     list.innerHTML = '';
                 }
                 list.insertAdjacentHTML('beforeend', renderCommentItem(result.comment));
+                bindPostActions(list);
             }
 
             const countEl = panel.closest('article')?.querySelector('[data-comment-count]');
@@ -869,18 +1004,60 @@ document.addEventListener('DOMContentLoaded', () => {
         scope.querySelectorAll('[data-like-btn]').forEach(btn => {
             if (btn.dataset.bound === 'true') return;
             btn.dataset.bound = 'true';
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const liked = btn.dataset.liked === 'true';
                 const heart = btn.querySelector('path');
                 const count = btn.querySelector('[data-like-count]');
+                const article = btn.closest('article[data-post-id]');
+                const postId = article?.dataset.postId;
 
+                if (!postId) return;
+
+                // Optimistic UI
                 btn.dataset.liked = liked ? 'false' : 'true';
                 btn.setAttribute('aria-pressed', btn.dataset.liked);
                 btn.classList.toggle('text-red-500', !liked);
                 btn.classList.toggle('text-gray-400', liked);
-
                 if (heart) heart.setAttribute('fill', liked ? 'none' : 'currentColor');
-                if (count) count.textContent = formatCount(parseInt(btn.dataset.base) + (liked ? 0 : 1));
+                if (count) count.textContent = formatCount(parseInt(btn.dataset.base) + (liked ? -1 : 1));
+
+                try {
+                    // In timeline_home, the URL differs from timeline_komunitas
+                    let likeUrl = `/timeline_home/posts/${postId}/like`;
+                    if (location.pathname.includes('timeline_komunitas')) {
+                        likeUrl = `/timeline_komunitas/posts/${postId}/like`; // fallback if it exists
+                    }
+
+                    const res = await fetch(likeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        }
+                    });
+                    
+                    if (!res.ok) throw new Error();
+                    const data = await res.json();
+                    
+                    // Sync with server data
+                    btn.dataset.liked = data.liked ? 'true' : 'false';
+                    btn.setAttribute('aria-pressed', btn.dataset.liked);
+                    btn.classList.toggle('text-red-500', data.liked);
+                    btn.classList.toggle('text-gray-400', !data.liked);
+                    if (heart) heart.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+                    if (count) count.textContent = formatCount(data.likes_base);
+                    btn.dataset.base = data.likes_base;
+
+                } catch (e) {
+                    // Revert Optimistic UI
+                    btn.dataset.liked = liked ? 'true' : 'false';
+                    btn.setAttribute('aria-pressed', btn.dataset.liked);
+                    btn.classList.toggle('text-red-500', liked);
+                    btn.classList.toggle('text-gray-400', !liked);
+                    if (heart) heart.setAttribute('fill', liked ? 'currentColor' : 'none');
+                    if (count) count.textContent = formatCount(btn.dataset.base);
+                    showToast('Gagal menyukai postingan.');
+                }
             });
         });
 
@@ -935,8 +1112,8 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('change', () => {
                 const label = input.closest('form')?.querySelector('[data-comment-media-label]');
                 if (label) {
-                    const preview = renderSelectedMediaSummary(input.files ? Array.from(input.files) : []);
-                    label.textContent = preview.text;
+                    const files = input.files ? Array.from(input.files) : [];
+                    label.textContent = files.length > 0 ? (files.length + ' file terpilih') : '';
                 }
             });
         });
@@ -967,18 +1144,54 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn.dataset.bound === 'true') return;
             btn.dataset.bound = 'true';
 
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
+                const commentId = btn.dataset.commentId;
+                if (!commentId) return;
+
                 const liked = btn.getAttribute('aria-pressed') === 'true';
+                const label = btn.querySelector('[data-comment-love-label]');
+                const path = btn.querySelector('path');
+                
+                // Optimistic update
                 btn.setAttribute('aria-pressed', liked ? 'false' : 'true');
                 btn.classList.toggle('text-red-500', !liked);
                 btn.classList.toggle('text-gray-400', liked);
-                const label = btn.querySelector('[data-comment-love-label]');
+                if (path) path.setAttribute('fill', liked ? 'none' : 'currentColor');
+                
+                let base = parseInt(btn.dataset.base || '0', 10);
                 if (label) {
-                    label.textContent = liked ? 'Love' : 'Loved';
+                    label.textContent = formatCount(base + (liked ? -1 : 1));
                 }
-                const path = btn.querySelector('path');
-                if (path) {
-                    path.setAttribute('fill', liked ? 'none' : 'currentColor');
+
+                try {
+                    let likeUrl = `/timeline_home/comments/${commentId}/like`;
+                    // Adjust URL if needed depending on environment, assuming global route works
+                    
+                    const res = await fetch(likeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        }
+                    });
+                    
+                    if (!res.ok) throw new Error();
+                    const data = await res.json();
+                    
+                    btn.setAttribute('aria-pressed', data.liked ? 'true' : 'false');
+                    btn.classList.toggle('text-red-500', data.liked);
+                    btn.classList.toggle('text-gray-400', !data.liked);
+                    if (path) path.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+                    if (label) label.textContent = data.likes_label;
+                    btn.dataset.base = data.likes_base;
+
+                } catch (e) {
+                    btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+                    btn.classList.toggle('text-red-500', liked);
+                    btn.classList.toggle('text-gray-400', !liked);
+                    if (path) path.setAttribute('fill', liked ? 'currentColor' : 'none');
+                    if (label) label.textContent = formatCount(base);
+                    showToast('Gagal menyukai komentar.');
                 }
             });
         });
@@ -995,7 +1208,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const bookTag = post.book
-            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">Book: ' + escapeHtml(post.book) + '</div>'
+            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">📖 ' + escapeHtml(post.book) + '</div>'
+            : '';
+
+        const klubTag = post.klub
+            ? '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">👥 ' + escapeHtml(post.klub) + '</div>'
+            : '';
+
+        const tagsHtml = (bookTag || klubTag)
+            ? '<div class="flex flex-wrap gap-2 mb-3">' + bookTag + klubTag + '</div>'
             : '';
 
         const attachments = Array.isArray(post.attachments) && post.attachments.length
@@ -1026,12 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '</div>' +
             '</div>' +
 
-            '<div class="flex flex-wrap gap-2 mb-3">' +
-                bookTag +
-                '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">' +
-                    'Club: ' + escapeHtml(post.klub || '') +
-                '</div>' +
-            '</div>' +
+            tagsHtml +
 
             mediaHtml +
             '<p class="text-sm text-gray-600 leading-relaxed mb-4">' + escapeHtml(post.body || '') + '</p>' +
@@ -1060,7 +1276,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCommentPanel(post) {
-        const commentsUrl = '/timeline_komunitas/posts/' + encodeURIComponent(post.id) + '/comments';
+        // Use proper route based on whether it is a global post or club post
+        let commentsUrl = '/timeline_home/posts/' + encodeURIComponent(post.id) + '/comments';
+        if (location.pathname.includes('timeline_komunitas') && post.klub) {
+            commentsUrl = '/timeline_komunitas/posts/' + encodeURIComponent(post.id) + '/comments';
+        }
         const storeUrl = commentsUrl;
         const authenticated = document.querySelector('meta[name="user-auth"]')?.content === 'true';
 

@@ -246,4 +246,47 @@ class BookController extends Controller
             'books' => array_slice($dbBooks, 0, 5),
         ]);
     }
+    public function searchAutocomplete(Request $request): JsonResponse {
+        $query = $request->input('q', '');
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $results = collect();
+
+        // Search in FeaturedBook
+        $featured = FeaturedBook::where('judul', 'like', "%{$query}%")
+            ->limit(5)
+            ->get()
+            ->map(function($book) {
+                return [
+                    'id' => $book->id,
+                    'judul' => $book->judul,
+                    'penulis' => $book->penulis,
+                    'cover_url' => $book->cover_url,
+                    'source' => 'featured',
+                ];
+            });
+        
+        $results = $results->concat($featured);
+
+        // Search in PersonalBook
+        if ($results->count() < 5) {
+            $personal = \App\Models\PersonalBook::where('judul', 'like', "%{$query}%")
+                ->limit(5 - $results->count())
+                ->get()
+                ->map(function($book) {
+                    return [
+                        'id' => $book->id,
+                        'judul' => $book->judul,
+                        'penulis' => $book->penulis,
+                        'cover_url' => null, // Personal books might not have cover
+                        'source' => 'personal',
+                    ];
+                });
+            $results = $results->concat($personal);
+        }
+
+        return response()->json($results->unique('judul')->values()->all());
+    }
 }
