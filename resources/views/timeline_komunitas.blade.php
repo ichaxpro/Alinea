@@ -24,37 +24,7 @@
         <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6">
 
             {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
-            <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
-                    @php
-                    $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => request()->routeIs('timeline_home'),
-                         'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => request()->routeIs('timeline_profile'),
-                         'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => request()->routeIs('timeline_notifikasi'),
-                         'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')],
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => request()->routeIs('chat'),
-                         'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => request()->routeIs('timeline_komunitas'), 'icon' => 'community', 'url' => route('timeline_komunitas')],
-                        ['id' => 'sidenav-simpanan', 'label' => 'Simpanan', 'active' => request()->routeIs('timeline_simpanan'), 'icon' => 'simpanan', 'url' => route('timeline_simpanan')]
-                    ];
-                    @endphp
-
-                    @foreach ($sideNav as $item)
-                    @php $tag = isset($item['url']) ? 'a' : 'button'; @endphp
-                    <{{ $tag }} id="{{ $item['id'] }}" {!! isset($item['url']) ? 'href="'.$item['url'].'"' : 'data-sidenav' !!} aria-label="{{ $item['label'] }}"
-                            class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
-                                   {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
-                        <div class="w-5 h-5 shrink-0 flex items-center justify-center">
-                            <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
-                        </div>
-
-                        <span class="text-sm">{{ $item['label'] }}</span>
-                    </{{ $tag }}>
-                    @endforeach
-                </div>
-            </aside>
+            <x-timeline-sidebar />
 
             {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
@@ -73,7 +43,20 @@
                 {{-- Composer --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
                     <div class="flex gap-3">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                        {{-- Composer avatar: foto profil asli atau inisial --}}
+                        @auth
+                            @if(Auth::user()->foto_profil)
+                                <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}"
+                                     alt="{{ Auth::user()->name }}"
+                                     class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 object-cover" />
+                            @else
+                                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 flex items-center justify-center">
+                                    <span class="text-sm font-bold text-[#444]">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                </div>
+                            @endif
+                        @else
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                        @endauth
 
                         <div class="flex-1 flex flex-col gap-3">
                             {{-- Category pills --}}
@@ -271,47 +254,18 @@
                 </div>
             </main>
 
-            {{-- ===== RIGHT SIDEBAR — floating sticky card (mirrors left) ===== --}}
-            <aside class="hidden xl:flex flex-col gap-4 w-[280px] flex-shrink-0 sticky top-6">
-
-                {{-- Search --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl px-4 py-3">
-                    <div class="flex items-center gap-2.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        <input type="search" id="sidebar-search-input" placeholder="Cari diskusi klub..."
-                               class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
-                    </div>
-                </div>
-
-                {{-- What's Trending --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <h2 class="font-bold text-[15px] mb-4">Klub Terpopuler</h2>
-
-                    @php
-                    $trending = [
-                        ['Romance Readers',          '30 Member'],
-                        ['Dunia Fantasi',            '24 Member'],
-                        ['Buku Anak Muda',           '22 Member'],
-                        ['Sastra Nusantara',         '18 Member'],
-                        ['Filsafat Kopi',            '15 Member'],
-                    ];
-                    @endphp
-
-                    <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $club)
-                        <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                            <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
-                            <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $club[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $club[1] }}</span>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ol>
-                </div>
-            </aside>
+            {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
+            <x-timeline-sidebar-right
+                searchPlaceholder="Cari diskusi klub..."
+                trendingTitle="Klub Terpopuler"
+                :trendingItems="[
+                    ['Romance Readers',  '30 Member'],
+                    ['Dunia Fantasi',    '24 Member'],
+                    ['Buku Anak Muda',   '22 Member'],
+                    ['Sastra Nusantara', '18 Member'],
+                    ['Filsafat Kopi',    '15 Member'],
+                ]"
+            />
 
         </div>
     </div>
