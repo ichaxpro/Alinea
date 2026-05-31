@@ -61,6 +61,9 @@ Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('kl
 Route::get('/timeline_profile', [ProfileController::class, 'show'])->name('timeline_profile');
 Route::get('/u/{username}', [ProfileController::class, 'show'])->name('profile.by_username');
 
+Route::get('/u/{user}/followers', [ProfileController::class, 'followersList'])->name('profile.followers');
+Route::get('/u/{user}/following', [ProfileController::class, 'followingList'])->name('profile.following');
+
 
 
 Route::get('/chat', function () {

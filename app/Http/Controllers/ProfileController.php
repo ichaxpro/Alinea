@@ -168,6 +168,46 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function followersList(User $user) {
+        $currentUser = Auth::user();
+
+        $followers = $user->followers()
+            ->with('follower')
+            ->latest()
+            ->get()
+            ->map(fn ($follow) => [
+                'id' => $follow->follower->id,
+                'name' => $follow->follower->name,
+                'username' => $follow->follower->username,
+                'avatar_url' => $follow->follower->avatar_url,
+                'is_following' => $currentUser ? Follow::where('follower_id', $currentUser->id)
+                        ->where('following_id', $follow->follower->id)
+                        ->exists()
+                    : false,
+            ]);
+            return response()->json(['users' => $followers]);
+    }
+
+    public function followingList(User $user) {
+        $currentUser = Auth::user();
+
+        $following = $user->following()
+            ->with('following')
+            ->latest()
+            ->get()
+            ->map(fn ($follow) => [
+                'id' => $follow->following->id,
+                'name' => $follow->following->name,
+                'username' => $follow->following->username,
+                'avatar_url' => $follow->following->avatar_url,
+                'is_following' => $currentUser ? Follow::where('follower_id', $currentUser->id)
+                        ->where('following_id', $follow->following->id)
+                        ->exists()
+                    : false,
+            ]);
+            return response()->json(['users' => $following]);
+    }
+
     public function storeReadingBook(Request $request) {
         $user = Auth::user();
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
