@@ -10,6 +10,7 @@
     <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
     <meta name="user-name" content="{{ Auth::user()?->name ?? '' }}">
     <meta name="user-avatar-url" content="{{ Auth::user()?->avatar_url ?? '' }}" />
+    <meta name="user-id" content="{{ Auth::id() ?? '' }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -107,9 +108,13 @@
                             @endif
 
                             <p class="text-sm text-gray-500 mt-2">
-                                <span class="font-bold text-[#222]">{{ $followingCount }}</span> Following
+                                <button type="button" id="profile-following-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer text-left">
+                                    <span class="font-bold text-[#222]">{{ $followingCount }}</span> Following
+                                </button>
                                 <span class="mx-2">|</span>
-                                <span class="font-bold text-[#222]">{{ $followersCount }}</span> Followers
+                                <button type="button" id="profile-followers-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer text-left">
+                                    <span class="font-bold text-[#222]">{{ $followersCount }}</span> Followers
+                                </button>
                             </p>
                         </div>
                     </div>
@@ -480,6 +485,39 @@
                 </div>
             </aside>
 
+        </div>
+    </div>
+
+    <div id="follow-modal-overlay" class="fixed inset-0 z-999 bg-black/50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+        <div id="follow-modal" class="bg-white rounded-2xl border-[1.5px] border-text w-full max-w-md mx-4 max-h-[80vh] flex flex-col shadow-xl opacity-0 translate-y-4 transition-all duration-200">
+            <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-[#222]">Following &amp; Followers</h3>
+                <button type="button" id="follow-modal-close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-text hover:bg-gray-100 transition-colors cursor-pointer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex border-b border-gray-100">
+                <button type="button" id="follow-tab-following" data-follow-tab="following" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-[#111]">
+                    Following
+                    <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-[#5DA9FF]"></span>
+                </button>
+                <button type="button" id="follow-tab-followers" data-follow-tab="followers" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-gray-400 hover:text-gray-600">
+                    Followers
+                    <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-transparent"></span>
+                </button>
+            </div>
+
+            <div id="follow-modal-body" class="flex-1 overflow-y-auto p-5 min-h-50">
+                <div class="flex items-center justify-center h-32">
+                    <div class="w-6 h-6 border-2 border-text border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
         </div>
     </div>
 

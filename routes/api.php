@@ -118,6 +118,12 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/chat/conversations/{id}/read',    [ChatController::class, 'markAsRead']);
     Route::post('/chat/conversations/{id}/typing',  [ChatController::class, 'typing']);
 
+    // ── User Detail Panel ────────────────────────────────────────────
+    Route::get('/chat/conversations/{id}/media',    [ChatController::class, 'conversationMedia']);
+    Route::delete('/chat/conversations/{id}',        [ChatController::class, 'deleteConversation']);
+    Route::post('/users/{userId}/report',            [ChatController::class, 'reportUser']);
+    Route::post('/users/{userId}/block',             [ChatController::class, 'blockUser']);
+
     // User search (for "New Chat" modal)
     Route::get('/users', function (Request $request) {
         $q = $request->get('search', '');

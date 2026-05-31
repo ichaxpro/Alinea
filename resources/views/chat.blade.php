@@ -188,6 +188,133 @@ window.authUser = {
     .media-caption {
         font-size: 13px; margin-top: 4px;
     }
+
+    /* ── Video thumbnail di bubble ────────────────────────── */
+    .video-thumb-wrapper {
+        position: relative;
+        display: inline-block;
+        max-width: 280px;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        line-height: 0;
+    }
+    .video-thumb-wrapper:hover .video-play-btn {
+        background: rgba(0,0,0,0.65);
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+    .video-thumb {
+        display: block;
+        max-width: 280px;
+        max-height: 200px;
+        width: 100%;
+        border-radius: 14px;
+        object-fit: cover;
+    }
+    .video-play-btn {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 48px; height: 48px;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s, transform 0.2s;
+        pointer-events: none;
+    }
+    .video-play-btn svg {
+        margin-left: 3px; /* optical center untuk icon play */
+    }
+
+
+    /* ── Media Lightbox Modal ─────────────────────────────── */
+    #mediaModal {
+        display: none;
+        transition: opacity 0.2s ease;
+    }
+    #mediaModal.open {
+        display: flex;
+        animation: fadeInModal 0.2s ease both;
+    }
+    @keyframes fadeInModal {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    #mediaModalContent img,
+    #mediaModalContent video {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 12px;
+        object-fit: contain;
+        animation: zoomIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes zoomIn {
+        from { opacity: 0; transform: scale(0.93); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── User Detail Panel ──────────────────────────────── */
+    #userDetailPanel {
+        will-change: transform;
+        box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+    }
+    #userDetailPanel.open {
+        transform: translateX(0) !important;
+    }
+    #userDetailOverlay {
+        display: none;
+    }
+    #userDetailOverlay.open {
+        display: block;
+    }
+
+    /* ── Media grid in panel ────────────────────────────── */
+    .ud-media-thumb {
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        display: block;
+        transition: opacity 0.15s, transform 0.15s;
+    }
+    .ud-media-thumb:hover { opacity: 0.82; transform: scale(0.97); }
+    .ud-media-video-wrap {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        cursor: pointer;
+    }
+    .ud-media-video-wrap:hover .ud-video-play { background: rgba(0,0,0,0.62); }
+    .ud-video-play {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.38);
+        transition: background 0.15s;
+    }
+
+    /* ── Panel scrollbar ────────────────────────────────── */
+    #userDetailPanel .flex-1::-webkit-scrollbar { width: 4px; }
+    #userDetailPanel .flex-1::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+    /* ── Action buttons ─────────────────────────────────── */
+    .ud-action-btn {
+        display: flex; align-items: center; gap: 12px;
+        width: 100%; padding: 10px 16px;
+        border-radius: 12px;
+        background: none; border: none;
+        cursor: pointer; text-align: left;
+        transition: background 0.15s;
+    }
+    .ud-action-btn:hover { background: #f9fafb; }
+    .ud-action-icon {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s;
+    }
 </style>
 
 </head>
@@ -261,12 +388,15 @@ window.authUser = {
 
     {{-- Chat header (hidden until a conversation is opened) --}}
     <div id="chatHeader" class="hidden h-[64px] flex items-center gap-3 px-4 border-b bg-white">
-        <div id="chatAvatarWrapper" class="shrink-0">
-            {{-- Avatar injected by JS --}}
-        </div>
-        <div class="flex-1">
-            <p id="chatName" class="font-semibold text-sm"></p>
-        </div>
+        <button id="userDetailTrigger" class="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity" title="Lihat profil">
+            <div id="chatAvatarWrapper" class="shrink-0">
+                {{-- Avatar injected by JS --}}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p id="chatName" class="font-semibold text-sm truncate"></p>
+                <p id="chatUsername" class="text-xs text-gray-400 truncate"></p>
+            </div>
+        </button>
         <button title="Info" class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition text-gray-400">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -355,6 +485,29 @@ window.authUser = {
 
 </main>
 
+<div id="mediaModal" class="fixed inset-0 z-[60] items-center justify-center p-4" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px)">
+    <button id="mediaModalClose" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white" title="Tutup">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    </button>
+
+    <a id="mediaModalDownload" href="#" download class="absolute top-4 left-2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white" title="Unduh">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+    </a>
+
+    <div id="mediaModalContent" class="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center"></div>
+
+    <p id="mediaModalCaption" class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-xs truncate max-w-xs text-center"></p>
+</div>
+
 {{-- ═══════════════ NEW CHAT MODAL ═══════════════ --}}
 <div id="newChatModal"
     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -398,6 +551,112 @@ window.authUser = {
 
     </div>
 </div>
+
+{{-- ═══════════════ USER DETAIL PANEL ═══════════════ --}}
+<div id="userDetailOverlay"
+    class="fixed inset-0 z-40"
+    style="background: rgba(0,0,0,0.18); backdrop-filter: blur(1.5px);"></div>
+
+<aside id="userDetailPanel"
+    class="fixed top-0 right-0 h-full z-50 bg-white flex flex-col"
+    style="width: 320px; transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.16,1,0.3,1);">
+
+    {{-- Panel Header --}}
+    <div class="flex items-center justify-between px-5 h-[64px] border-b shrink-0">
+        <h2 class="font-semibold text-sm">Info Pengguna</h2>
+        <button id="userDetailClose"
+            class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-gray-100 transition text-gray-400"
+            title="Tutup">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6"  y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    {{-- Scrollable Content --}}
+    <div class="flex-1 overflow-y-auto">
+
+        {{-- Profile Section --}}
+        <div class="flex flex-col items-center gap-3 pt-8 pb-6 px-5 border-b">
+            <div id="udAvatarWrapper" class="shrink-0"></div>
+            <div class="text-center">
+                <p id="udName" class="font-bold text-base leading-tight"></p>
+                <p id="udUsername" class="text-sm text-gray-400 mt-0.5"></p>
+            </div>
+        </div>
+
+        {{-- Media Section --}}
+        <div class="px-5 pt-5 pb-4 border-b">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Media Bersama</p>
+            <div id="udMediaGrid" class="grid grid-cols-3 gap-1.5">
+                <p class="col-span-3 text-xs text-gray-400 text-center py-4">Pilih percakapan dahulu</p>
+            </div>
+            <button id="udMediaMore"
+                class="hidden mt-3 text-xs text-[#444] font-medium hover:underline w-full text-center py-1">
+            </button>
+        </div>
+
+        {{-- Divider label --}}
+        <div class="px-5 pt-5">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tindakan</p>
+        </div>
+
+        {{-- Actions --}}
+        <div class="px-3 pb-8 flex flex-col gap-1">
+
+            {{-- Report --}}
+            <button id="udReportBtn" class="ud-action-btn group">
+                <span class="ud-action-icon bg-orange-50 group-hover:bg-orange-100">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </span>
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Laporkan Pengguna</p>
+                    <p class="text-xs text-gray-400">Laporkan perilaku tidak pantas</p>
+                </div>
+            </button>
+
+            {{-- Block --}}
+            <button id="udBlockBtn" class="ud-action-btn group">
+                <span class="ud-action-icon bg-red-50 group-hover:bg-red-100">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                </span>
+                <div>
+                    <p class="text-sm font-medium text-red-500">Blokir Pengguna</p>
+                    <p class="text-xs text-gray-400">Pengguna tidak bisa mengirim pesan</p>
+                </div>
+            </button>
+
+            {{-- Delete Chat --}}
+            <button id="udDeleteChatBtn" class="ud-action-btn group">
+                <span class="ud-action-icon bg-gray-100 group-hover:bg-gray-200">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                         stroke="#6b7280" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4h6v2"/>
+                    </svg>
+                </span>
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Hapus Chat</p>
+                    <p class="text-xs text-gray-400">Hapus semua riwayat percakapan ini</p>
+                </div>
+            </button>
+
+        </div>
+    </div>
+</aside>
 
 </body>
 </html>
