@@ -66,15 +66,7 @@
                         </div>
                     </div>
 
-                    {{-- Club Filters (Multi-select) --}}
-                    <div class="flex flex-wrap gap-2 pb-1" id="club-filters">
-                        @foreach (['Dunia Fantasi', 'Sastra Nusantara', 'Pengulik Kebenaran'] as $klub)
-                        <button data-klub-filter="{{ $klub }}"
-                                class="text-xs font-medium px-4 py-1.5 rounded-full border-[1.5px] border-gray-300 text-gray-500 hover:border-[#444] hover:text-[#444] transition-colors cursor-pointer bg-white">
-                            {{ $klub }}
-                        </button>
-                        @endforeach
-                    </div>
+
                 </div>
 
                 {{-- Composer --}}
@@ -154,6 +146,16 @@
                     </div>
                 </article>
 
+                {{-- Club Filters (Multi-select) --}}
+                <div class="flex flex-wrap gap-2 pb-1" id="club-filters">
+                    @foreach ($joinedClubs as $c)
+                    <button data-klub-filter="{{ $c->nama_klub }}"
+                            class="text-medium font-medium px-4 py-1.5 rounded-full border-[1.5px] border-black text-black hover:border-[#444] hover:text-[#444] transition-colors cursor-pointer bg-white">
+                        {{ $c->nama_klub }}
+                    </button>
+                    @endforeach
+                </div>
+
                 {{-- Post feed --}}
                 <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs" data-post-store-url="{{ route('timeline_posts.store') }}">
                     @forelse ($posts as $post)
@@ -189,12 +191,12 @@
                         <div class="flex flex-wrap gap-2 mb-3">
                             @if(!empty($post['book']))
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
-                                Book: {{ $post['book'] }}
+                                📖 {{ $post['book'] }}
                             </div>
                             @endif
                             @if(!empty($post['klub']))
                             <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
-                                Club: {{ $post['klub'] }}
+                                👥 {{ $post['klub'] }}
                             </div>
                             @endif
                         </div>
@@ -220,7 +222,7 @@
                             {{-- Comment --}}
                             <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar" data-comment-toggle
                                     class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                <x-icon-comment fill="none" />
                                 <span data-comment-count>{{ $post['comments'] }}</span>
                             </button>
 
@@ -230,7 +232,7 @@
                                     aria-pressed="{{ $post['liked'] ? 'true' : 'false' }}" aria-label="Suka"
                                     class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
                                            {{ $post['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" />
                                 <span data-like-count>{{ $post['likes_label'] }}</span>
                             </button>
 
@@ -238,11 +240,11 @@
                             <div class="ml-auto flex items-center gap-2">
                                 <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="false" aria-label="Simpan"
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                    <x-icon-bookmark fill="none" />
                                 </button>
                                 <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                    <x-icon-share fill="none" />
                                 </button>
                             </div>
                         </div>

@@ -173,10 +173,9 @@
                             <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
                         </div>
 
-                        {{-- Book tag --}}
                         @if(!empty($post['book']))
                         <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
-                            {{ $post['book'] }}
+                            📖 {{ $post['book'] }}
                         </div>
                         @endif
                         

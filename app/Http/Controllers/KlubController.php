@@ -526,6 +526,13 @@ class KlubController extends Controller
                     ->leftJoin(DB::raw('(select id_post, count(*) as comments_count from timeline_comments group by id_post) as comments'), function ($join) {
                         $join->on('timeline_posts.id', '=', 'comments.id_post');
                     })
+                    ->leftJoin(DB::raw('(select id_post, count(*) as likes_count from timeline_likes group by id_post) as likes'), function ($join) {
+                        $join->on('timeline_posts.id', '=', 'likes.id_post');
+                    })
+                    ->leftJoin('timeline_likes as user_like', function ($join) use ($currentUser) {
+                        $join->on('timeline_posts.id', '=', 'user_like.id_post')
+                             ->where('user_like.id_user', '=', $currentUser ? $currentUser->id : 0);
+                    })
                     ->whereIn('timeline_posts.id_klub', $joinedClubs->pluck('id')->all())
                     ->select([
                         'timeline_posts.id',
@@ -545,7 +552,8 @@ class KlubController extends Controller
                         'klub.gradient_from as avatar_from',
                         'klub.gradient_to as avatar_to',
                         DB::raw('COALESCE(comments.comments_count, 0) as comments'),
-                        DB::raw('0 as likes_base'),
+                        DB::raw('COALESCE(likes.likes_count, 0) as likes_base'),
+                        DB::raw('CASE WHEN user_like.id IS NOT NULL THEN 1 ELSE 0 END as is_liked'),
                     ])
                     ->orderByDesc('timeline_posts.created_at')
                     ->get();
@@ -578,8 +586,8 @@ class KlubController extends Controller
                         'body' => $post->body,
                         'comments' => (string) $post->comments,
                         'likes_base' => (int) $post->likes_base,
-                        'likes_label' => (string) $post->likes_base,
-                        'liked' => false,
+                        'likes_label' => $post->likes_base >= 1000 ? round($post->likes_base/1000, 1) . 'K' : (string) $post->likes_base,
+                        'liked' => (bool) $post->is_liked,
                         'avatar_url' => $post->foto_profil ? asset('storage/' . $post->foto_profil) : null,
                         'avatar_from' => $post->avatar_from ?: '#FFDDAF',
                         'avatar_to' => $post->avatar_to ?: '#C7E7FF',

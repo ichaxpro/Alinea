@@ -1022,11 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (count) count.textContent = formatCount(parseInt(btn.dataset.base) + (liked ? -1 : 1));
 
                 try {
-                    // In timeline_home, the URL differs from timeline_komunitas
                     let likeUrl = `/timeline_home/posts/${postId}/like`;
-                    if (location.pathname.includes('timeline_komunitas')) {
-                        likeUrl = `/timeline_komunitas/posts/${postId}/like`; // fallback if it exists
-                    }
 
                     const res = await fetch(likeUrl, {
                         method: 'POST',
@@ -1056,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.classList.toggle('text-gray-400', !liked);
                     if (heart) heart.setAttribute('fill', liked ? 'currentColor' : 'none');
                     if (count) count.textContent = formatCount(btn.dataset.base);
-                    showToast('Gagal menyukai postingan.');
+                    showToast('Gagal menyukai unggahan.');
                 }
             });
         });
@@ -1208,11 +1204,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const bookTag = post.book
-            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">Book: ' + escapeHtml(post.book) + '</div>'
+            ? '<div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">📖 ' + escapeHtml(post.book) + '</div>'
             : '';
 
         const klubTag = post.klub
-            ? '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">Club: ' + escapeHtml(post.klub) + '</div>'
+            ? '<div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">👥 ' + escapeHtml(post.klub) + '</div>'
             : '';
 
         const tagsHtml = (bookTag || klubTag)
