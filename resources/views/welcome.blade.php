@@ -489,60 +489,99 @@
                         </a>
                     </div>
 
-                    <!-- Right: Phone Mockup / Timeline Preview -->
+                    <!-- Right: Timeline Preview (mirrors actual UI) -->
                     <div class="reveal-right relative" style="transition-delay:0.15s">
-                        <div class="bg-white rounded-3xl shadow-2xl p-6 max-w-sm mx-auto border border-gray-100">
-                            <!-- Phone-style header -->
-                            <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-bold text-sm text-gray-900">Alinea Timeline</span>
-                                </div>
-                                <div class="flex gap-1">
-                                    <div class="w-2 h-2 bg-red-400 rounded-full"></div>
-                                    <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
-                                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <div class="bg-[#f3f4f6] rounded-3xl shadow-2xl p-4 max-w-sm mx-auto border-2 border-[#444] overflow-hidden" style="max-height:420px; overflow:hidden;">
+
+                            <!-- Tab bar -->
+                            <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden mb-3">
+                                <div class="flex-1 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">For You</div>
+                                <div class="flex-1 py-2 text-xs text-gray-400 rounded-full text-center">Following</div>
+                            </div>
+
+                            <!-- Composer hint -->
+                            <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-3 mb-3">
+                                <div class="flex gap-2 items-center">
+                                    <div class="w-8 h-8 rounded-full border-2 border-[#444] shrink-0" style="background: linear-gradient(135deg, #FFDDAF, #C7E7FF)"></div>
+                                    <div class="flex-1">
+                                        <div class="flex gap-1 mb-1.5">
+                                            <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full border border-[#444] bg-[#FFDDAF] text-[#444]">Dibaca</span>
+                                            <span class="text-[9px] px-2 py-0.5 rounded-full border border-gray-300 text-gray-400">Selesai</span>
+                                            <span class="text-[9px] px-2 py-0.5 rounded-full border border-gray-300 text-gray-400">Kutipan</span>
+                                        </div>
+                                        <div class="text-[10px] text-gray-300 bg-gray-50 rounded-lg px-2 py-1.5">Apa yang sedang kamu baca?...</div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Timeline posts -->
-                            <div class="space-y-3">
-                                <div class="flex gap-3 p-3 bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors cursor-pointer">
-                                    <div class="w-8 h-8 bg-sky-400 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">A</div>
-                                    <div>
-                                        <p class="font-bold text-xs text-gray-900 mb-0.5">Arya S. <span class="text-gray-400 font-normal">· 2m</span></p>
-                                        <p class="text-xs text-gray-700 leading-relaxed">"Baru selesai baca Laskar Pelangi. Luar biasa 😭 Siapa mau pinjam?"</p>
-                                        <div class="flex gap-3 mt-2 text-gray-400 text-xs">
-                                            <span class="hover:text-red-500 cursor-pointer">❤️ 14</span>
-                                            <span class="hover:text-sky-500 cursor-pointer">💬 3</span>
-                                            <span class="hover:text-green-500 cursor-pointer">🔁 2</span>
+                            <!-- Post 1 -->
+                            <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-3 mb-2">
+                                <div class="flex items-center gap-2 mb-2 justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full border-2 border-[#444] shrink-0" style="background: linear-gradient(135deg,#FFDDAF,#C7E7FF)"></div>
+                                        <div>
+                                            <p class="font-bold text-[11px] leading-tight">Budi Ashcroft</p>
+                                            <p class="text-[9px] text-gray-400">@isoba__ · Malang · 12 Menit Lalu</p>
                                         </div>
                                     </div>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#444] bg-[#fff176]">Dibaca</span>
                                 </div>
-                                <div class="flex gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                                    <div class="w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">D</div>
-                                    <div>
-                                        <p class="font-bold text-xs text-gray-900 mb-0.5">Dina R. <span class="text-gray-400 font-normal">· 15m</span></p>
-                                        <p class="text-xs text-gray-700 leading-relaxed">"Progres baca: 67% The Midnight Library. Plot twist-nya gila! 🤯"</p>
-                                        <div class="flex gap-3 mt-2 text-gray-400 text-xs">
-                                            <span class="hover:text-red-500 cursor-pointer">❤️ 28</span>
-                                            <span class="hover:text-sky-500 cursor-pointer">💬 7</span>
-                                            <span class="hover:text-green-500 cursor-pointer">🔁 5</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-                                    <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">R</div>
-                                    <div>
-                                        <p class="font-bold text-xs text-gray-900 mb-0.5">Reza M. <span class="text-gray-400 font-normal">· 1j</span></p>
-                                        <p class="text-xs text-gray-700 leading-relaxed">"Habis nonton Dune, langsung cari bukunya di Alinea 😂 Ada yang punya?"</p>
-                                        <div class="flex gap-3 mt-2 text-gray-400 text-xs">
-                                            <span class="hover:text-red-500 cursor-pointer">❤️ 9</span>
-                                            <span class="hover:text-sky-500 cursor-pointer">💬 12</span>
-                                            <span class="hover:text-green-500 cursor-pointer">🔁 1</span>
-                                        </div>
+                                <span class="inline-flex text-[9px] font-bold px-2.5 py-0.5 rounded-full border border-[#444] bg-[#FFDDAF] mb-1.5">Harry Potter</span>
+                                <p class="text-[10px] text-gray-600 leading-relaxed mb-2 line-clamp-2">Harry Potter adalah kisah tentang seorang anak penyihir yang menemukan jati dirinya di Sekolah Hogwarts...</p>
+                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+                                    <button class="flex items-center gap-1 text-gray-400 text-[10px]">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        1.2K
+                                    </button>
+                                    <button class="flex items-center gap-1 text-red-500 text-[10px]">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                        50K
+                                    </button>
+                                    <div class="ml-auto flex gap-1">
+                                        <button class="w-6 h-6 flex items-center justify-center rounded-full text-gray-400">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                        </button>
+                                        <button class="w-6 h-6 flex items-center justify-center rounded-full text-gray-400">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Post 2 -->
+                            <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-3">
+                                <div class="flex items-center gap-2 mb-2 justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-full border-2 border-[#444] shrink-0" style="background: linear-gradient(135deg,#C7E7FF,#FFDDAF)"></div>
+                                        <div>
+                                            <p class="font-bold text-[11px] leading-tight">Dina Rahmawati</p>
+                                            <p class="text-[9px] text-gray-400">@dina_r · Surabaya · 35 Menit Lalu</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#444] bg-[#fff176]">Selesai</span>
+                                </div>
+                                <span class="inline-flex text-[9px] font-bold px-2.5 py-0.5 rounded-full border border-[#444] bg-[#FFDDAF] mb-1.5">The Midnight Library</span>
+                                <p class="text-[10px] text-gray-600 leading-relaxed mb-2 line-clamp-2">Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi...</p>
+                                <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+                                    <button class="flex items-center gap-1 text-gray-400 text-[10px]">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                        843
+                                    </button>
+                                    <button class="flex items-center gap-1 text-gray-400 text-[10px]">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                        28K
+                                    </button>
+                                    <div class="ml-auto flex gap-1">
+                                        <button class="w-6 h-6 flex items-center justify-center rounded-full text-gray-400">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                        </button>
+                                        <button class="w-6 h-6 flex items-center justify-center rounded-full text-gray-400">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

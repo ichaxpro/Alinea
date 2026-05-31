@@ -26,37 +26,7 @@
         <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6">
 
             {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
-            <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
-                    @php
-                    $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => request()->routeIs('timeline_home'),
-                         'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => request()->routeIs('timeline_profile'),
-                         'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => request()->routeIs('timeline_notifikasi'),
-                         'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')],
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => request()->routeIs('chat'),
-                         'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => request()->routeIs('timeline_komunitas'), 'icon' => 'community', 'url' => route('timeline_komunitas')],
-                        ['id' => 'sidenav-simpanan', 'label' => 'Simpanan', 'active' => request()->routeIs('timeline_simpanan'), 'icon' => 'simpanan', 'url' => route('timeline_simpanan')]
-                    ];
-                    @endphp
-
-                    @foreach ($sideNav as $item)
-                    @php $tag = isset($item['url']) ? 'a' : 'button'; @endphp
-                    <{{ $tag }} id="{{ $item['id'] }}" {!! isset($item['url']) ? 'href="'.$item['url'].'"' : 'data-sidenav' !!} aria-label="{{ $item['label'] }}"
-                            class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
-                                   {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
-                        <div class="w-5 h-5 shrink-0 flex items-center justify-center">
-                            <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
-                        </div>
-
-                        <span class="text-sm">{{ $item['label'] }}</span>
-                    </{{ $tag }}>
-                    @endforeach
-                </div>
-            </aside>
+            <x-timeline-sidebar />
 
             {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
@@ -171,47 +141,18 @@
                 </div>
             </main>
 
-            {{-- ===== RIGHT SIDEBAR — floating sticky card (mirrors left) ===== --}}
-            <aside class="hidden xl:flex flex-col gap-4 w-[280px] flex-shrink-0 sticky top-6">
-
-                {{-- Search --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl px-4 py-3">
-                    <div class="flex items-center gap-2.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        <input type="search" id="sidebar-search-input" placeholder="Cari buku atau pengguna..."
-                               class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
-                    </div>
-                </div>
-
-                {{-- What's Trending --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <h2 class="font-bold text-[15px] mb-4">What's Trending</h2>
-
-                    @php
-                    $trending = [
-                        ['Harry Potter',          'J.K. Rowling'],
-                        ['Toko Kelontong Namiya', 'Keigo Higashino'],
-                        ['Crime & Punishment',    'Fyodor Dostoyevsky'],
-                        ['The Silent Voice',      'Naoko Yamada'],
-                        ['Your Name',             'Makoto Shinkai'],
-                    ];
-                    @endphp
-
-                    <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $book)
-                        <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                            <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
-                            <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $book[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $book[1] }}</span>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ol>
-                </div>
-            </aside>
+            {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
+            <x-timeline-sidebar-right
+                searchPlaceholder="Cari buku atau pengguna..."
+                trendingTitle="What's Trending"
+                :trendingItems="[
+                    ['Harry Potter',          'J.K. Rowling'],
+                    ['Toko Kelontong Namiya', 'Keigo Higashino'],
+                    ['Crime & Punishment',    'Fyodor Dostoyevsky'],
+                    ['The Silent Voice',      'Naoko Yamada'],
+                    ['Your Name',             'Makoto Shinkai'],
+                ]"
+            />
 
         </div>
     </div>
