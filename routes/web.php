@@ -43,7 +43,9 @@ Route::get('/pinjam', function () {
 use App\Http\Controllers\TimelineController;
 
 Route::get('/timeline_home', [TimelineController::class, 'index'])->name('timeline_home');
+Route::get('/timeline_simpanan', [TimelineController::class, 'simpanan'])->name('timeline_simpanan');
 Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
+Route::post('/timeline/posts/{post}/bookmark', [TimelineController::class, 'toggleBookmark'])->name('timeline.bookmark');
 Route::post('/timeline_home/posts/{post}/like', [TimelineController::class, 'toggleLike'])->name('timeline_home.like');
 Route::get('/timeline_home/posts/{post}/comments', [TimelineController::class, 'comments'])->name('timeline_home.comments');
 Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 'storeComment'])->name('timeline_home.comments.store');

@@ -30,15 +30,16 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => true,
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => request()->routeIs('timeline_home'),
                          'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false,
+                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => request()->routeIs('timeline_profile'),
                          'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
+                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => request()->routeIs('timeline_notifikasi'),
                          'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')],
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false,
+                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => request()->routeIs('chat'),
                          'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
+                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => request()->routeIs('timeline_komunitas'), 'icon' => 'community', 'url' => route('timeline_komunitas')],
+                        ['id' => 'sidenav-simpanan', 'label' => 'Simpanan', 'active' => request()->routeIs('timeline_simpanan'), 'icon' => 'simpanan', 'url' => route('timeline_simpanan')]
                     ];
                     @endphp
 
@@ -173,7 +174,6 @@
                             <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
                         </div>
 
-                        {{-- Book tag --}}
                         @if(!empty($post['book']))
                         <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
                             📖 {{ $post['book'] }}
@@ -188,9 +188,9 @@
                         <div class="grid grid-cols-2 gap-2 mb-4">
                             @foreach($post['attachments'] as $attachment)
                                 @if($attachment['type'] === 'image')
-                                <img src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" alt="Attachment" />
+                                <img src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="image" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
                                 @elseif($attachment['type'] === 'video')
-                                <video src="{{ $attachment['url'] }}" class="w-full h-40 object-cover rounded-xl border border-gray-200" controls></video>
+                                <video src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>
                                 @endif
                             @endforeach
                         </div>
@@ -217,9 +217,9 @@
 
                             {{-- Bookmark & Share --}}
                             <div class="ml-auto flex items-center gap-2">
-                                <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="false" aria-label="Simpan"
-                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-bookmark fill="none" />
+                                <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan"
+                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}">
+                                    <x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" />
                                 </button>
                                 <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">

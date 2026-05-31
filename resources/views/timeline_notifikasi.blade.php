@@ -28,11 +28,12 @@
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
                     @php
                     $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false, 'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false, 'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => true,  'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false, 'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas',  'label' => 'Komunitas',  'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
+                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => request()->routeIs('timeline_home'), 'icon' => 'beranda', 'url' => route('timeline_home')],
+                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => request()->routeIs('timeline_profile'), 'icon' => 'profil', 'url' => route('timeline_profile')],
+                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => request()->routeIs('timeline_notifikasi'),  'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
+                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => request()->routeIs('chat'), 'icon' => 'pesan', 'url' => route('chat')],
+                        ['id' => 'sidenav-komunitas',  'label' => 'Komunitas',  'active' => request()->routeIs('timeline_komunitas'), 'icon' => 'community', 'url' => route('timeline_komunitas')],
+                        ['id' => 'sidenav-simpanan', 'label' => 'Simpanan', 'active' => request()->routeIs('timeline_simpanan'), 'icon' => 'simpanan', 'url' => route('timeline_simpanan')]
                     ];
                     @endphp
 

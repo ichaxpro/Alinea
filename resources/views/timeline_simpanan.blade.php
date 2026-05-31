@@ -4,14 +4,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alinea — Timeline Komunitas</title>
-    <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
+    <title>Alinea — Simpanan</title>
+    <meta name="description" content="Kumpulan postingan yang Anda simpan di Alinea." />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/timeline.js'])
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
 </head>
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
@@ -59,108 +61,14 @@
             {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
-                {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
-                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex flex-col gap-3">
-                    <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
-                        <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">
-                            Klub Saya
-                        </div>
-                    </div>
-
-
-                </div>
-
-                {{-- Composer --}}
-                <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <div class="flex gap-3">
-                        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
-
-                        <div class="flex-1 flex flex-col gap-3">
-                            {{-- Category pills --}}
-                            <div class="flex flex-wrap gap-2">
-                                @foreach (['Diskusi', 'Tanya Jawab', 'Rekomendasi', 'Pengumuman'] as $i => $tag)
-                                <button data-composer-tag id="tag-{{ Str::slug($tag) }}"
-                                        class="text-xs font-medium px-4 py-1 rounded-full border-[1.5px] transition-colors cursor-pointer
-                                               {{ $i === 0
-                                                   ? 'border-[#444] bg-[#FFDDAF] text-[#444]'
-                                                   : 'border-gray-300 text-gray-500 hover:border-[#444] hover:text-[#444]' }}">
-                                    {{ $tag }}
-                                </button>
-                                @endforeach
-                            </div>
-
-                            <div class="relative w-full">
-                                <input type="text" id="composer-title" placeholder="Judul Buku" maxlength="120"
-                                       class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" autocomplete="off" />
-                                
-                                {{-- Autocomplete Dropdown --}}
-                                <div id="composer-autocomplete-dropdown" class="hidden absolute top-full mt-1 w-full bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
-                                    <ul id="composer-autocomplete-list" class="flex flex-col">
-                                        {{-- Populated by JS --}}
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <textarea id="composer-body" data-autogrow placeholder="Apa yang ingin kamu diskusikan dengan member klub?" rows="3"
-                                      class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>
-
-                            {{-- Pilih Klub Dropdown untuk composer --}}
-                            <div class="w-full">
-                                <select id="composer-klub" class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 outline-none focus:border-[#444] transition-colors appearance-none bg-white cursor-pointer">
-                                    <option value="" disabled selected>Pilih Klub Tujuan...</option>
-                                    @foreach($joinedClubs as $c)
-                                    <option value="{{ $c->id }}">{{ $c->nama_klub }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            {{-- Footer: media icons | char counter | submit --}}
-                            <div class="flex items-center justify-between mt-1">
-                                {{-- Media upload icons --}}
-                                <div class="flex items-center gap-2">
-                                    <button type="button" aria-label="Unggah gambar" title="Unggah gambar" id="btn-upload-image"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                                        </svg>
-                                    </button>
-                                    <button type="button" aria-label="Unggah video" title="Unggah video" id="btn-upload-video"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                                        </svg>
-                                    </button>
-                                    <input type="file" id="composer-media" accept="image/*,video/*" multiple class="hidden" />
-                                </div>
-
-                                {{-- Char counter + submit --}}
-                                <div class="flex items-center gap-3">
-                                    <span id="char-counter" data-char-counter class="text-xs text-gray-300">0/500</span>
-                                    <button id="kirim-btn"
-                                            class="bg-[#FFDDAF] text-[#444] font-bold text-sm px-6 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">
-                                        Kirim
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="composer-media-preview" class="flex flex-wrap gap-2 mt-2 hidden"></div>
-                        </div>
-                    </div>
-                </article>
-
-                {{-- Club Filters (Multi-select) --}}
-                <div class="flex flex-wrap gap-2 pb-1" id="club-filters">
-                    @foreach ($joinedClubs as $c)
-                    <button data-klub-filter="{{ $c->nama_klub }}"
-                            class="text-medium font-medium px-4 py-1.5 rounded-full border-[1.5px] border-black text-black hover:border-[#444] hover:text-[#444] transition-colors cursor-pointer bg-white">
-                        {{ $c->nama_klub }}
-                    </button>
-                    @endforeach
+                <div class="border-[1.5px] border-[#444] bg-[#FFDDAF] px-5 py-2.5 mb-4 rounded-full flex items-center justify-center">
+                    <h1 class="text-sm font-bold text-[#444]">Unggahan Disimpan</h1>
                 </div>
 
                 {{-- Post feed --}}
-                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-my-clubs" data-post-store-url="{{ route('timeline_posts.store') }}">
+                <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you" data-post-store-url="{{ route('timeline_home.store') }}">
                     @forelse ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors post-item" data-post-klub="{{ $post['klub'] }}" data-post-id="{{ $post['id'] }}">
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:bg-gray-50 transition-colors post-item" data-post-id="{{ $post['id'] }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
@@ -188,19 +96,11 @@
                             <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
                         </div>
 
-                        {{-- Tags: Book and Club --}}
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            @if(!empty($post['book']))
-                            <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
-                                📖 {{ $post['book'] }}
-                            </div>
-                            @endif
-                            @if(!empty($post['klub']))
-                            <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
-                                👥 {{ $post['klub'] }}
-                            </div>
-                            @endif
+                        @if(!empty($post['book']))
+                        <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
+                            📖 {{ $post['book'] }}
                         </div>
+                        @endif
                         
                         {{-- Body --}}
                         <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
@@ -280,32 +180,32 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
-                        <input type="search" id="sidebar-search-input" placeholder="Cari diskusi klub..."
+                        <input type="search" id="sidebar-search-input" placeholder="Cari buku atau pengguna..."
                                class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
                     </div>
                 </div>
 
                 {{-- What's Trending --}}
                 <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <h2 class="font-bold text-[15px] mb-4">Klub Terpopuler</h2>
+                    <h2 class="font-bold text-[15px] mb-4">What's Trending</h2>
 
                     @php
                     $trending = [
-                        ['Romance Readers',          '30 Member'],
-                        ['Dunia Fantasi',            '24 Member'],
-                        ['Buku Anak Muda',           '22 Member'],
-                        ['Sastra Nusantara',         '18 Member'],
-                        ['Filsafat Kopi',            '15 Member'],
+                        ['Harry Potter',          'J.K. Rowling'],
+                        ['Toko Kelontong Namiya', 'Keigo Higashino'],
+                        ['Crime & Punishment',    'Fyodor Dostoyevsky'],
+                        ['The Silent Voice',      'Naoko Yamada'],
+                        ['Your Name',             'Makoto Shinkai'],
                     ];
                     @endphp
 
                     <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $club)
+                        @foreach ($trending as $rank => $book)
                         <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
                             <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
                             <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $club[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $club[1] }}</span>
+                                <span class="font-bold text-[13px] leading-tight block">{{ $book[0] }}</span>
+                                <span class="text-[11px] text-gray-400">{{ $book[1] }}</span>
                             </div>
                         </li>
                         @endforeach

@@ -1,3 +1,4 @@
-<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 18V2C0 1.45 0.196 0.979333 0.588 0.588C0.98 0.196667 1.45067 0.000666667 2 0H12C12.55 0 13.021 0.196 13.413 0.588C13.805 0.98 14.0007 1.45067 14 2V18L7 15L0 18ZM2 14.95L7 12.8L12 14.95V2H2V14.95Z" fill="black" fill-opacity="0.5"/>
+@props(['fill' => 'none'])
+<svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg" {{ $attributes }}>
+<path d="M1 17V3a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14l-6-4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="{{ $fill }}"/>
 </svg>
