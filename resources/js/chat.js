@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Open conversation ──────────────────────────────────────────────────
 
-    async function openConversation(id) {
+    async function openConversation(id, pushState = true) {
         document.querySelector('.chat-item.active')?.classList.remove('active');
         document.getElementById(`item-${id}`)?.classList.add('active');
         currentConversationId = id;
@@ -140,11 +140,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('chatHeader')?.classList.remove('hidden');
         document.getElementById('chatBox')?.classList.remove('hidden');
         document.getElementById('chatInputArea')?.classList.remove('hidden');
+        document.getElementById('chatContainer')?.classList.add('conversation-open');
+
+        if (pushState) {
+            const url = new URL(window.location);
+            url.searchParams.set('conv', id);
+            window.history.pushState({ conversationId: id }, '', url.toString());
+        }
 
         await markAsRead(id);
         await loadMessages(id);
         subscribeToConversation(id);
         document.getElementById('messageInput')?.focus();
+    }
+
+    function closeActiveConversation(pushState = true) {
+        currentConversationId = null;
+        currentOtherUser = null;
+        document.querySelector('.chat-item.active')?.classList.remove('active');
+        document.getElementById('chatContainer')?.classList.remove('conversation-open');
+        document.getElementById('chatHeader')?.classList.add('hidden');
+        document.getElementById('chatBox')?.classList.add('hidden');
+        document.getElementById('chatInputArea')?.classList.add('hidden');
+        document.getElementById('chatEmpty')?.classList.remove('hidden');
+
+        if (pushState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('conv');
+            window.history.pushState(null, '', url.toString());
+        }
     }
 
     // ── Messages ───────────────────────────────────────────────────────────
@@ -953,6 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('chatBox')?.classList.add('hidden');
                 document.getElementById('chatInputArea')?.classList.add('hidden');
                 document.getElementById('chatEmpty')?.classList.remove('hidden');
+                document.getElementById('chatContainer')?.classList.remove('conversation-open');
 
                 // Remove from local list & re-fetch to stay in sync
                 conversations = conversations.filter(c => c.id !== deletingId);
@@ -1033,7 +1058,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Event listeners ────────────────────────────────────────────────────
 
-    document.getElementById('backBtn')?.addEventListener('click', () => history.back());
+    document.getElementById('backBtn')?.addEventListener('click', () => {
+        window.location.href = '/timeline_home';
+    });
+    document.getElementById('closeChatBtn')?.addEventListener('click', () => {
+        if (window.history.state && window.history.state.conversationId) {
+            window.history.back();
+        } else {
+            closeActiveConversation(true);
+        }
+    });
+
+    window.addEventListener('popstate', (e) => {
+        const state = e.state;
+        if (state && state.conversationId) {
+            openConversation(state.conversationId, false);
+        } else {
+            closeActiveConversation(false);
+        }
+    });
     document.getElementById('sendBtn')?.addEventListener('click', sendMessage);
 
     document.getElementById('mediaModalClose')?.addEventListener('click', closeMediaModal);
@@ -1131,14 +1174,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Boot ───────────────────────────────────────────────────────────────
     buildEmojiPicker();
     fetchConversations().then(() => {
-        // Auto-open chat if user_id is in URL
         const urlParams = new URLSearchParams(window.location.search);
         const targetUserId = urlParams.get('user_id');
+        const targetConvId = urlParams.get('conv');
+
         if (targetUserId) {
             startNewConversation({ id: parseInt(targetUserId) });
-            
-            // Clean up the URL so refreshing doesn't create duplicate requests
             window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (targetConvId) {
+            openConversation(parseInt(targetConvId), false);
         }
     });
 });
