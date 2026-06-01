@@ -189,7 +189,7 @@ class KlubController extends Controller
             'name' => $club->nama_klub,
             'category' => $club->kategori,
             'members' => $membersCount,
-            'founded' => $club->created_at ? $club->created_at->format('d F Y') : null,
+            'founded' => $club->created_at ? $club->created_at->locale('id')->translatedFormat('d F Y') : null,
             'description' => (strlen($club->deskripsi) > 160 ? Str::limit($club->deskripsi, 160) : $club->deskripsi),
             'full_description' => $club->deskripsi,
             'admin' => $adminName,
@@ -253,7 +253,7 @@ class KlubController extends Controller
             DB::table('klub_member')->insert([
                 'id_klub' => $club->id,
                 'id_user' => $user->id,
-                'role_di_klub' => 'moderator',
+                'role_di_klub' => 'owner',
                 'joined_at' => now(),
             ]);
         }
@@ -717,5 +717,105 @@ class KlubController extends Controller
                 }, $attachments),
             ],
         ], 201);
+    }
+
+    public function kickMember(Request $request, BookClub $club, int $userId) {
+        $currentUser = Auth::user();
+
+        if (!$currentUser) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $myRow = DB::table('klub_member')
+            ->where('id_klub', $club->id)
+            ->where('id_user', $currentUser->id)
+            ->first();
+        
+        $isOwner = (int) ($club->id_owner ?? 0) === (int) $currentUser->id;
+        $isAdmin = $myRow && in_array($myRow->role_di_klub, ['admin', 'moderator']);
+
+        if (!$isOwner && !$isAdmin) {
+            return response()->json(['message' => 'Hanya owner atau admin yang bisa kick member.'], 403);
+        } 
+
+        if ((int) ($club->id_owner ?? 0) === (int) $userId) {
+            return response()->json(['message' => 'Owner tidak bisa di-kick dari klub.'], 422);
+        }
+
+        if (!$isOwner && $isAdmin) {
+            $targetRow = DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $userId)
+                ->first();
+            
+            if ($targetRow && in_array($targetRow->role_di_klub, ['admin', 'moderator'])) {
+                return response()->json(['message' => 'Admin tidak bisa kick admin lain.'], 403);
+            }
+        }
+
+        if ((int) $userId === (int) $currentUser->id) {
+            return response()->json(['message' => 'Gunakan fitur "Keluar Klub" untuk meninggalkan klub.'], 422);
+        }
+
+        if (Schema::hasTable('klub_member')) {
+            DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $userId)
+                ->delete();
+        }
+
+        return response()->json($this->clubPayload($club->fresh(), $currentUser->id));
+    }
+
+    public function updateMemberRole(Request $request, BookClub $club, int $userId) {
+        $currentUser = Auth::user();
+
+        if (!$currentUser) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $isOwner = (int) ($club->id_owner ?? 0) === (int) $currentUser->id;
+
+        if (!$isOwner) {
+            return response()->json(['message' => 'Hanya owner yang bisa mengubah role member.'], 403);
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:member,admin,owner'],
+        ]);
+
+        $newRole = $validated['role'];
+
+        if (Schema::hasTable('klub_member')) {
+            $targetExists = DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $userId)
+                ->exists();
+            if (!$targetExists) {
+                return response()->json(['message' => 'User bukan anggota klub ini.'], 404);
+            }
+        }
+
+        if ($newRole === 'owner') {
+            $club->id_owner = $userId;
+            $club->save();
+
+            DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $currentUser->id)
+                ->update(['role_di_klub' => 'admin']);
+            
+            DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $userId)
+                ->update(['role_di_klub' => 'owner']);
+        } else {
+            DB::table('klub_member')
+                ->where('id_klub', $club->id)
+                ->where('id_user', $userId)
+                ->update(['role_di_klub' => $newRole]);
+        }
+
+        return response()->json($this->clubPayload($club->fresh(), $currentUser->id));
     }
 }
