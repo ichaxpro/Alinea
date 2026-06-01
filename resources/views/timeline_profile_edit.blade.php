@@ -58,8 +58,8 @@
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 <x-navbar></x-navbar>
 
-<div class="min-h-screen pt-14">
-    <div class="max-w-2xl mx-auto px-4 py-8">
+<div class="min-h-screen pt-16">
+    <div class="max-w-2xl mx-auto px-4 py-8 max-md:pb-24">
 
         @if(session('success'))
             <div class="mb-4 px-4 py-3 bg-green-100 border border-green-300 text-green-700 rounded-xl text-sm">
@@ -77,18 +77,21 @@
 
                 <div class="mb-6">
                     <label class="block text-sm font-semibold text-[#444] mb-2">Foto Profil</label>
-                    <div class="flex items-center gap-4">
-                        <div class="w-20 h-20 rounded-full border-2 border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF]">
+                    <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                        <div class="w-20 h-20 rounded-full border-2 border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex-shrink-0 flex items-center justify-center">
                             @if($user->foto_profil)
                                 <img src="{{ Storage::disk('public')->url($user->foto_profil) }}" class="w-full h-full object-cover">
                             @else
-                                <span class="flex items-center justify-center w-full h-full text-2xl font-bold text-gray-400">
+                                <span class="text-2xl font-bold text-gray-400">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </span>
                             @endif
                         </div>
-                        <input type="file" name="foto_profil" accept="image/*" class="text-sm">
-                        <p class="text-xs text-gray-400">Klik "Simpan" setelah memilih file.</p>
+                        <div class="flex flex-col gap-1.5 items-center sm:items-start w-full sm:w-auto">
+                            <input type="file" name="foto_profil" accept="image/*" 
+                                   class="text-xs file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-2 file:border-[#444] file:text-xs file:font-bold file:bg-[#C7E7FF] file:text-[#444] hover:file:bg-[#b0dcff] file:cursor-pointer max-w-full">
+                            <p class="text-xs text-gray-400">Klik "Simpan" setelah memilih file.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -122,7 +125,7 @@
             <h2 class="text-lg font-bold text-[#222] mb-4">Riwayat Baca</h2>
 
             {{-- Filter bar (untuk daftar yang sudah ada) --}}
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-1">
                 <div class="flex items-center gap-2 flex-1 bg-gray-50 border-[1.5px] border-gray-200 rounded-lg px-3 py-2
                             focus-within:border-[#444] transition-colors duration-200">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa"
@@ -142,8 +145,8 @@
                     </button>
                 </div>
                 <select id="riwayat-filter-status"
-                        class="border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none
-                               focus:border-[#444] bg-white cursor-pointer">
+                        class="border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none
+                               focus:border-[#444] bg-white cursor-pointer w-full sm:w-auto">
                     <option value="">Semua Status</option>
                     <option value="sedang_dibaca">Sedang Dibaca</option>
                     <option value="selesai">Selesai</option>
@@ -221,45 +224,47 @@
             {{-- ── DAFTAR BUKU ── --}}
             <div id="reading-books-list" class="space-y-3">
                 @foreach($user->personalBooks()->whereNotNull('reading_status')->orderByDesc('updated_at')->get() as $book)
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200"
                          data-book-id="{{ $book->id }}"
                          data-judul="{{ strtolower($book->judul) }}"
                          data-penulis="{{ strtolower($book->penulis) }}"
                          data-status="{{ $book->reading_status }}">
 
-                        {{-- Cover --}}
-                        @if($book->cover_url)
-                            <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}"
-                                 class="w-9 h-12 object-cover rounded-md flex-shrink-0">
-                        @else
-                            <div class="w-9 h-12 rounded-md bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]
-                                        flex-shrink-0 flex items-center justify-center text-sm font-bold text-white/70">
-                                {{ strtoupper(substr($book->judul, 0, 1)) }}
-                            </div>
-                        @endif
+                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                            {{-- Cover --}}
+                            @if($book->cover_url)
+                                <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}"
+                                     class="w-9 h-12 object-cover rounded-md flex-shrink-0">
+                            @else
+                                <div class="w-9 h-12 rounded-md bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]
+                                            flex-shrink-0 flex items-center justify-center text-sm font-bold text-white/70">
+                                    {{ strtoupper(substr($book->judul, 0, 1)) }}
+                                </div>
+                            @endif
 
-                        {{-- Info --}}
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-[#333] truncate">{{ $book->judul }}</p>
-                            <p class="text-xs text-gray-500 truncate">{{ $book->penulis }}</p>
-                            <span class="inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-0.5
-                                {{ $book->reading_status === 'sedang_dibaca' ? 'bg-[#C7E7FF]'
-                                 : ($book->reading_status === 'selesai'       ? 'bg-[#D4F6FF]' : 'bg-gray-200') }}">
-                                {{ $book->reading_status === 'sedang_dibaca' ? 'Sedang Dibaca'
-                                 : ($book->reading_status === 'selesai'       ? 'Selesai' : 'Diinginkan') }}
-                            </span>
+                            {{-- Info --}}
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-[#333] truncate">{{ $book->judul }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ $book->penulis }}</p>
+                                <span class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1
+                                    {{ $book->reading_status === 'sedang_dibaca' ? 'bg-[#C7E7FF] text-[#004e89]'
+                                     : ($book->reading_status === 'selesai'       ? 'bg-[#D4F6FF] text-[#006070]' : 'bg-gray-200 text-gray-600') }}">
+                                    {{ $book->reading_status === 'sedang_dibaca' ? 'Sedang Dibaca'
+                                     : ($book->reading_status === 'selesai'       ? 'Selesai' : 'Diinginkan') }}
+                                </span>
+                            </div>
                         </div>
 
                         {{-- Actions --}}
-                        <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 pt-2.5 border-t border-gray-100 sm:border-t-0 sm:pt-0">
                             <select data-change-status
-                                    class="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none cursor-pointer">
+                                    class="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer bg-white focus:border-[#444] max-sm:flex-1">
                                 <option value="sedang_dibaca" {{ $book->reading_status === 'sedang_dibaca' ? 'selected' : '' }}>Sedang Dibaca</option>
                                 <option value="selesai"       {{ $book->reading_status === 'selesai'       ? 'selected' : '' }}>Selesai</option>
                                 <option value="diinginkan"    {{ $book->reading_status === 'diinginkan'    ? 'selected' : '' }}>Diinginkan</option>
                             </select>
                             <button data-delete-book
-                                    class="text-red-400 hover:text-red-600 text-xs font-medium cursor-pointer transition-colors">
+                                    class="text-red-500 hover:text-red-700 text-xs font-semibold cursor-pointer transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
                                 Hapus
                             </button>
                         </div>

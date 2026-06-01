@@ -849,11 +849,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAvatarHtml(comment) +
             '</div>' +
             '<div class="min-w-0 flex-1">' +
-                '<div class="flex items-center gap-2 text-xs text-gray-400 mb-1">' +
-                    '<span class="font-semibold text-gray-700">' + escapeHtml(comment.name || 'Pengguna') + '</span>' +
-                    '<span>' + escapeHtml(comment.handle || '@pengguna') + '</span>' +
-                    '<span>•</span>' +
-                    '<span>' + escapeHtml(comment.time || 'Baru saja') + '</span>' +
+                '<div class="flex flex-wrap items-center gap-2 text-xs text-gray-400 mb-1">' +
+                    '<span class="font-semibold text-gray-700 whitespace-nowrap">' + escapeHtml(comment.name || 'Pengguna') + '</span>' +
+                    '<span class="whitespace-nowrap">' + escapeHtml(comment.handle || '@pengguna') + '</span>' +
+                    '<span class="whitespace-nowrap">•</span>' +
+                    '<span class="whitespace-nowrap" title="' + escapeHtml(comment.absolute_time || '') + '">' + escapeHtml(comment.time || 'Baru saja') + '</span>' +
                 '</div>' +
                 '<p class="text-sm text-gray-600 leading-relaxed break-words">' + escapeHtml(comment.body || '') + '</p>' +
                 renderCommentMediaHtml(comment) +
@@ -1257,17 +1257,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">' + renderAvatarHtml(post) + '</div>' +
                 '<div class="flex-1">' +
                     '<span class="font-bold text-[15px] leading-tight">' + escapeHtml(post.name || 'Pengguna') + '</span>' +
-                    '<div class="flex items-center gap-1.5 text-xs text-gray-400">' +
-                        '<span>' + escapeHtml(post.handle || '@pengguna') + '</span>' +
+                    '<div class="flex flex-wrap items-center gap-1.5 text-xs text-gray-400">' +
+                        '<span class="whitespace-nowrap">' + escapeHtml(post.handle || '@pengguna') + '</span>' +
                         '<span class="text-gray-200">•</span>' +
-                        '<span class="flex items-center gap-1">' +
+                        '<span class="flex items-center gap-1 whitespace-nowrap">' +
                             '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
                                 '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>' +
                             '</svg>' +
                             escapeHtml(post.location || 'Online') +
                         '</span>' +
                         '<span class="text-gray-200">•</span>' +
-                        '<span>' + escapeHtml(post.time || 'Baru saja') + '</span>' +
+                        '<span class="whitespace-nowrap" title="' + escapeHtml(post.absolute_time || '') + '">' + escapeHtml(post.time || 'Baru saja') + '</span>' +
                     '</div>' +
                 '</div>' +
                 '<div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">' + escapeHtml(post.tag || 'Post') + '</div>' +
@@ -1433,9 +1433,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarSearchDropdown = document.getElementById('sidebar-search-dropdown');
     let sidebarSearchTimeout;
 
+    const mobileSearchDropdown = document.getElementById('mobile-search-dropdown');
+
     document.addEventListener('click', (e) => {
         if (sidebarSearchDropdown && !e.target.closest('#sidebar-search-input') && !e.target.closest('#sidebar-search-dropdown')) {
             sidebarSearchDropdown.classList.add('hidden');
+        }
+        if (mobileSearchDropdown && !e.target.closest('#mobile-search-input') && !e.target.closest('#mobile-search-dropdown') && !e.target.closest('#mobile-search-overlay') && !e.target.closest('#mobile-search-trending')) {
+            mobileSearchDropdown.classList.add('hidden');
         }
     });
 
@@ -1483,19 +1488,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function debouncedUserSearch(query) {
         clearTimeout(sidebarSearchTimeout);
+        const isMobileSearch = mobileSearchOverlay && !mobileSearchOverlay.classList.contains('hidden');
+        const dropdown = isMobileSearch ? mobileSearchDropdown : sidebarSearchDropdown;
         if (query.length < 2) {
-            sidebarSearchDropdown?.classList.add('hidden');
+            dropdown?.classList.add('hidden');
             return;
         }
         sidebarSearchTimeout = setTimeout(() => fetchUsers(query), 300);
     }
 
     function fetchUsers(query) {
+        const isMobileSearch = mobileSearchOverlay && !mobileSearchOverlay.classList.contains('hidden');
+        const dropdown = isMobileSearch ? document.getElementById('mobile-search-dropdown') : sidebarSearchDropdown;
+
         fetch(`/api/search?q=${encodeURIComponent(query)}`)
             .then(res => res.json())
             .then(data => {
                 if (!data.users || data.users.length === 0) {
-                    sidebarSearchDropdown?.classList.add('hidden');
+                    dropdown?.classList.add('hidden');
                     return;
                 }
 
@@ -1512,12 +1522,89 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>`;
                 }).join('<div class="border-t border-gray-100 last:hidden"></div>');
 
-                sidebarSearchDropdown.innerHTML = html;
-                sidebarSearchDropdown.classList.remove('hidden');
+                dropdown.innerHTML = html;
+                dropdown.classList.remove('hidden');
             })
             .catch(() => {
-                sidebarSearchDropdown?.classList.add('hidden');
+                dropdown?.classList.add('hidden');
             })
+    }
+
+    // ── Mobile bottom nav: hide on scroll down, show on scroll up ──
+    const bottomNav = document.getElementById('mobile-bottom-nav');
+    if (bottomNav) {
+        let lastScrollY = window.scrollY;
+        let ticking2 = false;
+
+        window.addEventListener('scroll', () => {
+            if (ticking2) return;
+            ticking2 = true;
+            requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                    bottomNav.classList.add('hidden-nav');
+                } else {
+                    bottomNav.classList.remove('hidden-nav');
+                }
+                lastScrollY = currentScrollY;
+                ticking2 = false;
+            });
+        }, { passive: true });
+    }
+
+    // ── Mobile search trigger ──
+    const mobileSearchTrigger = document.getElementById('mobile-search-trigger');
+    const mobileSearchOverlay = document.getElementById('mobile-search-overlay');
+    const mobileSearchClose = document.getElementById('mobile-search-close');
+    const mobileSearchBack = document.getElementById('mobile-search-back');
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    const mobileSearchTrending = document.getElementById('mobile-search-trending');
+    let mobileSearchQuery = '';
+
+    function closeMobileSearch() {
+        mobileSearchOverlay.classList.add('hidden');
+        if (mobileSearchDropdown) mobileSearchDropdown.classList.add('hidden');
+        showMobileTrending(false);
+        if (mobileSearchInput) mobileSearchInput.blur();
+    }
+
+    function showMobileTrending(show) {
+        if (mobileSearchTrending) mobileSearchTrending.classList.toggle('hidden', !show);
+    }
+
+    if (mobileSearchTrigger && mobileSearchOverlay) {
+        mobileSearchTrigger.addEventListener('click', () => {
+            if (mobileSearchInput) {
+                mobileSearchInput.value = mobileSearchQuery;
+                setTimeout(() => mobileSearchInput.focus(), 100);
+            }
+            showMobileTrending(!mobileSearchQuery);
+            mobileSearchOverlay.classList.remove('hidden');
+        });
+
+        if (mobileSearchClose) {
+            mobileSearchClose.addEventListener('click', closeMobileSearch);
+        }
+
+        if (mobileSearchBack) {
+            mobileSearchBack.addEventListener('click', closeMobileSearch);
+        }
+
+        if (mobileSearchInput) {
+            mobileSearchInput.addEventListener('input', () => {
+                mobileSearchQuery = mobileSearchInput.value.trim();
+                filterTimelinePosts(mobileSearchQuery);
+                debouncedUserSearch(mobileSearchQuery);
+                showMobileTrending(!mobileSearchQuery);
+                if (mobileSearchQuery && mobileSearchDropdown) mobileSearchDropdown.classList.add('hidden');
+            });
+
+            mobileSearchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                    closeMobileSearch();
+                }
+            });
+        }
     }
 });
 

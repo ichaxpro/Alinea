@@ -63,6 +63,8 @@ Route::patch('/klub/{club}', [KlubController::class, 'update'])->name('klub.upda
 Route::delete('/klub/{club}', [KlubController::class, 'destroy'])->name('klub.destroy');
 Route::post('/klub/{club}/join', [KlubController::class, 'join'])->name('klub.join');
 Route::post('/klub/{club}/leave', [KlubController::class, 'leave'])->name('klub.leave');
+Route::delete('/klub/{club}/members/{userId}', [KlubController::class, 'kickMember']);
+Route::patch('/klub/{club}/members/{userId}/role', [KlubController::class, 'updateMemberRole'])->name('klub.members.role');
 Route::get('/klub/{club}/payload', [KlubController::class, 'payload'])->name('klub.payload');
 
 Route::get('/timeline_profile', [ProfileController::class, 'show'])->name('timeline_profile');

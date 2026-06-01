@@ -1,11 +1,11 @@
 <!-- =================== NAVBAR =================== -->
 <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
 <meta name="google-books-key" content="{{ config('services.google_books.key') }}">
-        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-transform duration-300 ease-in-out">
             <div class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo -->
-                    <a href="{{ route('beranda') }}" class="flex items-center gap-2 group py-16">
+                    <a href="{{ route('beranda') }}" class="flex items-center gap-2 group py-2">
                         <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <img fill="none" src="/img/alinealogo.svg" class="h-7">
                         </div>
@@ -21,7 +21,7 @@
 
                     <!-- CTA Button -->
                     <div class="flex items-center gap-3">
-                        <button id="navbar-search-btn" aria-label="Cari" class="w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
+                        <button id="navbar-search-btn" aria-label="Cari" class=" cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             </svg>
@@ -64,7 +64,7 @@
                     </div>
 
                     <!-- Mobile menu button -->
-                    <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
+                     <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('timeline*', 'chat', 'profile.edit') ? 'hidden' : '' }}" id="mobile-menu-btn" aria-label="Menu">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                             <path d="M3 6h14M3 10h14M3 14h14"/>
                         </svg>

@@ -315,6 +315,36 @@ window.authUser = {
         flex-shrink: 0;
         transition: background 0.15s;
     }
+
+    /* ── Responsive Layout ───────────────────────────── */
+    @media (max-width: 767px) {
+        #chatContainer aside {
+            width: 100%;
+        }
+        #chatContainer section {
+            display: none;
+        }
+        #chatContainer.conversation-open aside {
+            display: none;
+        }
+        #chatContainer.conversation-open section {
+            display: flex;
+        }
+        #chatList {
+            padding-bottom: 80px;
+        }
+    }
+
+    @media (max-width: 639px) {
+        #userDetailPanel {
+            width: 100% !important;
+        }
+    }
+
+    /* ── Bottom Nav Toggle based on active chat ─────── */
+    #chatContainer.conversation-open ~ #mobile-bottom-nav {
+        display: none !important;
+    }
 </style>
 
 </head>
@@ -323,7 +353,7 @@ window.authUser = {
 
 <x-navbar></x-navbar>
 
-<main class="flex-1 flex pt-16 overflow-hidden">
+<main id="chatContainer" class="flex-1 flex pt-16 overflow-hidden">
 
 {{-- ═══════════════ SIDEBAR ═══════════════ --}}
 <aside class="w-[340px] bg-white border-r flex flex-col">
@@ -388,6 +418,14 @@ window.authUser = {
 
     {{-- Chat header (hidden until a conversation is opened) --}}
     <div id="chatHeader" class="hidden h-[64px] flex items-center gap-3 px-4 border-b bg-white">
+        <button id="closeChatBtn"
+            class="hidden max-md:flex w-9 h-9 items-center justify-center rounded-xl hover:bg-gray-100 transition text-gray-500 flex-shrink-0"
+            title="Kembali ke daftar pesan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+        </button>
         <button id="userDetailTrigger" class="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity" title="Lihat profil">
             <div id="chatAvatarWrapper" class="shrink-0">
                 {{-- Avatar injected by JS --}}
@@ -658,5 +696,6 @@ window.authUser = {
     </div>
 </aside>
 
+<x-timeline-bottom-nav active="pesan" />
 </body>
 </html>

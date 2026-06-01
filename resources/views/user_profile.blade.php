@@ -13,7 +13,7 @@
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
     <x-navbar></x-navbar>
 
-    <div class="min-h-screen pt-14">
+    <div class="min-h-screen pt-16">
         <div class="max-w-2xl mx-auto px-4 py-8">
             <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-8">
                 <div class="flex items-center gap-6">
