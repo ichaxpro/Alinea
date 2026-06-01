@@ -68,8 +68,9 @@ class ProfileController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
-        $readingNow = $readingBooks->where('reading_status', 'sedang_dibaca');
+        $readingNow    = $readingBooks->where('reading_status', 'sedang_dibaca');
         $finishedBooks = $readingBooks->where('reading_status', 'selesai');
+        $wantToRead    = $readingBooks->where('reading_status', 'diinginkan');
 
         $mediaPosts = TimelinePost::with(['author', 'attachments'])
             ->where('id_user', $user->id)->whereNotNull('media')
@@ -108,7 +109,7 @@ class ProfileController extends Controller
         }
 
         return view('timeline_profile', compact(
-            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser',
+            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser',
         ));
     }
 
@@ -215,9 +216,9 @@ class ProfileController extends Controller
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
         $data = $request->validate([
-            'judul' => 'required|string|max:255',
-            'penulis' => 'required|string|max:255',
-            'cover_url' => 'nullable|string|max:255',
+            'judul'          => 'required|string|max:255',
+            'penulis'        => 'required|string|max:255',
+            'cover_url'      => 'nullable|string|max:2048',
             'reading_status' => 'required|in:sedang_dibaca,selesai,diinginkan',
         ]);
 
