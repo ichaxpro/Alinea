@@ -23,7 +23,7 @@
 
             {{-- ═══ PAGE HEADER ═══ --}}
             <div class="mb-8">
-                <h1 class="text-2xl md:text-3xl font-black text-[#444] tracking-[-0.02em]">Alinea Account</h1>
+                <h1 class="text-2xl md:text-3xl font-black text-[#444] tracking-[-0.02em]">Akun Alinea</h1>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-6">
