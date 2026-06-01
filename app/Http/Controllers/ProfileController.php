@@ -33,33 +33,43 @@ class ProfileController extends Controller
             $this->achievementService->checkAndGrant($user);
         }
 
-        $posts = TimelinePost::with(['author', 'attachments'])
+        $posts = TimelinePost::with(['author', 'attachments', 'likes'])
+            ->withCount('comments')
             ->where('id_user', $user->id)
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($post) => [
-                'id' => $post->id,
-                'name' => $post->author?->name ?? 'Pengguna',
-                'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
-                'avatar_url' => $post->author?->avatar_url,
-                'location' => $post->author?->kota ?: 'Online',
-                'time' => $post->created_at ? Carbon::parse($post->created_at)->diffForHumans() : 'Baru saja',
-                'book' => $post->judul_buku_dibahas,
-                'body' => $post->pesan,
-                'tag' => $post->tag ?: 'Post',
-                'comments' => (string) $post->comments()->count(),
-                'likes_base' => 0, 'likes_label' => '0', 'liked' => false,
-                'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
-                'media' => $post->media,
-                'media_url' => $post->media ? asset('storage/' . $post->media) : null,
-                'media_type' => $post->media_type,
-                'media_original_name' => $post->media_original_name,
-                'attachments' => $post->attachments->map(fn ($attachment) => [
-                    'url' => asset('storage/' . $attachment->path),
-                    'type' => $attachment->type,
-                    'original_name' => $attachment->original_name,
-                ])->values()->all(),
-            ]);
+            ->map(function ($post) use ($currentUser) {
+                $likesCount = $post->likes->count();
+                $liked = $currentUser ? $post->likes->contains('id_user', $currentUser->id) : false;
+                $likes_label = $likesCount >= 1000 ? round($likesCount / 1000, 1) . 'K' : (string) $likesCount;
+                $comments_label = $post->comments_count >= 1000 ? round($post->comments_count / 1000, 1) . 'K' : (string) $post->comments_count;
+
+                return [
+                    'id' => $post->id,
+                    'name' => $post->author?->name ?? 'Pengguna',
+                    'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
+                    'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
+                    'location' => $post->author?->kota ?: 'Online',
+                    'time' => $post->created_at ? Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'book' => $post->judul_buku_dibahas,
+                    'body' => $post->pesan,
+                    'tag' => $post->tag ?: 'Post',
+                    'comments' => $comments_label,
+                    'likes_base' => $likesCount,
+                    'likes_label' => $likes_label,
+                    'liked' => $liked,
+                    'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
+                    'media' => $post->media,
+                    'media_url' => $post->media ? asset('storage/' . $post->media) : null,
+                    'media_type' => $post->media_type,
+                    'media_original_name' => $post->media_original_name,
+                    'attachments' => $post->attachments->map(fn ($attachment) => [
+                        'url' => asset('storage/' . $attachment->path),
+                        'type' => $attachment->type,
+                        'original_name' => $attachment->original_name,
+                    ])->values()->all(),
+                ];
+            });
 
         $achievements = $user->achievements()->get();
 
@@ -68,35 +78,46 @@ class ProfileController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
-        $readingNow = $readingBooks->where('reading_status', 'sedang_dibaca');
+        $readingNow    = $readingBooks->where('reading_status', 'sedang_dibaca');
         $finishedBooks = $readingBooks->where('reading_status', 'selesai');
+        $wantToRead    = $readingBooks->where('reading_status', 'diinginkan');
 
-        $mediaPosts = TimelinePost::with(['author', 'attachments'])
+        $mediaPosts = TimelinePost::with(['author', 'attachments', 'likes'])
+            ->withCount('comments')
             ->where('id_user', $user->id)->whereNotNull('media')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($post) => [
-                'id' => $post->id,
-                'name' => $post->author?->name ?? 'Pengguna',
-                'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
-                'avatar_url' => $post->author?->avatar_url,
-                'location' => $post->author?->kota ?: 'Online',
-                'time' => Carbon::parse($post->created_at)->diffForHumans(),
-                'tag' => $post->tag ?: 'Post',
-                'caption' => $post->pesan,
-                'attachments' => $post->attachments->isNotEmpty()
-                    ? $post->attachments->map(fn ($attachment) => [
-                        'type' => $attachment->type ?: 'image',
-                        'src' => $attachment->path,
-                        'label' => $attachment->original_name,
-                    ])->values()->all()
-                    : ($post->media ? [
-                        ['type' => $post->media_type ?: 'image', 'src' => $post->media, 'label' => $post->media_original_name]
-                    ] : []),
-                'comments' => (string) $post->comments()->count(),
-                'likes_label' => '0', 'liked' => false,
-                'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
-                ]);
+            ->map(function ($post) use ($currentUser) {
+                $likesCount = $post->likes->count();
+                $liked = $currentUser ? $post->likes->contains('id_user', $currentUser->id) : false;
+                $likes_label = $likesCount >= 1000 ? round($likesCount / 1000, 1) . 'K' : (string) $likesCount;
+                $comments_label = $post->comments_count >= 1000 ? round($post->comments_count / 1000, 1) . 'K' : (string) $post->comments_count;
+
+                return [
+                    'id' => $post->id,
+                    'name' => $post->author?->name ?? 'Pengguna',
+                    'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
+                    'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
+                    'location' => $post->author?->kota ?: 'Online',
+                    'time' => Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i'),
+                    'tag' => $post->tag ?: 'Post',
+                    'caption' => $post->pesan,
+                    'attachments' => $post->attachments->isNotEmpty()
+                        ? $post->attachments->map(fn ($attachment) => [
+                            'type' => $attachment->type ?: 'image',
+                            'src' => $attachment->path,
+                            'label' => $attachment->original_name,
+                        ])->values()->all()
+                        : ($post->media ? [
+                            ['type' => $post->media_type ?: 'image', 'src' => $post->media, 'label' => $post->media_original_name]
+                        ] : []),
+                    'comments' => $comments_label,
+                    'likes_base' => $likesCount,
+                    'likes_label' => $likes_label,
+                    'liked' => $liked,
+                    'bookmarked' => $currentUser ? \App\Models\PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false,
+                ];
+            });
 
         $followersCount = $user->followersCount();
         $followingCount = $user->followingCount();
@@ -108,7 +129,7 @@ class ProfileController extends Controller
         }
 
         return view('timeline_profile', compact(
-            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser',
+            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser',
         ));
     }
 
@@ -215,9 +236,9 @@ class ProfileController extends Controller
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
         $data = $request->validate([
-            'judul' => 'required|string|max:255',
-            'penulis' => 'required|string|max:255',
-            'cover_url' => 'nullable|string|max:255',
+            'judul'          => 'required|string|max:255',
+            'penulis'        => 'required|string|max:255',
+            'cover_url'      => 'nullable|string|max:2048',
             'reading_status' => 'required|in:sedang_dibaca,selesai,diinginkan',
         ]);
 

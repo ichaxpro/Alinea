@@ -182,7 +182,7 @@ function renderTransactions() {
   });
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3">📭</div><p class="text-sm text-gray-400 font-medium">Tidak ada transaksi di kategori ini.</p></div>`;
+    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3"></div><p class="text-sm text-gray-400 font-medium">Tidak ada transaksi di kategori ini.</p></div>`;
     return;
   }
 
@@ -290,7 +290,7 @@ function renderPengajuan() {
   if (statEl) statEl.textContent = PENGAJUAN_PINJAM.filter(x => x.status === 'pending').length;
 
   if (PENGAJUAN_PINJAM.length === 0) {
-    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3">📭</div><p class="text-sm text-gray-400 font-medium">Belum ada pengajuan pinjam.</p></div>`;
+    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3"></div><p class="text-sm text-gray-400 font-medium">Belum ada pengajuan pinjam.</p></div>`;
     return;
   }
 
@@ -355,7 +355,7 @@ function renderCatalog() {
   $('#catalog-count').textContent = `${filtered.length} buku`;
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3">📚</div><p class="text-sm text-gray-400 font-medium">${catalogSearch ? 'Tidak ada buku ditemukan.' : 'Koleksimu masih kosong. Tambahkan buku pertamamu!'}</p></div>`;
+    list.innerHTML = `<div class="text-center py-16"><div class="text-4xl mb-3"></div><p class="text-sm text-gray-400 font-medium">${catalogSearch ? 'Tidak ada buku ditemukan.' : 'Koleksimu masih kosong. Tambahkan buku pertamamu!'}</p></div>`;
     return;
   }
 
@@ -384,8 +384,8 @@ function renderCatalog() {
         <tr class="hover:bg-gray-50/50 transition-colors" data-book-id="${b.id}">
           <td class="py-3 px-4">
             <div class="flex items-center gap-3">
-              ${b.foto_sampul
-                ? `<img src="${b.foto_sampul}" alt="${b.judul}" class="w-10 h-14 rounded-lg border-[1.5px] border-[#444] object-cover flex-shrink-0" />`
+              ${b.cover_url
+                ? `<img src="${b.cover_url}" alt="${b.judul}" class="w-10 h-14 rounded-lg border-[1.5px] border-[#444] object-cover flex-shrink-0" />`
                 : `<div class="w-10 h-14 rounded-lg bg-gradient-to-br from-[#C7E7FF] to-[#D4F6FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
                 <span class="text-sm font-black text-[#444]/50">${getInitial(b.judul)}</span>
               </div>`}
@@ -763,7 +763,7 @@ function showSearchResults(books) {
   if (books.length === 0) {
     container.innerHTML = `
       <div class="p-4 text-center">
-        <p class="text-3xl mb-1.5">📭</p>
+        <p class="text-3xl mb-1.5"></p>
         <p class="text-xs text-gray-400 font-medium">Tidak ada hasil ditemukan.</p>
         <p class="text-[11px] text-gray-300 mt-0.5">Coba kata kunci lain, atau isi manual di bawah.</p>
       </div>`;
@@ -870,13 +870,13 @@ function showBookPreview(book) {
   const authorEl = $('#preview-author');
   if (authorEl) authorEl.textContent = book.penulis;
   const yearEl = $('#preview-year');
-  if (yearEl) yearEl.textContent = book.tahun ? `📅 ${book.tahun}` : '';
+  if (yearEl) yearEl.textContent = book.tahun ? `${book.tahun}` : '';
   const catEl = $('#preview-category');
-  if (catEl) catEl.textContent = `📖 ${book.kategori}`;
+  if (catEl) catEl.textContent = `${book.kategori}`;
 
   const pagesEl = $('#preview-pages');
   if (pagesEl) {
-    if (book.halaman) { pagesEl.textContent = `📄 ${book.halaman} hal`; pagesEl.classList.remove('hidden'); }
+    if (book.halaman) { pagesEl.textContent = `${book.halaman} hal`; pagesEl.classList.remove('hidden'); }
     else pagesEl.classList.add('hidden');
   }
   const isbnEl = $('#preview-isbn');

@@ -273,6 +273,7 @@ class BookController extends Controller
         // Search in PersonalBook
         if ($results->count() < 5) {
             $personal = \App\Models\PersonalBook::where('judul', 'like', "%{$query}%")
+                ->whereNull('reading_status')
                 ->limit(5 - $results->count())
                 ->get()
                 ->map(function($book) {

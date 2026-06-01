@@ -8,14 +8,16 @@
 <aside class="hidden xl:flex flex-col gap-4 w-[280px] flex-shrink-0 sticky top-6">
 
     {{-- Search --}}
-    <div class="bg-white border-[1.5px] border-[#444] rounded-2xl px-4 py-3">
-        <div class="flex items-center gap-2.5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="search" id="sidebar-search-input" placeholder="{{ $searchPlaceholder }}"
-                   class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
+    <div class="relative">
+        <div class="bg-white border-[1.5px] border-text rounded-2xl px-4 py-3">
+            <div class="flex items-center gap-2.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="search" id="sidebar-search-input" placeholder="{{ $searchPlaceholder }}" class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" autocomplete="off" />
+            </div>
         </div>
+        <div id="sidebar-search-dropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border-[1.5px] border-text rounded-xl shadow-lg z-50 overflow-y-auto"></div>
     </div>
 
     {{-- Trending --}}

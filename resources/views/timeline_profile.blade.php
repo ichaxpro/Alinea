@@ -129,7 +129,12 @@
                                     <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                         <span>{{ $post['handle'] }}</span>
                                         <span class="text-gray-200">•</span>
-                                        <span>{{ $post['location'] }}</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                            {{ $post['location'] }}
+                                        </span>
                                         <span class="text-gray-200">•</span>
                                         <span>{{ $post['time'] }}</span>
                                     </div>
@@ -149,77 +154,22 @@
 
                             {{-- Media --}}
                             @if(!empty($post['attachments']))
-                                @php
-                                    $galleryImages = collect($post['attachments'])->filter(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
-                                    $otherAttachments = collect($post['attachments'])->reject(fn ($attachment) => ($attachment['type'] ?? '') === 'image')->values();
-                                @endphp
-
-                                @if($galleryImages->count() > 1)
-                                    <div class="mb-4" data-media-gallery data-media-gallery-count="{{ $galleryImages->count() }}">
-                                        <div class="relative">
-                                            <button type="button" data-gallery-prev aria-label="Sebelumnya" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
-                                            </button>
-                                            <button type="button" data-gallery-next aria-label="Berikutnya" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/90 border border-gray-200 shadow flex items-center justify-center text-[#444] hover:bg-white">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
-                                            </button>
-                                            <div data-media-track class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                                @foreach($galleryImages as $index => $attachment)
-                                                    @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                                    <div class="w-full shrink-0 snap-center flex items-center justify-center rounded-2xl overflow-hidden">
-                                                        <img src="{{ $attachmentUrl }}" alt="media {{ $index + 1 }}" class="w-full h-auto max-h-[560px] object-contain rounded-2xl shadow-sm mx-auto">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                            <div data-media-counter class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white">1/{{ $galleryImages->count() }}</div>
-                                        </div>
-
-                                        @foreach($otherAttachments as $attachment)
-                                            @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                            @if(($attachment['type'] ?? '') === 'video')
-                                                <div class="mt-4">
-                                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl">
-                                                        <source src="{{ $attachmentUrl }}" type="video/mp4">
-                                                    </video>
-                                                </div>
-                                            @elseif($attachmentUrl)
-                                                <div class="mt-4">
-                                                    <a href="{{ $attachmentUrl }}" download
-                                                       class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                                                        <span>{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</span>
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <div class="space-y-4 mb-4">
-                                        @foreach($post['attachments'] as $attachment)
-                                            @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
-                                            @if(($attachment['type'] ?? '') === 'image')
-                                                <div>
-                                                    <img src="{{ $attachmentUrl }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl shadow-sm mx-auto object-contain">
-                                                </div>
-                                            @elseif(($attachment['type'] ?? '') === 'video')
-                                                <div>
-                                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
-                                                        <source src="{{ $attachmentUrl }}" type="video/mp4">
-                                                    </video>
-                                                </div>
-                                            @elseif($attachmentUrl)
-                                                <div class="mb-3">
-                                                    <a href="{{ $attachmentUrl }}" download
-                                                       class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                                                        <span>{{ $attachment['original_name'] ?? $attachment['label'] ?? 'Unduh file' }}</span>
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endif
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                @foreach($post['attachments'] as $attachment)
+                                    @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
+                                    @if(($attachment['type'] ?? '') === 'image')
+                                    <img src="{{ $attachmentUrl }}" data-media-url="{{ $attachmentUrl }}" data-media-type="image"
+                                         class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
+                                    @elseif(($attachment['type'] ?? '') === 'video')
+                                    <video src="{{ $attachmentUrl }}" data-media-url="{{ $attachmentUrl }}" data-media-type="video"
+                                           class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>
+                                    @endif
+                                @endforeach
+                            </div>
                             @elseif($post['media_url'] && $post['media_type'] === 'image')
-                                <div class="mb-4">
-                                    <img src="{{ $post['media_url'] }}" alt="media" class="w-full max-w-[560px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto object-contain bg-white">
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <img src="{{ $post['media_url'] }}" data-media-url="{{ $post['media_url'] }}" data-media-type="image"
+                                         class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
                                 </div>
                             @elseif($post['media_url'] && $post['media_type'] === 'video')
                                 <div class="mb-4">
@@ -237,17 +187,49 @@
                             @endif
 
                             <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
-                                <button aria-label="Komentar" class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-comment fill="none" /><span>{{ $post['comments'] }}</span>
+                                {{-- Comment --}}
+                                <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar" data-comment-toggle
+                                        class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
+                                    <x-icon-comment fill="none" />
+                                    <span data-comment-count>{{ $post['comments'] }}</span>
                                 </button>
-                                <button data-like-btn data-base="{{ $post['likes_base'] }}" data-liked="{{ $post['liked'] ? 'true' : 'false' }}"
+
+                                {{-- Like --}}
+                                <button id="like-btn-{{ $post['id'] }}" data-like-btn
+                                        data-base="{{ $post['likes_base'] }}" data-liked="{{ $post['liked'] ? 'true' : 'false' }}"
                                         aria-pressed="{{ $post['liked'] ? 'true' : 'false' }}" aria-label="Suka"
-                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer {{ $post['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
-                                    <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" /><span data-like-count>{{ $post['likes_label'] }}</span>
+                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
+                                               {{ $post['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
+                                    <x-icon-like fill="{{ $post['liked'] ? 'currentColor' : 'none' }}" />
+                                    <span data-like-count>{{ $post['likes_label'] }}</span>
                                 </button>
+
+                                {{-- Bookmark & Share --}}
                                 <div class="ml-auto flex items-center gap-2">
                                     <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
                                     <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                </div>
+                            </div>
+
+                            {{-- Comments Section (Hidden by default) --}}
+                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                 id="comments-section-{{ $post['id'] }}"
+                                 data-comments-loaded="false"
+                                 data-comments-url="{{ route('timeline_home.comments', $post['id']) }}"
+                                 data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                                <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
+                                    {{-- Loaded via AJAX --}}
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <form data-comment-form class="flex gap-3 items-start w-full">
+                                        <input type="text" data-comment-input
+                                               class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input"
+                                               placeholder="Tulis komentar..."
+                                               data-post-id="{{ $post['id'] }}">
+                                        <button type="submit" data-comment-submit
+                                                class="bg-[#FFDDAF] text-[#444] px-4 py-2 rounded-lg font-bold text-sm border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn"
+                                                data-post-id="{{ $post['id'] }}">Kirim</button>
+                                    </form>
                                 </div>
                             </div>
                         </article>
@@ -278,11 +260,14 @@
 
                     {{-- Tab: Riwayat --}}
                     <div data-profile-panel="riwayat" class="hidden mt-5 flex flex-col gap-8">
-                        {{-- Sedang Dibaca --}}
+
+                        {{-- ── Sedang Dibaca ── --}}
                         <section>
                             <div class="flex items-end justify-between mb-3">
-                                <h5 class="text-sm font-bold text-[#222]">Sedang Dibaca</h5>
-                                <span class="text-xs text-gray-400">Reading shelf</span>
+                                <h3 class="text-sm font-bold text-[#222]">Sedang Dibaca</h3>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#C7E7FF] text-[#444]">
+                                    {{ $readingNow->count() }} buku
+                                </span>
                             </div>
                             @if($readingNow->isNotEmpty())
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -292,9 +277,9 @@
                                         @if($book->cover_url)
                                         <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
                                         @else
-                                        <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-sm p-4 text-center">{{ $book->judul }}</div>
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-sm font-bold p-4 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @endif
-                                        <span class="absolute top-2 left-2 text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border border-[#444] bg-white/90 text-[#333]">Reading now...</span>
+                                        <span class="absolute top-2 left-2 text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border border-[#444] bg-[#C7E7FF]/90 text-[#333]">Sedang Dibaca</span>
                                     </div>
                                     <div class="pt-2 px-0.5">
                                         <h4 class="text-[13px] leading-tight font-bold text-[#2a2a2a] line-clamp-1">{{ $book->judul }}</h4>
@@ -308,22 +293,25 @@
                             @endif
                         </section>
 
-                        {{-- Sudah Dibaca --}}
+                        {{-- ── Sudah Dibaca ── --}}
                         <section>
                             <div class="flex items-end justify-between mb-3">
                                 <h3 class="text-sm font-bold text-[#222]">Sudah Dibaca</h3>
-                                <span class="text-xs text-gray-400">Finished shelf</span>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#D4F6FF] text-[#444]">
+                                    {{ $finishedBooks->count() }} buku
+                                </span>
                             </div>
                             @if($finishedBooks->isNotEmpty())
                             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                                 @foreach ($finishedBooks as $book)
                                 <article class="group">
-                                    <div class="aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
+                                    <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
                                         @if($book->cover_url)
                                         <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]">
                                         @else
-                                        <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 text-xs p-2 text-center">{{ $book->judul }}</div>
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @endif
+                                        <span class="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#D4F6FF]/90 border border-[#444] text-[#333]">Selesai</span>
                                     </div>
                                     <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book->judul }}</p>
                                 </article>
@@ -333,6 +321,36 @@
                             <p class="text-sm text-gray-400">Belum ada buku yang selesai dibaca.</p>
                             @endif
                         </section>
+
+                        {{-- ── Ingin Dibaca ── --}}
+                        <section>
+                            <div class="flex items-end justify-between mb-3">
+                                <h3 class="text-sm font-bold text-[#222]">Ingin Dibaca</h3>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-200 text-gray-500">
+                                    {{ $wantToRead->count() }} buku
+                                </span>
+                            </div>
+                            @if($wantToRead->isNotEmpty())
+                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                @foreach ($wantToRead as $book)
+                                <article class="group">
+                                    <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-dashed border-gray-400 overflow-hidden bg-gray-50 transition-transform duration-200 group-hover:translate-y-[-2px]">
+                                        @if($book->cover_url)
+                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover opacity-60">
+                                        @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
+                                        @endif
+                                        <span class="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/90 border border-gray-400 text-gray-500">Ingin Dibaca</span>
+                                    </div>
+                                    <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book->judul }}</p>
+                                </article>
+                                @endforeach
+                            </div>
+                            @else
+                            <p class="text-sm text-gray-400">Belum ada buku yang ingin dibaca.</p>
+                            @endif
+                        </section>
+
                     </div>
 
                     {{-- Tab: Media --}}
@@ -352,8 +370,16 @@
                                     <div class="flex items-center gap-1.5 text-xs text-gray-400">
                                         <span>{{ $media['handle'] }}</span>
                                         <span class="text-gray-200">•</span>
+                                        @if($media['location'])
+                                        <span class="flex items-center gap-1">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                            {{ $media['location'] }}
+                                        </span>
+                                        <span class="text-gray-200">•</span>
+                                        @endif
                                         <span>{{ $media['time'] }}</span>
-                                        @if($media['location'])<span class="text-gray-200">•</span><span>{{ $media['location'] }}</span>@endif
                                     </div>
                                 </div>
                                 <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">{{ $media['tag'] }}</div>
@@ -393,16 +419,49 @@
                             @endif
 
                             <div class="flex items-center gap-5 pt-2">
-                                <button aria-label="Komentar" class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-comment fill="none" /><span>{{ $media['comments'] }}</span>
+                                {{-- Comment --}}
+                                <button id="comment-btn-{{ $media['id'] }}" aria-label="Komentar" data-comment-toggle
+                                        class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
+                                    <x-icon-comment fill="none" />
+                                    <span data-comment-count>{{ $media['comments'] }}</span>
                                 </button>
-                                <button data-like-btn aria-pressed="{{ $media['liked'] ? 'true' : 'false' }}" aria-label="Suka"
-                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer {{ $media['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
-                                    <x-icon-like fill="{{ $media['liked'] ? 'currentColor' : 'none' }}" /><span>{{ $media['likes_label'] }}</span>
+
+                                {{-- Like --}}
+                                <button id="like-btn-{{ $media['id'] }}" data-like-btn
+                                        data-base="{{ $media['likes_base'] }}" data-liked="{{ $media['liked'] ? 'true' : 'false' }}"
+                                        aria-pressed="{{ $media['liked'] ? 'true' : 'false' }}" aria-label="Suka"
+                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
+                                               {{ $media['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
+                                    <x-icon-like fill="{{ $media['liked'] ? 'currentColor' : 'none' }}" />
+                                    <span data-like-count>{{ $media['likes_label'] }}</span>
                                 </button>
+
+                                {{-- Bookmark & Share --}}
                                 <div class="ml-auto flex items-center gap-2">
                                     <button id="bookmark-media-btn-{{ $media['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
                                     <button id="share-media-btn-{{ $media['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                </div>
+                            </div>
+
+                            {{-- Comments Section (Hidden by default) --}}
+                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                 id="comments-section-{{ $media['id'] }}"
+                                 data-comments-loaded="false"
+                                 data-comments-url="{{ route('timeline_home.comments', $media['id']) }}"
+                                 data-comments-store-url="{{ route('timeline_home.comments.store', $media['id']) }}">
+                                <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $media['id'] }}">
+                                    {{-- Loaded via AJAX --}}
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <form data-comment-form class="flex gap-3 items-start w-full">
+                                        <input type="text" data-comment-input
+                                               class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input"
+                                               placeholder="Tulis komentar..."
+                                               data-post-id="{{ $media['id'] }}">
+                                        <button type="submit" data-comment-submit
+                                                class="bg-[#FFDDAF] text-[#444] px-4 py-2 rounded-lg font-bold text-sm border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn"
+                                                data-post-id="{{ $media['id'] }}">Kirim</button>
+                                    </form>
                                 </div>
                             </div>
                         </article>
