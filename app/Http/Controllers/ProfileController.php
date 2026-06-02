@@ -7,6 +7,7 @@ use App\Models\PersonalBook;
 use App\Models\TimelinePost;
 use App\Models\User;
 use App\Services\AchievementService;
+use App\Services\TrendingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
@@ -15,7 +16,8 @@ use Illuminate\Support\Facades\Storage;
 class ProfileController extends Controller
 {
     public function __construct(
-        protected AchievementService $achievementService
+        protected AchievementService $achievementService,
+        protected TrendingService $trendingService
     ) {}
 
     public function show(?string $username = null) {
@@ -130,8 +132,16 @@ class ProfileController extends Controller
                 ->where('following_id', $user->id)->exists();
         }
 
+        $trendingItems = collect($this->trendingService->getWeeklyTrending())
+            ->map(fn ($item) => [
+                $item['judul'],
+                $item['count'] . ' postingan',
+                route('timeline_home', ['book' => $item['judul']]),
+            ])
+            ->all();
+
         return view('timeline_profile', compact(
-            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser',
+            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser', 'trendingItems',
         ));
     }
 

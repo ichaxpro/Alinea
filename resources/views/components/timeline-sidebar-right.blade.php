@@ -26,12 +26,22 @@
 
         <ol class="flex flex-col gap-3.5">
             @foreach ($trendingItems as $rank => $item)
-            <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
-                <div>
-                    <span class="font-bold text-[13px] leading-tight block">{{ $item[0] }}</span>
-                    <span class="text-[11px] text-gray-400">{{ $item[1] }}</span>
+            <li>
+                @if (!empty($item[2]))
+                <a href="{{ $item[2] }}" class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                @else
+                <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                @endif
+                    <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
+                    <div>
+                        <span class="font-bold text-[13px] leading-tight block">{{ $item[0] }}</span>
+                        <span class="text-[11px] text-gray-400">{{ $item[1] }}</span>
+                    </div>
+                @if (!empty($item[2]))
+                </a>
+                @else
                 </div>
+                @endif
             </li>
             @endforeach
         </ol>
