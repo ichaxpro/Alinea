@@ -13,19 +13,19 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-#[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres', 'foto_profil', 'deskripsi'])]
+#[Fillable(['name', 'username', 'email', 'password', 'role', 'kota', 'no_telp', 'preferred_genres', 'foto_profil', 'deskripsi'])]
 #[Hidden(['password', 'remember_token', 'deskripsi'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_USER = 'user';
+
     protected function casts(): array
     {
         return [
@@ -33,6 +33,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'preferred_genres' => 'array',
         ];
+    }
+
+    public function isAdmin(): bool {
+        return $this->role === self::ROLE_ADMIN;
     }
 
     public function personalBooks(): HasMany {
@@ -103,5 +107,9 @@ class User extends Authenticatable
 
     public function readingBooks(): HasMany {
         return $this->hasMany(PersonalBook::class)->whereNotNull('reading_status');
+    }
+
+    public function canAccessPanel(Panel $panel): bool {
+        return $this->role === self::ROLE_ADMIN;
     }
 }
