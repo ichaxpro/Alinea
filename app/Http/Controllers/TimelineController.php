@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
+use App\Services\TrendingService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 
 class TimelineController extends Controller
@@ -23,6 +25,10 @@ class TimelineController extends Controller
         return 'file';
     }
 
+    public function __construct(
+        protected TrendingService $trendingService
+    ) {}
+
     public function index(Request $request)
     {
         $currentUser = Auth::user();
@@ -30,8 +36,15 @@ class TimelineController extends Controller
         
         $query = TimelinePost::with(['author', 'attachments', 'likes'])
             ->withCount('comments')
-            ->whereNull('id_klub') // Global posts only
-            ->orderByDesc('created_at');
+            ->whereNull('id_klub');
+        
+        $activeBook = $request->query('book');
+
+        if ($activeBook) {
+            $query->where(DB::raw('LOWER(TRIM(judul_buku_dibahas))'), strtolower(trim($activeBook)));
+        }
+
+        $query->orderByDesc('created_at');
 
         if ($tab === 'mengikuti' && $currentUser) {
             $followingIds = $currentUser->following()->pluck('following_id');
@@ -84,7 +97,17 @@ class TimelineController extends Controller
                 ];
             });
 
-        return view('timeline_home', compact('posts'));
+        $trendingItems = collect($this->trendingService->getWeeklyTrending())
+            ->map(fn ($item) => [
+                $item['judul'],
+                $item['count'] . ' postingan',
+                $activeBook && strtolower(trim($activeBook)) === strtolower(trim($item['judul']))
+                    ? route('timeline_home')
+                    : route('timeline_home', ['book' => $item['judul']]),
+            ])
+            ->all();
+
+        return view('timeline_home', compact('posts', 'trendingItems', 'activeBook'));
     }
 
     public function store(Request $request)
@@ -134,6 +157,12 @@ class TimelineController extends Controller
         }
 
         $post->load(['author', 'attachments', 'likes']);
+
+        if (!empty($validated['judul_buku_dibahas'])) {
+            $now = \Carbon\Carbon::now();
+            $startOfWeek = $now->copy()->startOfWeek();
+            Cache::forget("trending_weekly_{$startOfWeek->year}_W{$startOfWeek->weekOfYear}");
+        }
 
         return response()->json([
             'message' => 'Postingan berhasil diunggah.',
@@ -215,7 +244,7 @@ class TimelineController extends Controller
                     'avatar_url' => $comment->author->foto_profil ? asset('storage/' . $comment->author->foto_profil) : null,
                     'body' => $comment->isi_komentar,
                     'attachments' => $attachments,
-                    'time' => $comment->created_at ? Carbon::parse($comment->created_at)->diffForHumans() : 'Baru saja',
+                    'time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->diffForHumans() : 'Baru saja',
                     'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'likes_base' => $likesCount,
                     'likes_label' => $likes_label,
@@ -369,6 +398,14 @@ class TimelineController extends Controller
                 ];
             });
 
-        return view('timeline_simpanan', compact('posts'));
+        $trendingItems = collect($this->trendingService->getWeeklyTrending())
+            ->map(fn ($item) => [
+                $item['judul'],
+                $item['count'] . ' postingan',
+                route('timeline_home', ['book' => $item['judul']]),
+            ])
+            ->all();
+
+        return view('timeline_simpanan', compact('posts', 'trendingItems'));
     }
 }

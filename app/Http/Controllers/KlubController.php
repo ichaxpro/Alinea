@@ -71,7 +71,7 @@ class KlubController extends Controller
             'media_original_name' => $firstAttachment['original_name'] ?? $comment->media_original_name,
             'media_size' => $firstAttachment['size'] ?? $comment->media_size,
             'attachments' => $payloadAttachments,
-            'time' => $comment->created_at ? Carbon::parse($comment->created_at)->diffForHumans() : 'Baru saja',
+            'time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->diffForHumans() : 'Baru saja',
             'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
         ];
     }
