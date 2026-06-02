@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchTimeout         = null;
     let activeSubscriptions   = [];
     let subscribeIds          = new Set();
+    let userDetailOpen        = false;  // ← user detail panel state
 
     // Media state
     let pendingMediaBlob = null;
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Open conversation ──────────────────────────────────────────────────
 
-    async function openConversation(id) {
+    async function openConversation(id, pushState = true) {
         document.querySelector('.chat-item.active')?.classList.remove('active');
         document.getElementById(`item-${id}`)?.classList.add('active');
         currentConversationId = id;
@@ -128,17 +129,46 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('chatName').textContent = conv.other_user.name;
             document.getElementById('chatAvatarWrapper').innerHTML =
                 avatarHTML(conv.other_user, 'w-11 h-11', true);
+            // Update username subtitle in header
+            const usernameEl = document.getElementById('chatUsername');
+            if (usernameEl) {
+                usernameEl.textContent = conv.other_user.username ? `@${conv.other_user.username}` : '';
+            }
         }
 
         document.getElementById('chatEmpty')?.classList.add('hidden');
         document.getElementById('chatHeader')?.classList.remove('hidden');
         document.getElementById('chatBox')?.classList.remove('hidden');
         document.getElementById('chatInputArea')?.classList.remove('hidden');
+        document.getElementById('chatContainer')?.classList.add('conversation-open');
+
+        if (pushState) {
+            const url = new URL(window.location);
+            url.searchParams.set('conv', id);
+            window.history.pushState({ conversationId: id }, '', url.toString());
+        }
 
         await markAsRead(id);
         await loadMessages(id);
         subscribeToConversation(id);
         document.getElementById('messageInput')?.focus();
+    }
+
+    function closeActiveConversation(pushState = true) {
+        currentConversationId = null;
+        currentOtherUser = null;
+        document.querySelector('.chat-item.active')?.classList.remove('active');
+        document.getElementById('chatContainer')?.classList.remove('conversation-open');
+        document.getElementById('chatHeader')?.classList.add('hidden');
+        document.getElementById('chatBox')?.classList.add('hidden');
+        document.getElementById('chatInputArea')?.classList.add('hidden');
+        document.getElementById('chatEmpty')?.classList.remove('hidden');
+
+        if (pushState) {
+            const url = new URL(window.location);
+            url.searchParams.delete('conv');
+            window.history.pushState(null, '', url.toString());
+        }
     }
 
     // ── Messages ───────────────────────────────────────────────────────────
@@ -270,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const bubble = document.createElement('div');
             if (isDeleted) {
                 bubble.className   = 'bubble-deleted rounded-2xl';
-                bubble.textContent = '🚫 Pesan dihapus';
+                bubble.textContent = 'Pesan dihapus';
             } else {
                 bubble.className = 'bg-white shadow-sm border border-gray-100 px-3 py-2 rounded-2xl text-sm max-w-xs break-words';
                 appendBubbleContent(bubble, msg);
@@ -296,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
             img.className = 'media-bubble-img';
             img.alt       = msg.media_original_name || 'Gambar';
             img.loading   = 'lazy';
-            img.addEventListener('click', () => window.open(msg.media_url, '_blank'));
+            img.addEventListener('click', () => openMediaModal(msg.media_url, 'image', msg.media_original_name));
             bubble.appendChild(img);
             if (msg.content) {
                 const cap = document.createElement('p');
@@ -317,18 +347,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 bubble.appendChild(cap);
             }
         } else if (msg.media_type === 'video' && msg.media_url) {
-            const video = document.createElement('video');
-            video.src       = msg.media_url;
-            video.controls  = true;
-            video.className = 'media-bubble-video';
-            video.preload   = 'metadata';
-            bubble.appendChild(video);
+            // Wrapper — klik di mana saja → buka modal
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-thumb-wrapper';
+            wrapper.title     = 'Putar video';
+            wrapper.addEventListener('click', () =>
+                openMediaModal(msg.media_url, 'video', msg.media_original_name)
+            );
+
+            // Video hanya untuk ambil thumbnail (tanpa controls)
+            const thumb = document.createElement('video');
+            thumb.src      = msg.media_url;
+            thumb.preload  = 'metadata';
+            thumb.muted    = true;
+            thumb.className = 'video-thumb';
+            // Seek ke 0.1 detik agar browser render frame pertama sebagai thumbnail
+            thumb.addEventListener('loadedmetadata', () => { thumb.currentTime = 0.1; });
+
+            // Tombol play di tengah
+            const playBtn = document.createElement('div');
+            playBtn.className = 'video-play-btn';
+            playBtn.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <polygon points="5,3 19,12 5,21"/>
+            </svg>`;
+
+            wrapper.appendChild(thumb);
+            wrapper.appendChild(playBtn);
+            bubble.appendChild(wrapper);
+
             if (msg.content) {
                 const cap = document.createElement('p');
                 cap.className   = 'media-caption';
                 cap.textContent = msg.content;
                 bubble.appendChild(cap);
             }
+
         } else {
             bubble.textContent = msg.content;
         }
@@ -719,6 +772,225 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function openMediaModal(url, type, name = '') {
+        const modal = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+        const caption = document.getElementById('mediaModalCaption');
+        const dlBtn = document.getElementById('mediaModalDownload');
+
+        content.innerHTML = '';
+
+        if (type === 'image') {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = name || 'Gambar';
+            content.appendChild(img);
+        } else if (type === 'video') {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            video.autoplay = true;
+            content.appendChild(video);
+        }
+
+        caption.textContent = name || '';
+        dlBtn.href = url;
+        dlBtn.download = name || 'media';
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => modal.classList.add('open'));
+
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMediaModal() {
+        const modal   = document.getElementById('mediaModal');
+        const content = document.getElementById('mediaModalContent');
+
+        modal.classList.remove('open');
+        content.innerHTML = ''; // hentikan video yang sedang play
+
+        document.body.style.overflow = '';
+    }
+
+    // ── User Detail Panel ──────────────────────────────────────────────
+
+    function openUserDetailPanel() {
+        if (!currentOtherUser) return;
+
+        // Populate profile info
+        document.getElementById('udAvatarWrapper').innerHTML =
+            avatarHTML(currentOtherUser, 'w-24 h-24', true);
+        document.getElementById('udName').textContent =
+            currentOtherUser.name || '';
+        document.getElementById('udUsername').textContent =
+            currentOtherUser.username ? `@${currentOtherUser.username}` : '';
+
+        // Show overlay + panel
+        document.getElementById('userDetailOverlay')?.classList.add('open');
+        document.getElementById('userDetailPanel')?.classList.add('open');
+        userDetailOpen = true;
+
+        // Load media async
+        loadConversationMedia();
+    }
+
+    function closeUserDetailPanel() {
+        document.getElementById('userDetailOverlay')?.classList.remove('open');
+        document.getElementById('userDetailPanel')?.classList.remove('open');
+        userDetailOpen = false;
+    }
+
+    async function loadConversationMedia() {
+        if (!currentConversationId) return;
+
+        const grid = document.getElementById('udMediaGrid');
+        if (!grid) return;
+        grid.innerHTML = '<p class="col-span-3 text-xs text-gray-400 text-center py-4">Memuat media…</p>';
+
+        try {
+            const res = await fetch(`${apiBase}/conversations/${currentConversationId}/media`, {
+                headers: apiHeaders(),
+            });
+            if (!res.ok) throw new Error('fetch failed');
+
+            const json  = await res.json();
+            const items = json.data || [];
+
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                grid.innerHTML = '<p class="col-span-3 text-xs text-gray-400 text-center py-6">Belum ada media bersama</p>';
+                document.getElementById('udMediaMore')?.classList.add('hidden');
+                return;
+            }
+
+            // Show max 9 thumbnails (3×3 grid)
+            const shown = items.slice(0, 9);
+            shown.forEach(item => {
+                if (item.type === 'image') {
+                    const img      = document.createElement('img');
+                    img.src        = item.url;
+                    img.className  = 'ud-media-thumb';
+                    img.alt        = item.name || 'foto';
+                    img.loading    = 'lazy';
+                    img.addEventListener('click', () => openMediaModal(item.url, 'image', item.name));
+                    grid.appendChild(img);
+                } else if (item.type === 'video') {
+                    const wrap      = document.createElement('div');
+                    wrap.className  = 'ud-media-video-wrap';
+                    wrap.addEventListener('click', () => openMediaModal(item.url, 'video', item.name));
+
+                    const vid       = document.createElement('video');
+                    vid.src         = item.url;
+                    vid.preload     = 'metadata';
+                    vid.muted       = true;
+                    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+                    vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0.1; });
+
+                    const play      = document.createElement('div');
+                    play.className  = 'ud-video-play';
+                    play.innerHTML  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>`;
+
+                    wrap.appendChild(vid);
+                    wrap.appendChild(play);
+                    grid.appendChild(wrap);
+                }
+            });
+
+            // "View all" button when more than 9
+            const moreBtn = document.getElementById('udMediaMore');
+            if (moreBtn) {
+                if (items.length > 9) {
+                    moreBtn.textContent = `Lihat semua (${items.length} media)`;
+                    moreBtn.classList.remove('hidden');
+                } else {
+                    moreBtn.classList.add('hidden');
+                }
+            }
+
+        } catch (e) {
+            console.error('loadConversationMedia:', e);
+            if (grid) grid.innerHTML = '<p class="col-span-3 text-xs text-red-400 text-center py-4">Gagal memuat media</p>';
+        }
+    }
+
+    async function handleReportUser() {
+        if (!currentOtherUser) return;
+        const reason = prompt(`Laporkan ${currentOtherUser.name}?\nTuliskan alasanmu (opsional):`);
+        if (reason === null) return; // user cancelled
+
+        try {
+            const res = await fetch(`/api/users/${currentOtherUser.id}/report`, {
+                method:  'POST',
+                headers: apiHeaders(),
+                body:    JSON.stringify({ reason }),
+            });
+            alert(res.ok ? 'Laporan telah dikirim. Terima kasih.' : 'Gagal mengirim laporan. Coba lagi.');
+        } catch {
+            alert('Terjadi kesalahan. Coba lagi.');
+        }
+    }
+
+    async function handleBlockUser() {
+        if (!currentOtherUser) return;
+        if (!confirm(`Blokir ${currentOtherUser.name}?\nMereka tidak akan bisa mengirim pesan kepadamu.`)) return;
+
+        try {
+            const res = await fetch(`/api/users/${currentOtherUser.id}/block`, {
+                method:  'POST',
+                headers: apiHeaders(),
+            });
+            if (res.ok) {
+                alert(`${currentOtherUser.name} telah diblokir.`);
+                closeUserDetailPanel();
+            } else {
+                alert('Gagal memblokir pengguna.');
+            }
+        } catch {
+            alert('Terjadi kesalahan. Coba lagi.');
+        }
+    }
+
+    async function handleDeleteConversation() {
+        if (!currentConversationId) return;
+        if (!confirm('Hapus semua riwayat percakapan ini?\nTindakan ini tidak dapat dibatalkan.')) return;
+
+        const deletingId = currentConversationId;
+
+        try {
+            const res = await fetch(`${apiBase}/conversations/${deletingId}`, {
+                method:  'DELETE',
+                headers: apiHeaders(),
+            });
+
+            if (res.ok) {
+                // Close panel, reset UI
+                closeUserDetailPanel();
+                currentConversationId = null;
+                currentOtherUser      = null;
+                currentMessages       = [];
+
+                document.getElementById('chatHeader')?.classList.add('hidden');
+                document.getElementById('chatBox')?.classList.add('hidden');
+                document.getElementById('chatInputArea')?.classList.add('hidden');
+                document.getElementById('chatEmpty')?.classList.remove('hidden');
+                document.getElementById('chatContainer')?.classList.remove('conversation-open');
+
+                // Remove from local list & re-fetch to stay in sync
+                conversations = conversations.filter(c => c.id !== deletingId);
+                await fetchConversations();
+            } else {
+                alert('Gagal menghapus percakapan.');
+            }
+        } catch {
+            alert('Terjadi kesalahan. Coba lagi.');
+        }
+    }
+
+
     // ── SVG helpers ────────────────────────────────────────────────────────
 
     function svgSingleTick() {
@@ -786,8 +1058,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Event listeners ────────────────────────────────────────────────────
 
-    document.getElementById('backBtn')?.addEventListener('click', () => history.back());
+    document.getElementById('backBtn')?.addEventListener('click', () => {
+        window.location.href = '/timeline_home';
+    });
+    document.getElementById('closeChatBtn')?.addEventListener('click', () => {
+        if (window.history.state && window.history.state.conversationId) {
+            window.history.back();
+        } else {
+            closeActiveConversation(true);
+        }
+    });
+
+    window.addEventListener('popstate', (e) => {
+        const state = e.state;
+        if (state && state.conversationId) {
+            openConversation(state.conversationId, false);
+        } else {
+            closeActiveConversation(false);
+        }
+    });
     document.getElementById('sendBtn')?.addEventListener('click', sendMessage);
+
+    document.getElementById('mediaModalClose')?.addEventListener('click', closeMediaModal);
+
+    document.getElementById('mediaModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('mediaModal')) closeMediaModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (userDetailOpen) closeUserDetailPanel();
+            else closeMediaModal();
+        }
+    });
+
+    // ── User Detail Panel listeners ──────────────────────────────────
+    document.getElementById('userDetailTrigger')?.addEventListener('click', openUserDetailPanel);
+    document.getElementById('userDetailClose')?.addEventListener('click', closeUserDetailPanel);
+    document.getElementById('userDetailOverlay')?.addEventListener('click', closeUserDetailPanel);
+    document.getElementById('udReportBtn')?.addEventListener('click', handleReportUser);
+    document.getElementById('udBlockBtn')?.addEventListener('click', handleBlockUser);
+    document.getElementById('udDeleteChatBtn')?.addEventListener('click', handleDeleteConversation);
 
     document.getElementById('attachBtn')?.addEventListener('click', () => {
         document.getElementById('mediaFileInput')?.click();
@@ -862,5 +1173,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Boot ───────────────────────────────────────────────────────────────
     buildEmojiPicker();
-    fetchConversations();
+    fetchConversations().then(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetUserId = urlParams.get('user_id');
+        const targetConvId = urlParams.get('conv');
+
+        if (targetUserId) {
+            startNewConversation({ id: parseInt(targetUserId) });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else if (targetConvId) {
+            openConversation(parseInt(targetConvId), false);
+        }
+    });
 });

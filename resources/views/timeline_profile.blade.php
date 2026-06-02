@@ -4,8 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alinea — Timeline Profile</title>
-    <meta name="description" content="Ikuti timeline buku Alinea — bagikan progres bacaan, ulasan, dan kutipan favoritmu." />
+    <title>Alinea — {{ $user->name }}</title>
+    <meta name="description" content="Profil {{ $user->name }} di Alinea" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
+    <meta name="user-name" content="{{ Auth::user()?->name ?? '' }}">
+    <meta name="user-avatar-url" content="{{ Auth::user()?->avatar_url ?? '' }}" />
+    <meta name="user-id" content="{{ Auth::id() ?? '' }}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,81 +25,73 @@
     <x-navbar></x-navbar>
 
     {{-- ========== PAGE LAYOUT (3-column: left | center | right) ========== --}}
-    <div class="min-h-screen pt-14">
-        <div class="flex items-start gap-6 max-w-[1200px] mx-auto px-4 py-6">
+    <div class="min-h-screen pt-16">
+        <div class="flex items-start gap-6 max-w-[1200px] mx-auto px-4 py-6 max-md:pb-24">
 
             {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
-            <aside class="hidden lg:block w-[200px] flex-shrink-0 sticky top-6">
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
-                    @php
-                    $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false,
-                         'icon' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => true,
-                         'icon' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => false,
-                         'icon' => '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>', 'url' => route('timeline_notifikasi')],
-                        ['id' => 'sidenav-pesan',      'label' => 'Chat',      'active' => false,
-                         'icon' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="12" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/>', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas', 'label' => 'Komunitas', 'active' => false, 
-                         'icon' => '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 'url' => route('timeline_komunitas')],
-                    ];
-                    @endphp
-
-                    @foreach ($sideNav as $item)
-                    @php $tag = isset($item['url']) ? 'a' : 'button'; @endphp
-                    <{{ $tag }} id="{{ $item['id'] }}" {!! isset($item['url']) ? 'href="'.$item['url'].'"' : 'data-sidenav' !!} aria-label="{{ $item['label'] }}"
-                            class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
-                                   {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
-                            {!! $item['icon'] !!}
-                        </svg>
-                        <span class="text-sm">{{ $item['label'] }}</span>
-                    </{{ $tag }}>
-                    @endforeach
-                </div>
-            </aside>
+            <x-timeline-sidebar />
 
             {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
                 
 
-                {{-- Composer --}}
+                {{-- Profile Header --}}
                 <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-6">
-                    <div class="flex gap-6 items-start">
+                    <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start text-center sm:text-left">
                         <div class="w-28 h-28 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0 overflow-hidden flex items-center justify-center">
-                            @if($user->foto_profil ?? false)
+                            @if($user->foto_profil)
                             <img src="{{ Storage::disk('public')->url($user->foto_profil) }}" alt="Avatar" class="w-full h-full object-cover">
                             @else
-                            <span class="text-4xl font-black text-text/60">D</span>
+                            <span class="text-4xl font-black text-text/60">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                             @endif
                         </div>
 
-                        <div class="flex-1">
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-4">
-                                    <div>
-                                        <h2 class="text-2xl font-bold text-[#222]">Dewi Chalissa</h2>
-                                        <p class="text-sm text-gray-500">@oioioi</p>
-                                    </div>
+                        <div class="flex-1 w-full">
+                            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                                <div class="text-center sm:text-left">
+                                    <h2 class="text-2xl font-bold text-[#222]">{{ $user->name }}</h2>
+                                    <p class="text-sm text-gray-500">{{ $user->username ? '@' . $user->username : 'tanpa_username' }}</p>
                                 </div>
 
-                                <p class="mt-4 text-base text-[#333]">Apaan Nih?!</p>
-                                <p class="text-sm text-gray-500">
-                                    <span class="font-bold text-[#222]">256</span> Following
-                                    <span class="mx-2">|</span>
-                                    <span class="font-bold text-[#222]">165</span> Followers
-                                </p>
-
+                                @auth
+                                    @if($isOwnProfile)
+                                        <a href="{{ route('profile.edit') }}"
+                                           class="sm:ml-auto px-4 py-2 bg-[#FFDDAF] border-2 border-[#444] rounded-full text-sm font-bold hover:bg-[#ffcf90] transition-colors whitespace-nowrap">
+                                            Edit Profil
+                                        </a>
+                                    @else
+                                        <button id="follow-btn"
+                                                data-follow-url="{{ route('profile.follow', $user) }}"
+                                                data-following="{{ $isFollowing ? 'true' : 'false' }}"
+                                                data-following-count="{{ $followingCount }}"
+                                                class="sm:ml-auto px-5 py-2 rounded-full text-sm font-bold border-2 border-[#444] transition-colors cursor-pointer whitespace-nowrap
+                                                       {{ $isFollowing ? 'bg-[#444] text-white' : 'bg-[#FFDDAF] hover:bg-[#ffcf90]' }}">
+                                            {{ $isFollowing ? 'Mengikuti' : 'Pengikut' }}
+                                        </button>
+                                    @endif
+                                @endauth
                             </div>
+
+                            @if($user->deskripsi)
+                                <p class="mt-4 text-base text-[#333] text-center sm:text-left">{{ $user->deskripsi }}</p>
+                            @endif
+
+                            <p class="text-sm text-gray-500 mt-2 text-center sm:text-left">
+                                <button type="button" id="profile-following-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer">
+                                    <span class="font-bold text-[#222]">{{ $followingCount }}</span> Mengikuti
+                                </button>
+                                <span class="mx-2">|</span>
+                                <button type="button" id="profile-followers-trigger" data-user-id="{{ $user->id }}" class="hover:underline cursor-pointer">
+                                    <span class="font-bold text-[#222]">{{ $followersCount }}</span> Pengikut
+                                </button>
+                            </p>
                         </div>
                     </div>
 
                     <div class="mt-8 border-b border-gray-200">
                         <div class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                            <div class="flex min-w-[560px] w-full">
+                            <div class="flex w-full">
                                 @foreach ([
                                     ['label' => 'Unggahan', 'active' => true],
                                     ['label' => 'Penghargaan', 'active' => false],
@@ -104,7 +101,7 @@
                                 <button type="button"
                                         data-profile-tab
                                         data-profile-tab-target="{{ strtolower($tab['label']) }}"
-                                        class="relative flex-1 px-1 pb-4 text-sm font-semibold transition-colors cursor-pointer text-center {{ $tab['active'] ? 'text-[#111]' : 'text-gray-400 hover:text-gray-600' }}"
+                                        class="flex-shrink-0 relative flex-1 px-3 pb-4 text-sm font-semibold transition-colors cursor-pointer text-center {{ $tab['active'] ? 'text-[#111]' : 'text-gray-400 hover:text-gray-600' }}"
                                         aria-selected="{{ $tab['active'] ? 'true' : 'false' }}">
                                     {{ $tab['label'] }}
                                     <span data-profile-tab-indicator
@@ -115,62 +112,31 @@
                         </div>
                     </div>
 
+                    {{-- Tab: Unggahan --}}
                     <div id="profile-feed-panel" data-profile-panel="unggahan" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
-                        @php
-                        $profilePosts = [
-                            [
-                                'id' => 1, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
-                                'location' => 'Malang', 'time' => '12 Menit Lalu', 'book' => 'Harry Potter',
-                                'tag' => 'Dibaca',
-                                'body' => 'Harry Potter Adalah Kisah Tentang Seorang Anak Penyihir Yang Menemukan Jati Dirinya Di Sekolah Sihir Hogwarts. Ia Belajar Tentang Persahabatan, Keberanian, Dan Pengorbanan Bersama Teman-Temannya Seperti Ron Dan Hermione. Cerita Ini Juga Menampilkan Pertarungan Antara Kebaikan Dan Kejahatan Melalui Sosok Voldemort, Dengan Dunia Magis Yang Kaya Dan Penuh Imajimasi.',
-                                'comments' => '1.2K', 'likes_base' => 50000, 'likes_label' => '50K',
-                                'liked' => true, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#C7E7FF',
-                            ],
-                            [
-                                'id' => 2, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
-                                'location' => 'Surabaya', 'time' => '35 Menit Lalu', 'book' => 'The Midnight Library',
-                                'tag' => 'Selesai',
-                                'body' => 'Baru sampai di halaman 67% dan plot twist-nya benar-benar di luar ekspektasi. Matt Haig dengan apiknya menggambarkan bagaimana setiap pilihan hidup membawa kita ke jalur yang berbeda. Sangat direkomendasikan untuk yang sedang merasa stuck dalam hidup!',
-                                'comments' => '843', 'likes_base' => 28000, 'likes_label' => '28K',
-                                'liked' => false, 'avatar_from' => '#C7E7FF', 'avatar_to' => '#FFDDAF',
-                            ],
-                            [
-                                'id' => 3, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
-                                'location' => 'Bandung', 'time' => '2 Jam Lalu', 'book' => 'Atomic Habits',
-                                'tag' => 'Kutipan',
-                                'body' => '"Setiap tindakan yang kamu ambil adalah suara untuk tipe orang yang ingin kamu jadi." — James Clear. Kutipan ini benar-benar mengubah cara pandangku tentang kebiasaan kecil. Sangat recommended untuk yang ingin membangun rutinitas produktif!',
-                                'comments' => '2.1K', 'likes_base' => 41000, 'likes_label' => '41K',
-                                'liked' => false, 'avatar_from' => '#D4F6FF', 'avatar_to' => '#FFDDAF',
-                            ],
-                            [
-                                'id' => 4, 'name' => 'Dewi Chalissa', 'handle' => '@oioioi',
-                                'location' => 'Jakarta', 'time' => '4 Jam Lalu', 'book' => 'Sapiens',
-                                'tag' => 'Dibaca',
-                                'body' => 'Habis nonton dokumenter sejarah langsung lari ke buku Sapiens. Yuval Noah Harari benar-benar jago merangkum sejarah manusia dalam narasi yang segar dan mudah dicerna. Ini buku ketiga kalinya saya baca ulang!',
-                                'comments' => '512', 'likes_base' => 19000, 'likes_label' => '19K',
-                                'liked' => false, 'avatar_from' => '#FFDDAF', 'avatar_to' => '#D4F6FF',
-                            ],
-                        ];
-                        @endphp
-
-                        @foreach ($profilePosts as $post)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                        @forelse ($posts as $post)
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $post['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
-                                <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0"
-                                     style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                                <div class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                    @if($post['avatar_url'])
+                                        <img src="{{ $post['avatar_url'] }}" alt="" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($post['name'], 0, 1)) }}</span>
+                                    @endif
+                                </div>
                                 <div class="flex-1 min-w-0">
                                     <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
-                                    <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                                        <span>{{ $post['handle'] }}</span>
-                                        <span class="text-gray-200">•</span>
-                                        <span class="flex items-center gap-1">
+                                    <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
+                                        <span class="whitespace-nowrap">{{ $post['handle'] }}</span>
+                                        <span class="text-gray-200 whitespace-nowrap">•</span>
+                                        <span class="flex items-center gap-1 whitespace-nowrap">
                                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                                             </svg>
                                             {{ $post['location'] }}
                                         </span>
-                                        <span class="text-gray-200">•</span>
-                                        <span>{{ $post['time'] }}</span>
+                                        <span class="text-gray-200 whitespace-nowrap">•</span>
+                                        <span class="whitespace-nowrap" title="{{ $post['absolute_time'] }}">{{ $post['time'] }}</span>
                                     </div>
                                 </div>
                                 <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">
@@ -178,20 +144,58 @@
                                 </div>
                             </div>
 
+                            @if($post['book'])
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
                                 {{ $post['book'] }}
                             </div>
+                            @endif
 
-                            <p class="text-sm text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
+                            <p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
 
-                            <div class="flex items-center gap-5 pt-3 border-t border-gray-100">
-                                <button id="comment-btn-profile-{{ $post['id'] }}" aria-label="Komentar"
+                            {{-- Media --}}
+                            @if(!empty($post['attachments']))
+                            <div class="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4">
+                                @foreach($post['attachments'] as $attachment)
+                                    @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
+                                    @if(($attachment['type'] ?? '') === 'image')
+                                    <img src="{{ $attachmentUrl }}" data-media-url="{{ $attachmentUrl }}" data-media-type="image"
+                                         class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
+                                    @elseif(($attachment['type'] ?? '') === 'video')
+                                    <video src="{{ $attachmentUrl }}" data-media-url="{{ $attachmentUrl }}" data-media-type="video"
+                                           class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>
+                                    @endif
+                                @endforeach
+                            </div>
+                            @elseif($post['media_url'] && $post['media_type'] === 'image')
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <img src="{{ $post['media_url'] }}" data-media-url="{{ $post['media_url'] }}" data-media-type="image"
+                                         class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
+                                </div>
+                            @elseif($post['media_url'] && $post['media_type'] === 'video')
+                                <div class="mb-4">
+                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
+                                        <source src="{{ $post['media_url'] }}" type="video/mp4">
+                                    </video>
+                                </div>
+                            @elseif($post['media_url'])
+                                <div class="mb-3">
+                                    <a href="{{ $post['media_url'] }}" download
+                                       class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
+                                        <span>{{ $post['media_original_name'] ?? 'Unduh file' }}</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            <div class="flex items-center gap-5 max-sm:gap-3 pt-3 border-t border-gray-100">
+                                {{-- Comment --}}
+                                <button id="comment-btn-{{ $post['id'] }}" aria-label="Komentar" data-comment-toggle
                                         class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
                                     <x-icon-comment fill="none" />
-                                    <span>{{ $post['comments'] }}</span>
+                                    <span data-comment-count>{{ $post['comments'] }}</span>
                                 </button>
 
-                                <button id="like-btn-profile-{{ $post['id'] }}" data-like-btn
+                                {{-- Like --}}
+                                <button id="like-btn-{{ $post['id'] }}" data-like-btn
                                         data-base="{{ $post['likes_base'] }}" data-liked="{{ $post['liked'] ? 'true' : 'false' }}"
                                         aria-pressed="{{ $post['liked'] ? 'true' : 'false' }}" aria-label="Suka"
                                         class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
@@ -200,235 +204,213 @@
                                     <span data-like-count>{{ $post['likes_label'] }}</span>
                                 </button>
 
+                                {{-- Bookmark & Share --}}
                                 <div class="ml-auto flex items-center gap-2">
-                                    <button id="bookmark-btn-profile-{{ $post['id'] }}" data-bookmark-btn aria-pressed="false" aria-label="Simpan"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                        <x-icon-bookmark fill="none" />
-                                    </button>
-                                    <button id="share-btn-profile-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
-                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                        <x-icon-share fill="none" />
-                                    </button>
+                                    <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
+                                    <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                </div>
+                            </div>
+
+                            {{-- Comments Section (Hidden by default) --}}
+                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                 id="comments-section-{{ $post['id'] }}"
+                                 data-comments-loaded="false"
+                                 data-comments-url="{{ route('timeline_home.comments', $post['id']) }}"
+                                 data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                                <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
+                                    {{-- Loaded via AJAX --}}
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <form data-comment-form class="flex gap-3 max-sm:gap-1.5 items-start w-full">
+                                        <input type="text" data-comment-input
+                                               class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input"
+                                               placeholder="Tulis komentar..."
+                                               data-post-id="{{ $post['id'] }}">
+                                        <button type="submit" data-comment-submit
+                                                class="bg-[#FFDDAF] text-[#444] px-4 max-sm:px-2.5 py-2 rounded-lg font-bold text-sm max-sm:text-xs border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn whitespace-nowrap"
+                                                data-post-id="{{ $post['id'] }}">Kirim</button>
+                                    </form>
                                 </div>
                             </div>
                         </article>
-                        @endforeach
+                        @empty
+                        <p class="text-center text-gray-400 py-8">Belum ada unggahan.</p>
+                        @endforelse
                     </div>
 
+                    {{-- Tab: Penghargaan --}}
                     <div data-profile-panel="penghargaan" class="hidden mt-5 flex flex-col gap-5">
-                        @php
-                        $achievements = [
-                            [
-                                'id' => 1, 'title' => 'Pionir Literasi', 
-                                'desc' => 'Berhasil Melakukan Peminjaman Buku Pertama Kamu Di Alinea!',
-                                'image' => 'badge_(2).png',
-                            ],
-                            [
-                                'id' => 2, 'title' => 'Kritikus Andal',
-                                'desc' => 'Menyelesaikan ulasan buku pertama!',
-                                'image' => 'badge_(2).png',
-                            ],
-                            [
-                                'id' => 3, 'title' => 'Sang Kolektor',
-                                'desc' => 'Berhasil menambahkan 5 buku pribadi ke dalam katalog koleksi publik.',
-                                'image' => 'badge_(2).png',
-                            ],
-                        ];
-                        @endphp
-                        
-                        @foreach ($achievements as $achievement)
+                        @forelse ($achievements as $achievement)
                         <div class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
                             <div class="flex items-center gap-5">
-                                <div class="w-24 h-24 "
-                                     style="background: url('{{ asset('images/' . $achievement['image']) }}') no-repeat center center; background-size: cover;"></div>
+                                <div class="w-24 h-24" style="background: url('{{ asset('images/' . ($achievement->icon ?? 'badge_(2).png')) }}') no-repeat center center; background-size: cover;"></div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-[15px] text-[#444]">{{ $achievement['title'] }}</h3>
-                                    <p class="text-sm text-gray-500">{{ $achievement['desc'] }}</p>
+                                    <h3 class="font-bold text-[15px] text-[#444]">{{ $achievement->title }}</h3>
+                                    <p class="text-sm text-gray-500">{{ $achievement->description }}</p>
+                                    @if($achievement->pivot?->earned_at)
+                                        <p class="text-xs text-gray-400 mt-1">Diperoleh {{ \Carbon\Carbon::parse($achievement->pivot->earned_at)->diffForHumans() }}</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        @endforeach
+                        @empty
+                        <p class="text-center text-gray-400 py-8">Belum ada penghargaan.</p>
+                        @endforelse
                     </div>
 
+                    {{-- Tab: Riwayat --}}
                     <div data-profile-panel="riwayat" class="hidden mt-5 flex flex-col gap-8">
-                        @php
-                        $readingNow = [
-                            ['title' => 'The Midnight Library', 'author' => 'Matt Haig', 'image' => 'midnight_library.jpg'],
-                            ['title' => 'Atomic Habits', 'author' => 'James Clear', 'image' => 'atomic_habits.jpg'],
-                            ['title' => 'Sapiens', 'author' => 'Yuval Noah Harari', 'image' => 'sapiens.jpg'],
-                        ];
 
-                        $finishedBooks = [
-                            ['title' => 'Harry Potter', 'author' => 'J.K. Rowling', 'image' => 'book_cover_4.jpg'],
-                            ['title' => 'Educated', 'author' => 'Tara Westover', 'image' => 'book_cover_5.jpg'],
-                            ['title' => 'Laut Bercerita', 'author' => 'Leila S. Chudori', 'image' => 'laut_bercerita.jpg'],
-                            ['title' => 'The Alchemist', 'author' => 'Paulo Coelho', 'image' => 'book_cover_7.jpg'],
-                            ['title' => 'Pachinko', 'author' => 'Min Jin Lee', 'image' => 'book_cover_8.jpg'],
-                            ['title' => 'Bumi Manusia', 'author' => 'Pramoedya A.T.', 'image' => 'book_cover_9.jpg'],
-                            ['title' => 'Dune', 'author' => 'Frank Herbert', 'image' => 'book_cover_10.jpg'],
-                            ['title' => 'Norwegian Wood', 'author' => 'Haruki Murakami', 'image' => 'book_cover_11.jpg'],
-                        ];
-                        @endphp
-
+                        {{-- ── Sedang Dibaca ── --}}
                         <section>
                             <div class="flex items-end justify-between mb-3">
-                                <h5 class="text-sm font-bold text-[#222]">Sedang Dibaca</h5>
-                                <span class="text-xs text-gray-400">Reading shelf</span>
+                                <h3 class="text-sm font-bold text-[#222]">Sedang Dibaca</h3>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#C7E7FF] text-[#444]">
+                                    {{ $readingNow->count() }} buku
+                                </span>
                             </div>
-
+                            @if($readingNow->isNotEmpty())
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 @foreach ($readingNow as $book)
                                 <article class="group">
                                     <div class="relative aspect-[2/3] rounded-2xl border-2 border-[#444] overflow-hidden shadow-sm bg-gray-100">
-                                        <img src="{{ asset('images/' . $book['image']) }}" alt="Sampul {{ $book['title'] }}"
-                                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
-                                        <span class="absolute top-2 left-2 text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border border-[#444] bg-white/90 text-[#333]">
-                                            Reading now...
-                                        </span>
+                                        @if($book->cover_url)
+                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
+                                        @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-sm font-bold p-4 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
+                                        @endif
+                                        <span class="absolute top-2 left-2 text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-full border border-[#444] bg-[#C7E7FF]/90 text-[#333]">Sedang Dibaca</span>
                                     </div>
                                     <div class="pt-2 px-0.5">
-                                        <h4 class="text-[13px] leading-tight font-bold text-[#2a2a2a] line-clamp-1">{{ $book['title'] }}</h4>
-                                        <p class="text-[11px] mt-0.5 text-gray-500 line-clamp-1">{{ $book['author'] }}</p>
+                                        <h4 class="text-[13px] leading-tight font-bold text-[#2a2a2a] line-clamp-1">{{ $book->judul }}</h4>
+                                        <p class="text-[11px] mt-0.5 text-gray-500 line-clamp-1">{{ $book->penulis }}</p>
                                     </div>
                                 </article>
                                 @endforeach
                             </div>
+                            @else
+                            <p class="text-sm text-gray-400">Belum ada buku yang sedang dibaca.</p>
+                            @endif
                         </section>
 
+                        {{-- ── Sudah Dibaca ── --}}
                         <section>
                             <div class="flex items-end justify-between mb-3">
                                 <h3 class="text-sm font-bold text-[#222]">Sudah Dibaca</h3>
-                                <span class="text-xs text-gray-400">Finished shelf</span>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#D4F6FF] text-[#444]">
+                                    {{ $finishedBooks->count() }} buku
+                                </span>
                             </div>
-
+                            @if($finishedBooks->isNotEmpty())
                             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                                 @foreach ($finishedBooks as $book)
                                 <article class="group">
-                                    <div class="aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
-                                        <img src="{{ asset('images/' . $book['image']) }}" alt="Sampul {{ $book['title'] }}"
-                                             class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]">
+                                    <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
+                                        @if($book->cover_url)
+                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]">
+                                        @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
+                                        @endif
+                                        <span class="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#D4F6FF]/90 border border-[#444] text-[#333]">Selesai</span>
                                     </div>
-                                    <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book['title'] }}</p>
+                                    <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book->judul }}</p>
                                 </article>
                                 @endforeach
                             </div>
+                            @else
+                            <p class="text-sm text-gray-400">Belum ada buku yang selesai dibaca.</p>
+                            @endif
                         </section>
+
+                        {{-- ── Ingin Dibaca ── --}}
+                        <section>
+                            <div class="flex items-end justify-between mb-3">
+                                <h3 class="text-sm font-bold text-[#222]">Ingin Dibaca</h3>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-200 text-gray-500">
+                                    {{ $wantToRead->count() }} buku
+                                </span>
+                            </div>
+                            @if($wantToRead->isNotEmpty())
+                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                @foreach ($wantToRead as $book)
+                                <article class="group">
+                                    <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-dashed border-gray-400 overflow-hidden bg-gray-50 transition-transform duration-200 group-hover:translate-y-[-2px]">
+                                        @if($book->cover_url)
+                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover opacity-60">
+                                        @else
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
+                                        @endif
+                                        <span class="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/90 border border-gray-400 text-gray-500">Ingin Dibaca</span>
+                                    </div>
+                                    <p class="pt-1 text-[11px] font-medium text-gray-500 leading-tight line-clamp-1">{{ $book->judul }}</p>
+                                </article>
+                                @endforeach
+                            </div>
+                            @else
+                            <p class="text-sm text-gray-400">Belum ada buku yang ingin dibaca.</p>
+                            @endif
+                        </section>
+
                     </div>
 
+                    {{-- Tab: Media --}}
                     <div data-profile-panel="media" class="hidden mt-5 flex flex-col gap-5">
-                        @php
-                        $mediaPosts = [
-                            [
-                                'id' => 1,
-                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '1 Jam Lalu','location' => 'Bandung',
-                                'tag' => 'Dibaca',
-                                'caption' => 'Mengabadikan momen baca di kafe — suasana cocok banget untuk tenggelam di cerita.',
-                                'attachments' => [
-                                    ['type' => 'image', 'src' => 'cafe.jpg'],
-                                ],
-                                'comments' => '124', 'likes_label' => '3.2K', 'liked' => false,
-                            ],
-                            [
-                                'id' => 2,
-                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => '2 Jam Lalu','location' => 'Jakarta',
-                                'tag' => 'Selesai',
-                                'caption' => 'Sudut rak buku favoritku — rekomendasi buku bagus di sana!',
-                                'attachments' => [
-                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
-                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
-                                    ['type' => 'image', 'src' => 'bookshelve.jpg'],
-                                    ['type' => 'video', 'src' => 'reading_clip.mp4'],
-                                ],
-                                'comments' => '88', 'likes_label' => '1.1K', 'liked' => true,
-                            ],
-                            [
-                                'id' => 3,
-                                'name' => 'Dewi Chalissa', 'handle' => '@oioioi', 'time' => 'Kemarin','location' => 'Surabaya',
-                                'tag' => 'Kutipan',
-                                'caption' => 'Cuplikan acara: presentasi buku terbaru.',
-                                'attachments' => [
-                                    ['type' => 'video', 'src' => 'reading_clip.mp4'],
-                                    ['type' => 'file', 'src' => 'transcript.pdf', 'label' => 'Transkrip presentasi.pdf'],
-                                ],
-                                'comments' => '64', 'likes_label' => '940', 'liked' => false,
-                            ],
-                        ];
-                        @endphp
-
-                        @foreach ($mediaPosts as $media)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                        @forelse ($mediaPosts as $media)
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $media['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
-                                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
+                                <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                    @if($media['avatar_url'])
+                                        <img src="{{ $media['avatar_url'] }}" alt="" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($media['name'], 0, 1)) }}</span>
+                                    @endif
+                                </div>
                                 <div class="flex-1 min-w-0">
                                     <span class="font-bold text-[15px] leading-tight">{{ $media['name'] }}</span>
-                                    <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                                        <span>{{ $media['handle'] }}</span>
+                                    <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
+                                        <span class="whitespace-nowrap">{{ $media['handle'] }}</span>
                                         <span class="text-gray-200">•</span>
-                                        <span>{{ $media['time'] }}</span>
+                                        @if($media['location'])
+                                        <span class="flex items-center gap-1 whitespace-nowrap">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                            {{ $media['location'] }}
+                                        </span>
                                         <span class="text-gray-200">•</span>
-                                        <span>{{ $media['location'] }}</span>
+                                        @endif
+                                        <span class="whitespace-nowrap" title="{{ $media['absolute_time'] }}">{{ $media['time'] }}</span>
                                     </div>
                                 </div>
-                                <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">
-                                    {{ $media['tag'] }}
-                                </div>
+                                <div class="bg-[#fff176] border-2 border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold flex-shrink-0">{{ $media['tag'] }}</div>
                             </div>
 
                             <p class="text-sm text-gray-600 leading-relaxed mb-3">{{ $media['caption'] }}</p>
 
-                            @if (!empty($media['attachments']))
-                                @php $imgs = array_filter($media['attachments'], fn($a) => $a['type']==='image'); @endphp
-                                @if (count($imgs) === 1)
+                            @if(!empty($media['attachments']))
+                                @php $imgs = array_filter($media['attachments'], fn($a) => $a['type'] === 'image'); @endphp
+                                @if(count($imgs) === 1)
                                     @php $img = reset($imgs); @endphp
                                     <div class="mb-4">
-                                        <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
-                                             class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
                                     </div>
-                                @elseif (count($imgs) === 2)
+                                @elseif(count($imgs) > 1)
                                     <div class="grid grid-cols-2 gap-2 mb-4">
                                         @foreach ($imgs as $img)
-                                        <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
-                                             class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover">
                                         @endforeach
                                     </div>
-                                @elseif (count($imgs) > 2)
-                                    <div class="mb-4 relative">
-                                        <div class="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                                             data-carousel-scroll-{{ $media['id'] }}>
-                                            <div class="flex gap-3 w-max px-1">
-                                                @foreach ($imgs as $img)
-                                                <img src="{{ asset('images/' . $img['src']) }}" alt="media-{{ $media['id'] }}"
-                                                     class="rounded-xl border-[1.5px] border-[#444] object-cover w-[280px] h-auto flex-shrink-0">
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                        <button class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-9 h-9 rounded-full bg-white border-2 border-[#444] flex items-center justify-center text-[#444] hover:bg-[#FFDDAF] hover:text-white transition-colors"
-                                                data-carousel-prev="{{ $media['id'] }}" aria-label="Gambar sebelumnya">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="15 18 9 12 15 6"/>
-                                            </svg>
-                                        </button>
-                                        <button class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-9 h-9 rounded-full bg-white border-2 border-[#444] flex items-center justify-center text-[#444] hover:bg-[#FFDDAF] hover:text-white transition-colors"
-                                                data-carousel-next="{{ $media['id'] }}" aria-label="Gambar berikutnya">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="9 18 15 12 9 6"/>
-                                            </svg>
-                                        </button>
-                                    </div>
                                 @endif
-
                                 @foreach ($media['attachments'] as $att)
-                                    @if ($att['type'] === 'video')
+                                    @if($att['type'] === 'video')
                                         <div class="mb-4">
                                             <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444]">
-                                                <source src="{{ asset('images/' . $att['src']) }}" type="video/mp4">
-                                                Browser Anda tidak mendukung tag video.
+                                                <source src="{{ asset('storage/' . $att['src']) }}" type="video/mp4">
                                             </video>
                                         </div>
-                                    @elseif ($att['type'] === 'file')
+                                    @elseif($att['type'] === 'file')
                                         <div class="mb-3">
-                                            <a href="{{ asset('images/' . $att['src']) }}" download class="inline-flex items-center gap-3 px-4 py-2 bg-white border-[1px] border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                            <a href="{{ asset('storage/' . $att['src']) }}" download class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">
                                                 <span>{{ $att['label'] ?? $att['src'] }}</span>
                                             </a>
                                         </div>
@@ -436,81 +418,176 @@
                                 @endforeach
                             @endif
 
-                            <div class="flex items-center gap-5 pt-2">
-                                <button aria-label="Komentar" class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
+                            <div class="flex items-center gap-5 max-sm:gap-3 pt-2">
+                                {{-- Comment --}}
+                                <button id="comment-btn-{{ $media['id'] }}" aria-label="Komentar" data-comment-toggle
+                                        class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">
                                     <x-icon-comment fill="none" />
-                                    <span>{{ $media['comments'] }}</span>
+                                    <span data-comment-count>{{ $media['comments'] }}</span>
                                 </button>
 
-                                <button data-like-btn aria-pressed="{{ $media['liked'] ? 'true' : 'false' }}" aria-label="Suka"
-                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer {{ $media['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
+                                {{-- Like --}}
+                                <button id="like-btn-{{ $media['id'] }}" data-like-btn
+                                        data-base="{{ $media['likes_base'] }}" data-liked="{{ $media['liked'] ? 'true' : 'false' }}"
+                                        aria-pressed="{{ $media['liked'] ? 'true' : 'false' }}" aria-label="Suka"
+                                        class="flex items-center gap-1.5 text-[13px] font-medium transition-colors cursor-pointer
+                                               {{ $media['liked'] ? 'text-red-500' : 'text-gray-400 hover:text-red-400' }}">
                                     <x-icon-like fill="{{ $media['liked'] ? 'currentColor' : 'none' }}" />
-                                    <span>{{ $media['likes_label'] }}</span>
+                                    <span data-like-count>{{ $media['likes_label'] }}</span>
                                 </button>
 
+                                {{-- Bookmark & Share --}}
                                 <div class="ml-auto flex items-center gap-2">
-                                    <button aria-pressed="false" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                        <x-icon-bookmark fill="none" />
-                                    </button>
-                                    <button aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                        <x-icon-share fill="none" />
-                                    </button>
+                                    <button id="bookmark-media-btn-{{ $media['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
+                                    <button id="share-media-btn-{{ $media['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
+                                </div>
+                            </div>
+
+                            {{-- Comments Section (Hidden by default) --}}
+                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                 id="comments-section-{{ $media['id'] }}"
+                                 data-comments-loaded="false"
+                                 data-comments-url="{{ route('timeline_home.comments', $media['id']) }}"
+                                 data-comments-store-url="{{ route('timeline_home.comments.store', $media['id']) }}">
+                                <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $media['id'] }}">
+                                    {{-- Loaded via AJAX --}}
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <form data-comment-form class="flex gap-3 max-sm:gap-1.5 items-start w-full">
+                                        <input type="text" data-comment-input
+                                               class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input"
+                                               placeholder="Tulis komentar..."
+                                               data-post-id="{{ $media['id'] }}">
+                                        <button type="submit" data-comment-submit
+                                                class="bg-[#FFDDAF] text-[#444] px-4 max-sm:px-2.5 py-2 rounded-lg font-bold text-sm max-sm:text-xs border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn whitespace-nowrap"
+                                                data-post-id="{{ $media['id'] }}">Kirim</button>
+                                    </form>
                                 </div>
                             </div>
                         </article>
-                        @endforeach
+                        @empty
+                        <p class="text-center text-gray-400 py-8">Belum ada media.</p>
+                        @endforelse
                     </div>
                 </article>
             </main>
 
-            {{-- ===== RIGHT SIDEBAR — floating sticky card (mirrors left) ===== --}}
-            <aside class="hidden xl:flex flex-col gap-4 w-[280px] flex-shrink-0 sticky top-6">
-
-                {{-- Search --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl px-4 py-3">
-                    <div class="flex items-center gap-2.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        <input type="search" id="sidebar-search-input" placeholder="Cari buku atau pengguna..."
-                               class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
-                    </div>
-                </div>
-
-                {{-- What's Trending --}}
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5">
-                    <h2 class="font-bold text-[15px] mb-4">What's Trending</h2>
-
-                    @php
-                    $trending = [
-                        ['Harry Potter',          'J.K. Rowling'],
-                        ['Toko Kelontong Namiya', 'Keigo Higashino'],
-                        ['Crime & Punishment',    'Fyodor Dostoyevsky'],
-                        ['The Silent Voice',      'Naoko Yamada'],
-                        ['Your Name',             'Makoto Shinkai'],
-                    ];
-                    @endphp
-
-                    <ol class="flex flex-col gap-3.5">
-                        @foreach ($trending as $rank => $book)
-                        <li class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                            <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
-                            <div>
-                                <span class="font-bold text-[13px] leading-tight block">{{ $book[0] }}</span>
-                                <span class="text-[11px] text-gray-400">{{ $book[1] }}</span>
-                            </div>
-                        </li>
-                        @endforeach
-                    </ol>
-                </div>
-            </aside>
+            {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
+            <x-timeline-sidebar-right
+                searchPlaceholder="Cari buku atau pengguna..."
+                trendingTitle="What's Trending"
+                :trendingItems="[
+                    ['Harry Potter',          'J.K. Rowling'],
+                    ['Toko Kelontong Namiya', 'Keigo Higashino'],
+                    ['Crime & Punishment',    'Fyodor Dostoyevsky'],
+                    ['The Silent Voice',      'Naoko Yamada'],
+                    ['Your Name',             'Makoto Shinkai'],
+                ]"
+            />
 
         </div>
     </div>
 
+    <div id="follow-modal-overlay" class="fixed inset-0 z-999 bg-black/50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200">
+        <div id="follow-modal" class="bg-white rounded-2xl border-[1.5px] border-text w-full max-w-md mx-4 max-h-[80vh] flex flex-col shadow-xl opacity-0 translate-y-4 transition-all duration-200">
+            <div class="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-[#222]">Mengikuti &amp; Pengikut</h3>
+                <button type="button" id="follow-modal-close" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-text hover:bg-gray-100 transition-colors cursor-pointer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex border-b border-gray-100">
+                <button type="button" id="follow-tab-following" data-follow-tab="following" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-[#111]">
+                    Mengikuti
+                    <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-[#5DA9FF]"></span>
+                </button>
+                <button type="button" id="follow-tab-followers" data-follow-tab="followers" class="flex-1 pb-3 pt-3 text-sm font-semibold text-center transition-colors cursor-pointer text-gray-400 hover:text-gray-600">
+                    Pengikut
+                    <span class="block mx-auto mt-1 h-1 w-16 rounded-full bg-transparent"></span>
+                </button>
+            </div>
+
+            <div id="follow-modal-body" class="flex-1 overflow-y-auto p-5 min-h-50">
+                <div class="flex items-center justify-center h-32">
+                    <div class="w-6 h-6 border-2 border-text border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MOBILE SEARCH (full-page, like Twitter) ===== --}}
+    <div id="mobile-search-overlay" class="hidden fixed inset-0 z-50 bg-white flex-col md:hidden">
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <button id="mobile-search-back" class="w-8 h-8 flex items-center justify-center -ml-1 cursor-pointer text-[#444] hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="flex-1 relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="search" id="mobile-search-input" placeholder="Cari postingan atau pengguna..."
+                       class="w-full border-[1.5px] border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#444] transition-colors"
+                       autocomplete="off" />
+            </div>
+            <button id="mobile-search-close" class="text-sm font-semibold text-gray-500 hover:text-[#444] cursor-pointer flex-shrink-0">Batal</button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-4">
+            <div id="mobile-search-dropdown" class="hidden"></div>
+            <div id="mobile-search-trending">
+                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">What's Trending</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">1</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Harry Potter</span>
+                            <span class="text-[11px] text-gray-400">J.K. Rowling</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">2</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Toko Kelontong Namiya</span>
+                            <span class="text-[11px] text-gray-400">Keigo Higashino</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">3</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Crime &amp; Punishment</span>
+                            <span class="text-[11px] text-gray-400">Fyodor Dostoyevsky</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">4</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">The Silent Voice</span>
+                            <span class="text-[11px] text-gray-400">Naoko Yamada</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">5</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Your Name</span>
+                            <span class="text-[11px] text-gray-400">Makoto Shinkai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MOBILE BOTTOM NAV ===== --}}
+    <x-timeline-bottom-nav active="profil" />
+
     {{-- ========== BACK TO TOP ========== --}}
     <button id="back-to-top" aria-label="Kembali ke atas"
-            class="fixed bottom-7 right-7 z-50 w-12 h-12 rounded-full bg-[#444] text-white
+            class="fixed bottom-7 max-sm:bottom-20 right-7 z-50 w-12 h-12 rounded-full bg-[#444] text-white
                    flex items-center justify-center border-2 border-[#FFDDAF]
                    opacity-0 pointer-events-none translate-y-4
                    transition-all duration-300

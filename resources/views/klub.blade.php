@@ -22,7 +22,7 @@
 
     {{-- ========== MAIN CONTENT ========== --}}
     <main class="pt-14 flex-1">
-        <div class="max-w-275 mx-auto px-4 sm:px-6 py-8">
+        <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
 
             {{-- Toolbar: Search + Filters + Create --}}
             <div class="flex flex-wrap items-center gap-3 mb-8">
@@ -35,148 +35,56 @@
                            class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
                 </div>
 
-                {{-- Category filter --}}
-                <div class="relative">
-                    <select id="klub-filter-category"
-                            class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-9 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors">
-                        <option value="">Semua Genre</option>
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat }}">{{ $cat }}</option>
-                        @endforeach
-                    </select>
-                    <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#444]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
+                {{-- Filter + Sort + Create on same row --}}
+                <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                    {{-- Category filter --}}
+                    <div class="relative grow sm:grow-0">
+                        <select id="klub-filter-category"
+                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors w-full">
+                            <option value="">Semua Genre</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
+                        </select>
+                        <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#444]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+
+                    {{-- Sort --}}
+                    <div class="relative grow sm:grow-0">
+                        <select id="klub-sort"
+                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors w-full">
+                            <option value="name-asc">Nama A–Z</option>
+                            <option value="name-desc">Nama Z–A</option>
+                            <option value="members-desc">Member Terbanyak</option>
+                            <option value="members-asc">Member Tersedikit</option>
+                            <option value="newest">Terbaru</option>
+                        </select>
+                        <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#444]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+
+                    {{-- Create button --}}
+                    <button id="buat-klub-btn"
+                            class="bg-accent text-[#444] font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-[1.5px] border-text hover:bg-amber-500 transition-colors whitespace-nowrap flex-shrink-0 sm:ml-auto">
+                        + Buat Klub
+                    </button>
                 </div>
-
-                {{-- Sort --}}
-                <div class="relative">
-                    <select id="klub-sort"
-                            class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-9 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors">
-                        <option value="name-asc">Nama A–Z</option>
-                        <option value="name-desc">Nama Z–A</option>
-                        <option value="members-desc">Member Terbanyak</option>
-                        <option value="members-asc">Member Tersedikit</option>
-                        <option value="newest">Terbaru</option>
-                    </select>
-                    <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#444]" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                </div>
-
-                {{-- Spacer --}}
-                <div class="flex-1"></div>
-
-                {{-- Create button --}}
-                <button id="buat-klub-btn"
-                        class="bg-accent text-[#444] font-bold text-sm px-5 py-2.5 rounded-full border-[1.5px] border-text hover:bg-amber-500 transition-colors whitespace-nowrap">
-                    + Buat Klub
-                </button>
             </div>
 
             {{-- Club cards grid — max ~336px per card to match Figma --}}
-            <div id="klub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center"
-                 style="grid-template-columns: repeat(auto-fill, minmax(280px, 336px)); justify-content: center;">
+            <div id="klub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
             </div>
 
             {{-- Pagination --}}
-            <nav id="klub-pagination" class="flex items-center justify-center gap-2 mt-8" aria-label="Navigasi halaman">
+            <nav id="klub-pagination" class="flex items-center justify-center gap-2 mt-8 overflow-x-auto px-2" aria-label="Navigasi halaman">
             </nav>
         </div>
     </main>
 
-    <footer id="tentang" class="bg-text text-gray-400 py-16 lg:py-20">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-                    <!-- Logo & Brand -->
-                    <div class="col-span-2 lg:col-span-1">
-                        <div class="flex items-center gap-2 mb-4">
-                            <img src="images/Alinea_footer.svg" alt="">
-                        </div>
-                        <p class="text-sm text-white opacity-50 leading-relaxed mb-5 max-w-xs">
-                            Platform komunitas buku pertama dari dan untuk pembaca Indonesia. Pinjam, Baca, Bagikan.
-                        </p>
-                    </div>
-
-                    <!-- Fitur -->
-                    <div class="pl-15 pt-5">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Fitur</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Pinjam Buku</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Timeline</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Ulasan Buku</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Book Club</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Informasi -->
-                    <div class="pt-5 pl-8">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Informasi</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Tentang Kami</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Blog</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Karir</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Bantuan</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Quick Contact -->
-                    <div class="pt-5">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Quick Contact</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
-                            <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 21 2345 6789</a></li>
-                            <li><span class="text-gray-500">Jakarta, Indonesia</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p class="text-xs text-white opacity-50">© {{ date('Y') }} Alinea. All rights reserved.</p>
-                    <div class="flex gap-6 text-xs">
-                        <a href="#" class="hover:text-white transition-colors duration-200">Syarat & Ketentuan</a>
-                        <a href="#" class="hover:text-white transition-colors duration-200">Privasi</a>
-                    </div>
-                </div>
-            </div>
-        </footer>
-
-    {{--
-    ============================================================
-    DB-READY DATA
-    ============================================================
-    Variabel yang harus dikirim dari Controller:
-      • $clubs       → Collection dari model BookClub (with members, owner, recentBooks)
-      • $categories  → ['Mystery','Fantasy',...] — bisa dari DB atau config
-      • $currentUser → Auth::user() (nullable, untuk cek membership / ownership)
-
-    Contoh di Controller nanti:
-      $clubs = BookClub::with(['owner','members.user','recentBooks'])
-                ->withCount('members')
-                ->get()
-                ->map(fn($c) => [
-                    'id'               => $c->id,
-                    'name'             => $c->nama_klub,
-                    'category'         => $c->kategori,
-                    'members'          => $c->members_count,
-                    'founded'          => $c->created_at->translatedFormat('d F Y'),
-                    'description'      => Str::limit($c->deskripsi, 160),
-                    'full_description' => $c->deskripsi,
-                    'admin'            => $c->owner->nama,
-                    'admin_avatar'     => $c->owner->avatar,
-                    'members_list'     => $c->members->pluck('user.nama')->toArray(),
-                    'recent_books'     => $c->recentBooks->pluck('judul')->toArray(),
-                    'schedule'         => $c->jadwal,
-                    'gradient_from'    => $c->gradient_from ?? '#FFDDAF',
-                    'gradient_to'      => $c->gradient_to   ?? '#C7E7FF',
-                ]);
-
-      $categories = BookClub::distinct()->pluck('kategori')->sort()->values();
-
-      return view('klub', compact('clubs','categories','currentUser'));
-    ============================================================
-    --}}
+<x-footer/>
 
     @php
         // ── Fallback dummy data — HAPUS blok ini setelah controller siap ──
@@ -219,7 +127,7 @@
 
                 {{-- Close button --}}
                 <button id="klub-modal-close" aria-label="Tutup"
-                        class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full border-[1.5px] border-[#444] flex items-center justify-center
+                        class="absolute top-2 right-2 z-10 w-11 h-11 rounded-full border-[1.5px] border-[#444] flex items-center justify-center
                                text-[#444] hover:bg-[#FFDDAF] transition-colors cursor-pointer bg-white">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                         <path d="M4 4l12 12M16 4L4 16"/>
@@ -232,16 +140,7 @@
         </div>
     </div>
 
-    {{-- ========== BUAT KLUB MODAL (Create Club Form) ========== --}}
-    {{--
-    DB-READY: Form ini akan POST ke route 'klub.store' nanti.
-    Fields sesuai tabel book_clubs:
-      - nama_klub  (string)
-      - kategori   (string)
-      - deskripsi  (text)
-      - jadwal     (string, nullable)
-      - foto_klub  (file, nullable — untuk sekarang pakai gradient picker)
-    --}}
+
     <div id="buat-klub-modal" class="fixed inset-0 z-[100] hidden">
         {{-- Backdrop --}}
         <div id="buat-klub-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
@@ -254,7 +153,7 @@
 
                 {{-- Close button --}}
                 <button id="buat-klub-close" aria-label="Tutup"
-                        class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full border-[1.5px] border-[#444] flex items-center justify-center
+                        class="absolute top-2 right-2 z-10 w-11 h-11 rounded-full border-[1.5px] border-[#444] flex items-center justify-center
                                text-[#444] hover:bg-[#FFDDAF] transition-colors cursor-pointer bg-white">
                     <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                         <path d="M4 4l12 12M16 4L4 16"/>

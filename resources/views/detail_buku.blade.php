@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title id="pageTitle">Detail Buku | Alinea</title>
   <meta name="description" id="pageDescription" content="Detail buku dan ulasan di Alinea — platform baca buku komunitas." />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,6 +13,8 @@
   
   <script>
     window.__BOOK_DATA__ = {!! json_encode($bookData) !!};
+    window.__AUTH__ = {{ Auth::check() ? 'true' : 'false' }};
+    window.__USER__ = {!! Auth::check() ? json_encode(['id' => Auth::id(), 'name' => Auth::user()->name, 'avatar_url' => Auth::user()->avatar_url]) : 'null' !!}
   </script>
   @vite(['resources/css/app.css', 'resources/js/detail_buku.js'])
 
@@ -153,9 +156,10 @@
               <span class="pick-star text-[1.8rem] text-[#ddd] cursor-pointer transition-all duration-150 ease-in-out hover:text-[#F5C518] hover:scale-110" data-val="5">★</span>
             </div>
           </div>
-          <div class="mb-5">
-            <label for="reviewName" class="block text-[0.78rem] font-bold text-[#444444] mb-2 uppercase tracking-[0.04em]">Nama</label>
-            <input type="text" id="reviewName" placeholder="Nama kamu" class="w-full font-['Poppins'] text-[0.88rem] text-[#444444] border-[1.5px] border-[#e0e0e0] rounded-xl px-4 py-3 outline-none transition-colors duration-200 bg-[#FBFBFB] focus:border-[#FFDDAF]" />
+          <div class="mb-5 flex items-center gap-3 py-3 px-4 bg-[#FBFBFB] rounded-xl border-[1.5px] border-[#E0E0E0]">
+            <div id="modalUserAvatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.8rem] font-bold text-[#444444] shrink-0"></div>
+            <span id="modalUserName" class="text-[0.88rem] font-semibold text-[#444444]"></span>
+            <span class="ml-auto text-[0.72rem] text-text/40">Menulis sebagai kamu</span>
           </div>
           <div class="mb-5">
             <label for="reviewText" class="block text-[0.78rem] font-bold text-[#444444] mb-2 uppercase tracking-[0.04em]">Ulasan</label>
@@ -281,62 +285,7 @@
     </section>
   </main>
 
-  <footer id="tentang" class="bg-text text-gray-400 py-16 lg:py-20">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-                    <!-- Logo & Brand -->
-                    <div class="col-span-2 lg:col-span-1">
-                        <div class="flex items-center gap-2 mb-4">
-                            <img src="/images/Alinea_footer.svg" alt="">
-                        </div>
-                        <p class="text-sm text-white opacity-50 leading-relaxed mb-5 max-w-xs">
-                            Platform komunitas buku pertama dari dan untuk pembaca Indonesia. Pinjam, Baca, Bagikan.
-                        </p>
-                    </div>
-
-                    <!-- Fitur -->
-                    <div class="pl-15 pt-5">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Fitur</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Pinjam Buku</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Timeline</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Ulasan Buku</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Book Club</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Informasi -->
-                    <div class="pt-5 pl-8">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Informasi</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Tentang Kami</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Blog</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Karir</a></li>
-                            <li><a href="#" class="hover:text-white transition-colors duration-200">Bantuan</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Quick Contact -->
-                    <div class="pt-5">
-                        <h3 class="text-white font-bold text-sm mb-5 uppercase tracking-wider">Quick Contact</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
-                            <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 21 2345 6789</a></li>
-                            <li><span class="text-gray-500">Jakarta, Indonesia</span></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p class="text-xs text-white opacity-50">© {{ date('Y') }} Alinea. All rights reserved.</p>
-                    <div class="flex gap-6 text-xs">
-                        <a href="#" class="hover:text-white transition-colors duration-200">Syarat & Ketentuan</a>
-                        <a href="#" class="hover:text-white transition-colors duration-200">Privasi</a>
-                    </div>
-                </div>
-            </div>
-    </footer>
+  <x-footer/>
 
   <div class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
 

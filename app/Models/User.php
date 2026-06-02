@@ -12,9 +12,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres', 'foto_profil'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['name', 'username', 'email', 'password', 'kota', 'no_telp', 'preferred_genres', 'foto_profil', 'deskripsi'])]
+#[Hidden(['password', 'remember_token', 'deskripsi'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -38,9 +39,69 @@ class User extends Authenticatable
         return $this->hasMany(PersonalBook::class);
     }
 
+    public function timelinePosts(): HasMany
+    {
+        return $this->hasMany(TimelinePost::class, 'id_user');
+    }
+
+    public function bookmarkedPosts(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(TimelinePost::class, 'post_bookmarks', 'id_user', 'id_post')->withTimestamps();
+    }
+
+    public function timelineComments(): HasMany
+    {
+        return $this->hasMany(TimelineComment::class, 'id_user');
+    }
+
     protected $appends = ['avatar_url'];
 
     public function getAvatarUrlAttribute(): ?string {
-        return $this->foto_profil ? Storage::disk('public')->url($this->foto_profil) : null;
+        if (! $this->foto_profil) {
+            return null;
+        }
+
+        try {
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('public');
+            return $disk->url($this->foto_profil);
+        } catch (\Throwable $e) {
+            return asset('storage/' . $this->foto_profil);
+        }
+    }
+
+    public function bookmarks(): HasMany {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function borrowedBooks()
+{
+    return $this->hasMany(Transaction::class, 'borrower_id');
+}
+
+    public function followers(): HasMany {
+        return $this->hasMany(Follow::class, 'following_id');
+    }
+
+    public function following(): HasMany {
+        return $this->hasMany(Follow::class, 'follower_id');
+    }
+
+    public function followersCount(): int {
+        return $this->followers()->count();
+    }
+
+    public function followingCount(): int {
+        return $this->following()->count();
+    }
+
+    public function achievements(): BelongsToMany {
+        return $this->belongsToMany(Achievement::class, 'user_achievement')
+            ->withPivot('earned_at')
+            ->withTimestamps();
+    }
+
+    public function readingBooks(): HasMany {
+        return $this->hasMany(PersonalBook::class)->whereNotNull('reading_status');
     }
 }

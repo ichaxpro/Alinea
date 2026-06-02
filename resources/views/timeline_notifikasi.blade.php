@@ -20,35 +20,11 @@
     <x-navbar></x-navbar>
 
     {{-- ========== PAGE LAYOUT ========== --}}
-    <div class="min-h-screen pt-14">
-        <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6">
+    <div class="min-h-screen pt-16">
+        <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6 max-md:pb-24">
 
             {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
-            <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
-                <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
-                    @php
-                    $sideNav = [
-                        ['id' => 'sidenav-beranda',    'label' => 'Beranda',    'active' => false, 'icon' => 'beranda', 'url' => route('timeline_home')],
-                        ['id' => 'sidenav-profil',     'label' => 'Profil',     'active' => false, 'icon' => 'profil', 'url' => route('timeline_profile')],
-                        ['id' => 'sidenav-notifikasi', 'label' => 'Notifikasi', 'active' => true,  'icon' => 'notifikasi', 'url' => route('timeline_notifikasi')], 
-                        ['id' => 'sidenav-pesan',      'label' => 'Pesan',      'active' => false, 'icon' => 'pesan', 'url' => route('chat')],
-                        ['id' => 'sidenav-komunitas',  'label' => 'Komunitas',  'active' => false, 'icon' => 'community', 'url' => route('timeline_komunitas')]
-                    ];
-                    @endphp
-
-                    @foreach ($sideNav as $item)
-                    @php $tag = isset($item['url']) ? 'a' : 'button'; @endphp
-                    <{{ $tag }} id="{{ $item['id'] }}" {!! isset($item['url']) ? 'href="'.$item['url'].'"' : 'data-sidenav' !!} aria-label="{{ $item['label'] }}"
-                            class="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-left transition-colors cursor-pointer
-                                   {{ $item['active'] ? 'bg-[#FFDDAF] text-[#444] font-semibold' : 'text-gray-500 hover:bg-gray-100' }}">
-                        <div class="w-5 h-5 shrink-0 flex items-center justify-center">
-                            <x-dynamic-component :component="$item['icon']" class="w-full h-full" />
-                        </div>
-                        <span class="text-sm">{{ $item['label'] }}</span>
-                    </{{ $tag }}>
-                    @endforeach
-                </div>
-            </aside>
+            <x-timeline-sidebar />
 
             {{-- ===== MAIN CONTENT ===== --}}
             <main class="bg-white border-[1.5px] border-[#444] rounded-2xl overflow-hidden flex flex-col flex-1">
@@ -143,6 +119,70 @@
 
         </div>
     </div>
+
+    {{-- ===== MOBILE SEARCH (full-page, like Twitter) ===== --}}
+    <div id="mobile-search-overlay" class="hidden fixed inset-0 z-50 bg-white flex-col md:hidden">
+        <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <button id="mobile-search-back" class="w-8 h-8 flex items-center justify-center -ml-1 cursor-pointer text-[#444] hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <div class="flex-1 relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="search" id="mobile-search-input" placeholder="Cari postingan atau pengguna..."
+                       class="w-full border-[1.5px] border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-[#444] transition-colors"
+                       autocomplete="off" />
+            </div>
+            <button id="mobile-search-close" class="text-sm font-semibold text-gray-500 hover:text-[#444] cursor-pointer flex-shrink-0">Batal</button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-4">
+            <div id="mobile-search-dropdown" class="hidden"></div>
+            <div id="mobile-search-trending">
+                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">What's Trending</h3>
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">1</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Harry Potter</span>
+                            <span class="text-[11px] text-gray-400">J.K. Rowling</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">2</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Toko Kelontong Namiya</span>
+                            <span class="text-[11px] text-gray-400">Keigo Higashino</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">3</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Crime &amp; Punishment</span>
+                            <span class="text-[11px] text-gray-400">Fyodor Dostoyevsky</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">4</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">The Silent Voice</span>
+                            <span class="text-[11px] text-gray-400">Naoko Yamada</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">5</span>
+                        <div>
+                            <span class="font-bold text-[13px] leading-tight block">Your Name</span>
+                            <span class="text-[11px] text-gray-400">Makoto Shinkai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MOBILE BOTTOM NAV ===== --}}
+    <x-timeline-bottom-nav active="notifikasi" />
 
 </body>
 </html>

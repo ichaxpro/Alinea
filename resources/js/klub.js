@@ -244,6 +244,143 @@ function leaveClub(clubId) {
         });
 }
 
+function kickMember(clubId, userId, userName) {
+    if (!CURRENT_USER) return;
+
+    const club = CLUBS.find(c => c.id === clubId);
+    if (!club) return;
+
+    const myData = club.membersData.find(m => Number(m.id) === Number(CURRENT_USER.id));
+    const isOwner = club.isOwner;
+    const isAdmin = myData?.role === 'admin' || myData?.role === 'moderator';
+
+    if (!isOwner && !isAdmin) return;
+
+    if (!confirm(`Kick "${userName}" dari klub ini?`)) return;
+
+    fetch(`/klub/${clubId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+        },
+        credentials: 'same-origin',
+    })
+    .then(async (res) => {
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Gagal kick member');
+        }
+        return res.json();
+    })
+    .then((data) => {
+        const updatedClub = syncClubFromResponse(data);
+        applyFilters(false);
+        if (!modal.classList.contains('hidden')) {
+            openModal(updatedClub);
+        }
+    })
+    .catch((err) => alert(err.message || 'Gagal kick member.'));
+}
+
+function updateMemberRole(clubId, userId, userName, newRole) {
+    if (!CURRENT_USER) return;
+
+    const club = CLUBS.find(c => c.id === clubId);
+    if (!club || !club.isOwner) return;
+
+    const roleLabel = {admin: 'Admin', member: 'Member', owner: 'Owner'}[newRole] || newRole;
+    const confirmMsg = newRole === 'owner'
+        ? `Transfer ownership ke "${userName}"? Kamu akan menjadi Admin setelahnya.`
+        : `Jadikan "${userName}" sebagai ${roleLabel}?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    fetch(`/klub/${clubId}/members/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': CSRF_TOKEN,
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({role: newRole}),
+    })
+    .then(async (res) => {
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Gagal mengubah role');
+        }
+        return res.json();
+    })
+    .then((data) => {
+        const updatedClub = syncClubFromResponse(data);
+        applyFilters(false);
+        if (!modal.classList.contains('hidden')) {
+            openModal(updatedClub);
+        }
+    })
+    .catch ((err) => alert(err.message || 'Gagal mengubah role.'));
+}
+
+function buildMemberRow(m, club) {
+    const isCurrentUser = CURRENT_USER && Number(m.id) === Number(CURRENT_USER.id);
+    const isTargetOwner = m.role === 'owner';
+
+    const myData = club.membersData.find(x => CURRENT_USER && Number(x.id) === Number(CURRENT_USER.id));
+    const iAmOwner = club.isOwner;
+    const iAmAdmin = myData?.role === 'admin' || myData?.role === 'moderator';
+
+    let actionBtns = '';
+    if (!isCurrentUser && !isTargetOwner && CURRENT_USER) {
+        let menuItems = '';
+        if (iAmOwner) {
+            if (m.role !== 'admin' && m.role !== 'moderator') {
+                menuItems += `<button data-role-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}" data-role="admin"
+                    class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-gray-100 transition-colors whitespace-nowrap">Jadikan Admin</button>`;
+            } else {
+                menuItems += `<button data-role-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}" data-role="member"
+                    class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-gray-100 transition-colors whitespace-nowrap">Demote</button>`;
+            }
+            menuItems += `<button data-role-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}" data-role="owner"
+                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-gray-100 transition-colors whitespace-nowrap">Transfer Owner</button>`;
+            menuItems += `<button data-kick-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}"
+                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Kick</button>`;
+        } else if (iAmAdmin && m.role !== 'admin' && m.role !== 'moderator') {
+            menuItems += `<button data-kick-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}"
+                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Kick</button>`;
+        }
+
+        if (menuItems) {
+            actionBtns = `
+                <div class="relative flex-shrink-0" data-dropdown>
+                    <button data-dropdown-btn
+                        class="text-gray-400 hover:text-[#444] transition-colors px-2 sm:px-1 text-lg leading-none min-w-[44px] min-h-[44px] flex items-center justify-center">⋮</button>
+                    <div class="hidden">${menuItems}</div>
+                </div>`;
+        }
+    }
+
+    const avatarStyle = m.avatar
+        ? `background-image: url('${m.avatar}')`
+        : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`;
+
+    return `
+    <div class="flex items-center justify-between gap-2 min-w-0 py-1.5">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-7 h-7 rounded-full border border-[#444] bg-center bg-cover flex-shrink-0" style="${avatarStyle}"></div>
+            <div class="min-w-0">
+                <div class="text-xs font-medium truncate">${m.name} <span class="text-gray-400">(${getMemberRoleLabel(m.role)})</span></div>
+                ${m.username ? `<div class="text-[10px] text-gray-400 truncate">@${m.username}</div>` : ''}
+            </div>
+        </div>
+        ${actionBtns || ''}
+    </div>`;
+}
+
 let deleteConfirmEl = null;
 
 function closeDeleteConfirm() {
@@ -395,10 +532,25 @@ function renderPagination(totalPages) {
     const btnBase = 'w-9 h-9 rounded-full border-[1.5px] border-[#444] flex items-center justify-center text-sm font-medium transition-colors cursor-pointer';
     const btnActive = 'bg-[#FFDDAF] text-[#444]';
     const btnInactive = 'bg-white text-[#444] hover:bg-gray-50';
+    const isMobile = window.innerWidth < 640;
+    const maxVisible = isMobile ? 5 : 10;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    if (endPage - startPage + 1 < maxVisible) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
     let html = '';
     html += `<button data-page="prev" ${currentPage === 1 ? 'disabled' : ''} class="${btnBase} ${currentPage === 1 ? 'opacity-30 cursor-not-allowed' : btnInactive}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>`;
-    for (let i = 1; i <= totalPages; i++) {
+    if (startPage > 1) {
+        html += `<button data-page="1" class="${btnBase} ${btnInactive}">1</button>`;
+        if (startPage > 2) html += `<span class="text-gray-400 text-xs px-1">...</span>`;
+    }
+    for (let i = startPage; i <= endPage; i++) {
         html += `<button data-page="${i}" class="${btnBase} ${i === currentPage ? btnActive : btnInactive}">${i}</button>`;
+    }
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="text-gray-400 text-xs px-1">...</span>`;
+        html += `<button data-page="${totalPages}" class="${btnBase} ${btnInactive}">${totalPages}</button>`;
     }
     html += `<button data-page="next" ${currentPage === totalPages ? 'disabled' : ''} class="${btnBase} ${currentPage === totalPages ? 'opacity-30 cursor-not-allowed' : btnInactive}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>`;
     pagination.innerHTML = html;
@@ -487,7 +639,7 @@ function openModal(club) {
             : `<button data-join-club-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0">Bergabung</button>`;
 
     modalContent.innerHTML = `
-        <div class="h-36 rounded-t-2xl relative" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}">
+        <div class="h-28 sm:h-36 rounded-t-2xl relative" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}">
             <div class="absolute -bottom-10 left-6">
                 <div class="w-20 h-20 rounded-xl border-[2.5px] border-[#444] bg-white p-1">
                     <div class="w-full h-full rounded-lg" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}"></div>
@@ -495,9 +647,9 @@ function openModal(club) {
             </div>
         </div>
         <div class="pt-14 px-6 pb-6">
-            <div class="flex items-start justify-between mb-1 gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1 gap-2 sm:gap-3">
                 <h2 class="font-bold text-xl break-words whitespace-normal">${club.name}</h2>
-                ${actionButtonsHtml}
+                <div class="flex-shrink-0 self-start sm:self-auto">${actionButtonsHtml}</div>
             </div>
             <div class="flex flex-wrap items-center gap-2 mb-4">
                 <span class="inline-block text-xs font-medium px-3 py-0.5 rounded-full border-[1.5px] border-[#444]">${club.category}</span>
@@ -523,15 +675,8 @@ function openModal(club) {
                 </div>
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
                     <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Anggota (${club.members})</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">${(((club.membersData && club.membersData.length) ? club.membersData : (club.membersList||[]).map((m, i) => ({ name: m, username: null, avatar: null, role: i === 0 ? 'owner' : 'member' }))))
-                        .map((m) => `
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-7 h-7 rounded-full border border-[#444] bg-center bg-cover flex-shrink-0" style="${m.avatar ? `background-image: url('${m.avatar}')` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}"></div>
-                            <div class="min-w-0">
-                                <div class="text-xs font-medium truncate">${m.name} <span class="text-gray-400">(${getMemberRoleLabel(m.role)})</span></div>
-                                ${m.username ? `<div class="text-[10px] text-gray-400 truncate">@${m.username}</div>` : ''}
-                            </div>
-                        </div>`).join('')}</div>
+                    <div class="flex flex-col divide-y divide-gray-100">${(((club.membersData && club.membersData.length) ? club.membersData : (club.membersList||[]).map((m, i) => ({ name: m, username: null, avatar: null, role: i === 0 ? 'owner' : 'member' }))))
+                        .map((m) => buildMemberRow(m, club)).join('')}</div>
                 </div>
             </div>
         </div>`;
@@ -557,6 +702,77 @@ function openModal(club) {
         e.stopPropagation();
         setJoined(Number(e.currentTarget.dataset.joinClubBtn));
     });
+
+    modalContent.querySelectorAll('[data-kick-btn]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            kickMember(Number(btn.dataset.club), Number(btn.dataset.user), btn.dataset.name);
+        });
+    });
+
+    modalContent.querySelectorAll('[data-role-btn]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateMemberRole(Number(btn.dataset.club), Number(btn.dataset.user), btn.dataset.name, btn.dataset.role);
+        });
+    });
+
+    modalContent.querySelectorAll('[data-dropdown-btn]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            document.querySelector('[data-dropdown-portal]')?.remove();
+
+            const templateMenu = btn.nextElementSibling;
+            if (!templateMenu) return;
+
+            const btnRect = btn.getBoundingClientRect();
+
+            const portal = document.createElement('div');
+            portal.dataset.dropdownPortal = '';
+            portal.className = 'fixed bg-white border border-gray-200 rounded-lg shadow-lg z-[200] min-w-[140px] py-1';
+            portal.innerHTML = templateMenu.innerHTML;
+
+            let top = btnRect.bottom + 4;
+            const right = window.innerWidth - btnRect.right;
+            portal.style.top = top + 'px';
+            portal.style.right = right + 'px';
+            document.body.appendChild(portal);
+
+            requestAnimationFrame(() => {
+                const portalRect = portal.getBoundingClientRect();
+                if (portalRect.bottom > window.innerHeight) {
+                    top = Math.max(4, btnRect.top - portalRect.height - 4);
+                    portal.style.top = top + 'px';
+                }
+            });
+
+            portal.querySelectorAll('[data-kick-btn]').forEach(b => {
+                b.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closePortal();
+                    kickMember(Number(b.dataset.club), Number(b.dataset.user), b.dataset.name);
+                });
+            });
+            portal.querySelectorAll('[data-role-btn]').forEach(b => {
+                b.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closePortal();
+                    updateMemberRole(Number(b.dataset.club), Number(b.dataset.user), b.dataset.name, b.dataset.role);
+                });
+            });
+
+            function closePortal() {
+                portal.remove();
+                modalPanel.removeEventListener('scroll', closePortal);
+                document.removeEventListener('click', closePortal);
+            }
+
+            modalPanel.addEventListener('scroll', closePortal);
+            setTimeout(() => document.addEventListener('click', closePortal), 0);
+        });
+    });
+
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => {
@@ -566,6 +782,7 @@ function openModal(club) {
 }
 
 function closeModal() {
+    document.querySelector('[data-dropdown-portal]')?.remove();
     modalPanel.classList.remove('scale-100', 'opacity-100');
     modalPanel.classList.add('scale-95', 'opacity-0');
     setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
@@ -786,7 +1003,9 @@ searchInput.addEventListener('input', applyFilters);
 filterCategory.addEventListener('change', applyFilters);
 sortSelect.addEventListener('change', applyFilters);
 modalClose.addEventListener('click', closeModal);
-modalBackdrop.addEventListener('click', closeModal);
+modal.addEventListener('click', (e) => {
+    if (!e.target.closest('#klub-modal-panel')) closeModal();
+});
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (!modal.classList.contains('hidden')) closeModal();
@@ -797,3 +1016,20 @@ document.addEventListener('keydown', (e) => {
 // ── Init ──
 populateCategories();
 applyFilters();
+
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    const highlightId = params.get('highlight');
+    if (highlightId) {
+        const club = CLUBS.find(c => c.id == Number(highlightId));
+        if (club) {
+            setTimeout(() => openModal(club), 300);
+        } else {
+            getClubPayload(highlightId).then(data => {
+                const c = mapClub(data);
+                CLUBS.unshift(c);
+                openModal(c);
+            }).catch(() => {});
+        }
+    }
+})

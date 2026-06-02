@@ -9,8 +9,14 @@ use App\Models\PersonalBook;
 class PersonalBookController extends Controller
 {
     public function index(Request $request) {
+        // Hanya tampilkan buku katalog (bukan riwayat baca).
+        // Buku katalog selalu dibuat dengan status='tersedia',
+        // sedangkan buku riwayat baca dibuat dengan status='tidak_tersedia'.
         return response()->json(
-            $request->user()->personalBooks()->orderBy('created_at', 'desc')->get()
+            $request->user()->personalBooks()
+                ->where('status', '!=', 'tidak_tersedia')
+                ->orderBy('created_at', 'desc')
+                ->get()
         );
     }
 

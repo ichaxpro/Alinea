@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PersonalBook extends Model
 {
     protected $fillable = [
-        'user_id', 'judul', 'penulis', 'isbn', 'tahun_terbit', 'kategori', 'cover_url', 'jumlah_halaman', 'is_available', 'status'
+        'user_id', 'judul', 'penulis', 'isbn', 'tahun_terbit', 'kategori', 'cover_url', 'jumlah_halaman', 'is_available', 'status', 'reading_status'
     ];
 
     protected function casts(): array {
