@@ -173,9 +173,7 @@
                                 </div>
                             @elseif($post['media_url'] && $post['media_type'] === 'video')
                                 <div class="mb-4">
-                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
-                                        <source src="{{ $post['media_url'] }}" type="video/mp4">
-                                    </video>
+                                    <video src="{{ $post['media_url'] }}" data-media-url="{{ $post['media_url'] }}" data-media-type="video" controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black cursor-pointer hover:opacity-90 transition-opacity"></video>
                                 </div>
                             @elseif($post['media_url'])
                                 <div class="mb-3">
@@ -248,7 +246,7 @@
                                     <h3 class="font-bold text-[15px] text-[#444]">{{ $achievement->title }}</h3>
                                     <p class="text-sm text-gray-500">{{ $achievement->description }}</p>
                                     @if($achievement->pivot?->earned_at)
-                                        <p class="text-xs text-gray-400 mt-1">Diperoleh {{ \Carbon\Carbon::parse($achievement->pivot->earned_at)->diffForHumans() }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">Diperoleh {{ \Carbon\Carbon::parse($achievement->pivot->earned_at)->locale('id')->diffForHumans() }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -392,21 +390,19 @@
                                 @if(count($imgs) === 1)
                                     @php $img = reset($imgs); @endphp
                                     <div class="mb-4">
-                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" data-media-url="{{ asset('storage/' . $img['src']) }}" data-media-type="image" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto cursor-pointer hover:opacity-90 transition-opacity">
                                     </div>
                                 @elseif(count($imgs) > 1)
                                     <div class="grid grid-cols-2 gap-2 mb-4">
                                         @foreach ($imgs as $img)
-                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" data-media-url="{{ asset('storage/' . $img['src']) }}" data-media-type="image" alt="media" class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover cursor-pointer hover:opacity-90 transition-opacity">
                                         @endforeach
                                     </div>
                                 @endif
                                 @foreach ($media['attachments'] as $att)
                                     @if($att['type'] === 'video')
                                         <div class="mb-4">
-                                            <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444]">
-                                                <source src="{{ asset('storage/' . $att['src']) }}" type="video/mp4">
-                                            </video>
+                                            <video src="{{ asset('storage/' . $att['src']) }}" data-media-url="{{ asset('storage/' . $att['src']) }}" data-media-type="video" controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] cursor-pointer hover:opacity-90 transition-opacity"></video>
                                         </div>
                                     @elseif($att['type'] === 'file')
                                         <div class="mb-3">
@@ -475,14 +471,8 @@
             {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
             <x-timeline-sidebar-right
                 searchPlaceholder="Cari buku atau pengguna..."
-                trendingTitle="What's Trending"
-                :trendingItems="[
-                    ['Harry Potter',          'J.K. Rowling'],
-                    ['Toko Kelontong Namiya', 'Keigo Higashino'],
-                    ['Crime & Punishment',    'Fyodor Dostoyevsky'],
-                    ['The Silent Voice',      'Naoko Yamada'],
-                    ['Your Name',             'Makoto Shinkai'],
-                ]"
+                trendingTitle="Populer Minggu Ini"
+                :trendingItems="$trendingItems"
             />
 
         </div>
@@ -542,41 +532,18 @@
             <div id="mobile-search-trending">
                 <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">What's Trending</h3>
                 <div class="flex flex-col gap-3">
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">1</span>
+                    @forelse ($trendingItems as $rank => $item)
+                    <a href="{{ $item[2] ?? route('timeline_home', ['book' => $item[0]]) }}"
+                       class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $rank + 1 }}</span>
                         <div>
-                            <span class="font-bold text-[13px] leading-tight block">Harry Potter</span>
-                            <span class="text-[11px] text-gray-400">J.K. Rowling</span>
+                            <span class="font-bold text-[13px] leading-tight block">{{ $item[0] }}</span>
+                            <span class="text-[11px] text-gray-400">{{ $item[1] }}</span>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">2</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Toko Kelontong Namiya</span>
-                            <span class="text-[11px] text-gray-400">Keigo Higashino</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">3</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Crime &amp; Punishment</span>
-                            <span class="text-[11px] text-gray-400">Fyodor Dostoyevsky</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">4</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">The Silent Voice</span>
-                            <span class="text-[11px] text-gray-400">Naoko Yamada</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">5</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Your Name</span>
-                            <span class="text-[11px] text-gray-400">Makoto Shinkai</span>
-                        </div>
-                    </div>
+                    </a>
+                    @empty
+                    <p class="text-[13px] text-gray-400">Belum ada trending minggu ini.</p>
+                    @endforelse
                 </div>
             </div>
         </div>

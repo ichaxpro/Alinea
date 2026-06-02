@@ -158,7 +158,7 @@ class ReviewController extends Controller
             'initial'    => $initial,
             'avatar_url' => $r->user?->avatar_url,
             'rating'     => $r->rating,
-            'date'       => $r->created_at->diffForHumans(),
+            'date'       => $r->created_at->locale('id')->diffForHumans(),
             'text'       => $r->ulasan,
             'helpful'    => (int) ($r->helpful ?? 0),
             'my_vote'    => $myVote,

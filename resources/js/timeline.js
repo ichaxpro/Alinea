@@ -529,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const li = document.createElement('li');
                             li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-3 border-b border-gray-100 last:border-0';
                             
-                            const imgSrc = book.cover_url ? book.cover_url : 'https://via.placeholder.com/40x60?text=Buku';
+                            const imgSrc = book.cover_url ? book.cover_url : '/images/book.svg';
                             li.innerHTML = `
                                 <img src="${imgSrc}" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" alt="Cover">
                                 <div>
