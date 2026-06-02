@@ -73,6 +73,38 @@
         #scrollTopBtn.visible {
             opacity: 1; pointer-events: all;
         }
+
+        /* ── Mobile Filter Bottom Sheet ── */
+        #mobile-filter-dialog {
+            display: none !important;
+            transform: translateY(100%) !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), display 0.3s allow-discrete, overlay 0.3s allow-discrete;
+            border: none !important;
+            margin: auto auto 0 auto !important;
+        }
+        #mobile-filter-dialog[open] {
+            display: flex !important;
+            flex-direction: column !important;
+            transform: translateY(0) !important;
+        }
+        #mobile-filter-dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, display 0.3s allow-discrete, overlay 0.3s allow-discrete;
+        }
+        #mobile-filter-dialog[open]::backdrop {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+        }
+        @starting-style {
+            #mobile-filter-dialog[open] {
+                transform: translateY(100%);
+            }
+            #mobile-filter-dialog[open]::backdrop {
+                background-color: rgba(0, 0, 0, 0);
+                backdrop-filter: blur(0px);
+            }
+        }
     </style>
 </head>
 
@@ -91,25 +123,37 @@
             </div>
 
             {{-- ═══════ TOOLBAR: Search + Filters ═══════ --}}
-            <div class="flex flex-wrap items-center gap-3 mb-2">
-                {{-- Search --}}
-                <div class="flex items-center gap-2 bg-white border-[1.5px] border-text rounded-lg px-4 py-2.5 w-full sm:flex-1 sm:max-w-xl focus-within:border-[#FFDDAF] transition-colors duration-200">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    <input type="search" id="ulasan-search-input"
-                           placeholder="Cari judul, penulis, atau genre..."
-                           class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
-                    {{-- Clear button --}}
-                    <button id="ulasan-search-clear" class="hidden text-gray-300 hover:text-text transition-colors" aria-label="Hapus pencarian">
-                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                            <path d="M4 4l12 12M16 4L4 16"/>
+            <div class="flex items-center gap-3 mb-2 w-full flex-wrap sm:flex-nowrap">
+                {{-- Search + Mobile Filter Button --}}
+                <div class="flex items-center gap-2 w-full sm:flex-1 sm:max-w-xl">
+                    <div class="flex-1 flex items-center gap-2 bg-white border-[1.5px] border-text rounded-lg px-4 py-2.5 focus-within:border-[#FFDDAF] transition-colors duration-200">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="search" id="ulasan-search-input"
+                               placeholder="Cari judul, penulis, atau genre..."
+                               class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
+                        {{-- Clear button --}}
+                        <button id="ulasan-search-clear" class="hidden text-gray-300 hover:text-text transition-colors" aria-label="Hapus pencarian">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                <path d="M4 4l12 12M16 4L4 16"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {{-- Mobile Filter Button --}}
+                    <button id="ulasan-mobile-filter-btn" class="sm:hidden flex items-center justify-center p-3 bg-white border-[1.5px] border-text rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Buka filter">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="2" y1="14" x2="6" y2="14" /><line x1="10" y1="8" x2="14" y2="8" /><line x1="18" y1="16" x2="22" y2="16" />
                         </svg>
                     </button>
                 </div>
 
                 {{-- Genre filter --}}
-                <div class="relative">
+                <div class="relative hidden sm:block">
                     <select id="ulasan-filter-genre"
                             class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
                         <option value="">Semua Genre</option>
@@ -117,7 +161,7 @@
                 </div>
 
                 {{-- Rating filter --}}
-                <div class="relative">
+                <div class="relative hidden sm:block">
                     <select id="ulasan-filter-rating"
                             class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
                         <option value="">Semua Rating</option>
@@ -129,7 +173,7 @@
                 </div>
 
                 {{-- Sort --}}
-                <div class="relative">
+                <div class="relative hidden sm:block">
                     <select id="ulasan-sort"
                             class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
                         <option value="rating-desc">Rating Tertinggi</option>
@@ -153,7 +197,7 @@
 
             {{-- ═══════ BOOK GRID ═══════ --}}
             <div id="ulasan-grid"
-                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                 class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
             </div>
 
             {{-- ═══════ EMPTY STATE ═══════ --}}
@@ -186,6 +230,55 @@
 
     {{-- ═══════ TOAST CONTAINER ═══════ --}}
     <div class="fixed bottom-6 left-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
+
+    {{-- ═══════ MOBILE FILTER BOTTOM SHEET ═══════ --}}
+    <dialog id="mobile-filter-dialog" class="fixed inset-0 m-auto z-[250] w-[calc(100%-2.5rem)] max-w-sm bg-white border-[1.5px] border-text rounded-[24px] shadow-2xl p-6 outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+        <div class="relative flex items-center justify-center border-b border-gray-100 pb-4 mb-5">
+            <h3 class="font-extrabold text-lg text-text">Filter & Urutkan</h3>
+            <button id="close-filter-dialog" class="absolute right-0 text-text/40 hover:text-text text-2xl font-bold leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" aria-label="Tutup">&times;</button>
+        </div>
+        
+        <form method="dialog" class="flex flex-col gap-4 w-full">
+            {{-- Genre Filter --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-filter-genre" class="text-xs font-bold uppercase tracking-wider text-text/50">Genre</label>
+                <select id="mobile-filter-genre" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
+                    <option value="">Semua Genre</option>
+                </select>
+            </div>
+            
+            {{-- Rating Filter --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-filter-rating" class="text-xs font-bold uppercase tracking-wider text-text/50">Rating Minimum</label>
+                <select id="mobile-filter-rating" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
+                    <option value="">Semua Rating</option>
+                    <option value="5">★★★★★ (5)</option>
+                    <option value="4">★★★★☆ (4+)</option>
+                    <option value="3">★★★☆☆ (3+)</option>
+                    <option value="2">★★☆☆☆ (2+)</option>
+                </select>
+            </div>
+            
+            {{-- Sort Select --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-sort" class="text-xs font-bold uppercase tracking-wider text-text/50">Urutkan</label>
+                <select id="mobile-sort" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
+                    <option value="rating-desc">Rating Tertinggi</option>
+                    <option value="rating-asc">Rating Terendah</option>
+                    <option value="reviews-desc">Ulasan Terbanyak</option>
+                    <option value="title-asc">Judul A–Z</option>
+                    <option value="title-desc">Judul Z–A</option>
+                    <option value="newest">Terbaru</option>
+                </select>
+            </div>
+            
+            {{-- Action Buttons --}}
+            <div class="flex gap-3 mt-6 pb-2">
+                <button type="button" id="mobile-filter-reset" class="flex-1 py-3 text-sm font-bold text-text bg-white border-[1.5px] border-text rounded-full hover:bg-gray-50 transition-colors">Reset</button>
+                <button type="submit" id="mobile-filter-submit" class="flex-1 py-3 text-sm font-bold text-text bg-[#FFDDAF] border-[1.5px] border-text rounded-full hover:bg-amber-300 transition-colors">Terapkan</button>
+            </div>
+        </form>
+    </dialog>
 
 </body>
 </html>

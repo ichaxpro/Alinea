@@ -205,11 +205,15 @@ async function fetchRatingStats(ids) {
 function populateGenres() {
   const allBooks = window.__BOOKS_DATA__ || [];
   const genres = [...new Set(allBooks.flatMap(b => b.genres))].sort();
+  const mobileGenre = document.getElementById('mobile-filter-genre');
   genres.forEach(g => {
     const opt = document.createElement('option');
     opt.value = g;
     opt.textContent = g;
     filterGenre.appendChild(opt);
+    if (mobileGenre) {
+      mobileGenre.appendChild(opt.cloneNode(true));
+    }
   });
 }
 
@@ -225,6 +229,14 @@ function applyFilters(resetPage = true) {
   const genre      = filterGenre.value;
   const minRating  = filterRating.value ? Number(filterRating.value) : 0;
   const sortKey    = sortSelect.value;
+
+  // Sync with mobile controls
+  const mobileGenre = document.getElementById('mobile-filter-genre');
+  const mobileRating = document.getElementById('mobile-filter-rating');
+  const mobileSort = document.getElementById('mobile-sort');
+  if (mobileGenre) mobileGenre.value = genre;
+  if (mobileRating) mobileRating.value = minRating ? String(minRating) : '';
+  if (mobileSort) mobileSort.value = sortKey;
 
   // Toggle clear button
   searchClear.classList.toggle('hidden', !query);
@@ -278,8 +290,27 @@ function sortBooks(list, key) {
 }
 
 // ══════════════════════════════════════
-// RENDER BOOK CARDS
+// RENDER SKELETON & BOOK CARDS
 // ══════════════════════════════════════
+
+function renderSkeletons() {
+  resultCount.textContent = '...';
+  grid.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  pagination.innerHTML = '';
+  
+  grid.innerHTML = Array(8).fill(0).map(() => `
+    <div class="card-animate bg-white border-[1.5px] border-[#e8e8e8] rounded-2xl overflow-hidden flex flex-col">
+      <div class="w-full aspect-[2/3] skeleton"></div>
+      <div class="p-3 md:p-5 flex flex-col flex-1 gap-2 mt-1">
+        <div class="h-4 md:h-5 skeleton w-3/4 mb-1 rounded"></div>
+        <div class="h-3 skeleton w-1/2 mb-3 rounded"></div>
+        <div class="hidden md:block h-3 skeleton w-full mb-1 mt-auto rounded"></div>
+        <div class="hidden md:block h-3 skeleton w-5/6 rounded"></div>
+      </div>
+    </div>
+  `).join('');
+}
 
 function renderCards(books) {
   grid.innerHTML = books.map((book, i) => `
@@ -290,7 +321,7 @@ function renderCards(books) {
              data-google-id="${book.google_id || ''}">
       
       <!-- Cover -->
-      <div class="relative aspect-[4/3] overflow-hidden">
+      <div class="relative aspect-[2/3] overflow-hidden bg-gray-100">
         ${book.cover
           ? `<img src="${book.cover}" alt="Sampul ${book.judul}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />`
           : `<div class="w-full h-full flex items-center justify-center text-3xl font-black text-white/20 group-hover:scale-105 transition-transform duration-500"
@@ -298,8 +329,13 @@ function renderCards(books) {
                 ${book.judul.charAt(0)}
              </div>`
         }
+        <!-- Rating Badge on Cover -->
+        <div class="md:hidden absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[0.68rem] font-bold">
+          <span class="text-[#F5C518]">★</span>
+          <span>${book.rating_avg > 0 ? book.rating_avg.toFixed(1) : '-'}</span>
+        </div>
         <!-- Hover overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-end p-4">
           <span class="text-white text-xs font-semibold bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
             Lihat Detail →
           </span>
@@ -307,30 +343,34 @@ function renderCards(books) {
       </div>
 
       <!-- Info -->
-      <div class="p-5 flex flex-col flex-1">
-        <h3 class="text-base font-bold text-text leading-tight mb-1 line-clamp-1">${book.judul}</h3>
-        <p class="text-[0.78rem] text-text/50 mb-2">${book.penulis}</p>
+      <div class="p-3 md:p-5 flex flex-col flex-1">
+        <h3 class="text-xs md:text-base font-bold text-text leading-tight mb-0.5 md:mb-1 line-clamp-2">${book.judul}</h3>
+        <p class="text-[0.68rem] md:text-[0.78rem] text-text/50 mb-2 line-clamp-1">${book.penulis}</p>
 
-        <!-- Rating -->
-        <div class="flex items-center gap-1.5 mb-3">
+        <!-- Rating (desktop only) -->
+        <div class="hidden md:flex items-center gap-1.5 mb-3">
           <div class="flex gap-0.5">${starsHtml(book.rating_avg)}</div>
           <span class="text-[0.75rem] font-bold text-text">${book.rating_avg}</span>
           <span class="text-[0.7rem] text-text/35">(${book.rating_count} Ulasan)</span>
         </div>
+        <!-- Rating (mobile only) -->
+        <div class="flex md:hidden items-center gap-1 mb-2">
+          <span class="text-[0.65rem] text-text/40">(${book.rating_count} Ulasan)</span>
+        </div>
 
-        <!-- Synopsis -->
-        <p class="text-[0.78rem] text-text/55 leading-relaxed mb-4 flex-1 line-clamp-2">${book.sinopsis}</p>
+        <!-- Synopsis (desktop only) -->
+        <p class="hidden md:block text-[0.78rem] text-text/55 leading-relaxed mb-4 flex-1 line-clamp-2">${book.sinopsis}</p>
 
-        <!-- Genre pills -->
-        <div class="flex gap-1.5 flex-wrap mb-4">
+        <!-- Genre pills (desktop only) -->
+        <div class="hidden md:flex gap-1.5 flex-wrap mb-4">
           ${book.genres.map(g => `
             <span class="px-3 py-1 text-[0.68rem] font-medium text-text/70 border border-[#e0e0e0] rounded-full">${g}</span>
           `).join('')}
         </div>
 
-        <!-- CTA -->
+        <!-- CTA (desktop only) -->
         <a href="/detail-buku/${book.id || book.google_id}" 
-           class="inline-flex items-center gap-2 px-5 py-2 text-[0.8rem] font-bold text-text bg-[#FFDDAF] rounded-full border-[1.5px] border-text
+           class="hidden md:inline-flex items-center gap-2 px-5 py-2 text-[0.8rem] font-bold text-text bg-[#FFDDAF] rounded-full border-[1.5px] border-text
                   hover:bg-amber-300 hover:-translate-y-px transition-all duration-200 self-start"
            onclick="event.stopPropagation()">
           Lihat Ulasan
@@ -468,6 +508,10 @@ searchInput.addEventListener('input', () => {
     applyFilters();
     return;
   }
+  
+  // Show loading skeleton while typing/waiting for debounce
+  renderSkeletons();
+  
   debounceTimer = setTimeout(async () => {
     try {
       const books = await fetchBooks(query);
@@ -536,6 +580,60 @@ window.addEventListener('scroll', () => {
 scrollTopBtn.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+// Mobile Filter Dialog Event Listeners
+const mobileFilterDialog = document.getElementById('mobile-filter-dialog');
+const mobileFilterBtn = document.getElementById('ulasan-mobile-filter-btn');
+const mobileFilterClose = document.getElementById('close-filter-dialog');
+const mobileFilterReset = document.getElementById('mobile-filter-reset');
+
+if (mobileFilterBtn && mobileFilterDialog) {
+  mobileFilterBtn.addEventListener('click', () => {
+    mobileFilterDialog.showModal();
+  });
+}
+
+if (mobileFilterClose && mobileFilterDialog) {
+  mobileFilterClose.addEventListener('click', () => {
+    mobileFilterDialog.close();
+  });
+}
+
+if (mobileFilterDialog) {
+  // Light dismiss on backdrop click
+  mobileFilterDialog.addEventListener('click', (e) => {
+    const rect = mobileFilterDialog.getBoundingClientRect();
+    const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+      rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+    if (!isInDialog) {
+      mobileFilterDialog.close();
+    }
+  });
+
+  // Handle Form Submission within Dialog
+  const form = mobileFilterDialog.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      filterGenre.value = document.getElementById('mobile-filter-genre').value;
+      filterRating.value = document.getElementById('mobile-filter-rating').value;
+      sortSelect.value = document.getElementById('mobile-sort').value;
+      applyFilters();
+    });
+  }
+}
+
+if (mobileFilterReset && mobileFilterDialog) {
+  mobileFilterReset.addEventListener('click', () => {
+    searchInput.value = '';
+    filterGenre.value = '';
+    filterRating.value = '';
+    sortSelect.value = 'rating-desc';
+    window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
+    applyFilters();
+    mobileFilterDialog.close();
+    showToast('Filter telah direset');
+  });
+}
 
 // ══════════════════════════════════════
 // INIT

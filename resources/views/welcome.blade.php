@@ -733,30 +733,13 @@
                 </div>
             </div>
         </section>
-
         <!-- =================== FOOTER =================== -->
         <x-footer/>
-
-        <!-- =================== MOBILE NAV MENU =================== -->
-        <div id="mobile-menu" class="hidden-menu fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex flex-col items-center justify-center text-center">
-            <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Tutup Menu">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                    <path d="M4 4l12 12M16 4L4 16"/>
-                </svg>
-            </button>
-            <nav class="flex flex-col gap-8 text-2xl font-black text-gray-900">
-                <a href="#" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Beranda</a>
-                <a href="#fitur" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Fitur</a>
-                <a href="#komunitas" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Komunitas</a>
-                <a href="#ulasan" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Ulasan</a>
-                <a href="#tentang" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Tentang</a>
-            </nav>
-        </div>
 
         <script>
             /* =========================================================
                SCROLL PROGRESS BAR
-            ========================================================= */
+             ========================================================= */
             const progressBar = document.getElementById('scroll-progress');
             window.addEventListener('scroll', () => {
                 const scrollTop = window.scrollY;
@@ -766,27 +749,8 @@
             }, { passive: true });
 
             /* =========================================================
-               MOBILE MENU (animated)
-            ========================================================= */
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
-
-            mobileMenuBtn?.addEventListener('click', () => {
-                mobileMenu.classList.remove('hidden-menu');
-                mobileMenu.classList.add('visible-menu');
-            });
-
-            closeMobileMenuBtn?.addEventListener('click', closeMobileMenu);
-
-            function closeMobileMenu() {
-                mobileMenu.classList.remove('visible-menu');
-                mobileMenu.classList.add('hidden-menu');
-            }
-
-            /* =========================================================
                SMOOTH SCROLL
-            ========================================================= */
+             ========================================================= */
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
@@ -794,7 +758,9 @@
                     e.preventDefault();
                     const el = document.querySelector(href);
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    closeMobileMenu();
+                    if (typeof window.closeMobileMenu === 'function') {
+                        window.closeMobileMenu();
+                    }
                 });
             });
 

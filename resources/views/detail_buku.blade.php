@@ -38,6 +38,15 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .animate-fade-in-up { animation: fadeInUp 0.4s ease both; }
+
+    /* Hide scrollbars for carousel navigation */
+    .scrollbar-none {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;  /* Chrome, Safari and Opera */
+    }
   </style>
 </head>
 <body class="font-['Poppins'] bg-white text-text leading-relaxed overflow-x-hidden">
@@ -46,18 +55,24 @@
 
   <main>
     {{-- ========== BOOK DETAIL SECTION ========== --}}
-    <section class="pt-40 pb-10 bg-white" id="bookDetail">
+    <section class="relative pt-24 md:pt-36 pb-10 overflow-hidden" id="bookDetail">
+      <!-- Blurred Backdrop Cover -->
+      <div id="detailBackdrop" class="absolute inset-0 -z-10 bg-cover bg-center filter blur-3xl opacity-15 scale-110 pointer-events-none"></div>
+      <!-- Fade to white at the bottom to remove harsh cutoff -->
+      <div class="absolute bottom-0 left-0 right-0 h-32 md:h-48 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none -z-10"></div>
+      <div class="absolute inset-0 -z-20 bg-white"></div>
+
       <div class="max-w-270 mx-auto px-5 lg:px-10">
-        <div class="grid grid-cols-1 sm:grid-cols-[140px_1fr] lg:grid-cols-[200px_1fr] gap-6 lg:gap-12 items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-[140px_1fr] lg:grid-cols-[200px_1fr] gap-6 lg:gap-12 items-start text-center sm:text-left">
           
           {{-- Cover buku — diisi oleh JS --}}
-          <div class="max-w-45 sm:max-w-none mx-auto sm:mx-0">
-            <div id="bookCover" class="relative rounded-xl overflow-hidden aspect-2/3 shadow-[0_8px_32px_rgba(0,0,0,0.1)] bg-gradient-3">
+          <div class="w-[140px] lg:w-[200px] mx-auto sm:mx-0">
+            <div id="bookCover" class="relative rounded-xl overflow-hidden aspect-[2/3] shadow-[0_8px_32px_rgba(0,0,0,0.1)] bg-gradient-3">
               <div class="absolute inset-0 rounded-xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.06)] pointer-events-none"></div>
             </div>
           </div>
 
-          <div>
+          <div class="flex flex-col items-center sm:items-start">
             {{-- Kategori --}}
             <span class="inline-block px-5 py-1 text-[0.78rem] font-semibold text-text border-[1.5px] border-[#ddd] rounded-full mb-3" id="bookCategory"></span>
 
@@ -68,31 +83,31 @@
             <p class="text-[0.9rem] font-normal text-text/60 mb-3" id="bookMeta"></p>
 
             {{-- Rating bintang + jumlah ulasan --}}
-            <div class="flex items-center gap-2.5 mb-4" id="bookRating"></div>
+            <div class="flex items-center justify-center sm:justify-start gap-2.5 mb-4" id="bookRating"></div>
 
             {{-- Sinopsis --}}
             <p class="text-[0.85rem] leading-relaxed text-text/75 mb-5 max-w-140" id="bookSynopsis"></p>
 
             {{-- Genre pills --}}
-            <div class="flex gap-2.5 mb-6 flex-wrap" id="bookGenres"></div>
+            <div class="flex justify-center sm:justify-start gap-2.5 mb-6 flex-wrap" id="bookGenres"></div>
 
             {{-- Action buttons --}}
-            <div class="flex flex-col sm:flex-row gap-2.5 items-start sm:items-center mb-8 flex-wrap">
-              <button class="inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]" id="tulisUlasanBtn">
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-2.5 items-center mb-8 w-full">
+              <button class="flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 sm:px-6 py-3 text-[0.8rem] md:text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] cursor-pointer whitespace-nowrap" id="tulisUlasanBtn">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
                 Tulis Ulasan
               </button>
-              <button class="inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-white bg-text rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(68,68,68,0.3)]" id="pinjamBtn">
+              <button class="flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 sm:px-6 py-3 text-[0.8rem] md:text-[0.85rem] font-bold text-white bg-text rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(68,68,68,0.3)] cursor-pointer whitespace-nowrap" id="pinjamBtn">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M4 19.5A2.5 2.5 0 0 1 1.5 17V3A2.5 2.5 0 0 1 4 .5h11A2.5 2.5 0 0 1 17.5 3v14a2.5 2.5 0 0 1-2.5 2.5H4z"/><path d="M1.5 15H16"/></svg>
                 Pinjam Buku
               </button>
-              <button class="btn-simpan flex items-center justify-center w-10 h-10 rounded-full border-[1.5px] border-[#ddd] bg-white text-[#444444] transition-all duration-200 hover:border-[#444444]" id="simpanBtn" aria-label="Simpan buku">
+              <button class="btn-simpan flex items-center justify-center w-12 h-12 rounded-full border-[1.5px] border-[#ddd] bg-white text-[#444444] transition-all duration-200 hover:border-[#444444] cursor-pointer shrink-0 animate-none" id="simpanBtn" aria-label="Simpan buku">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
               </button>
             </div>
 
             {{-- Info grid: penerbit, ISBN, bahasa, ketersediaan --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 pt-5 border-t border-[#eee]" id="bookInfoGrid"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 pt-5 border-t border-[#eee] text-center sm:text-left" id="bookInfoGrid"></div>
           </div>
         </div>
       </div>
@@ -218,8 +233,9 @@
           </div>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
+        <div class="overflow-y-auto max-h-[350px] pr-1">
+          {{-- Desktop: Table Layout --}}
+          <table class="hidden md:table w-full text-left border-collapse">
             <thead>
               <tr class="border-b-[1.5px] border-[#eee]">
                 <th class="py-3 px-4 text-[0.8rem] font-bold text-[#444444] uppercase tracking-wider">Nama Pemilik</th>
@@ -228,9 +244,14 @@
               </tr>
             </thead>
             <tbody id="ownersTableBody">
-              <!-- Owners list will be populated here -->
+              <!-- Owners list populated here for desktop -->
             </tbody>
           </table>
+
+          {{-- Mobile: Card List Layout --}}
+          <div id="ownersMobileList" class="flex md:hidden flex-col gap-3">
+            <!-- Owners cards populated here for mobile -->
+          </div>
         </div>
       </div>
     </div>
@@ -277,10 +298,12 @@
     </div>
 
     {{-- ========== SIMILAR BOOKS ========== --}}
-    <section class="py-[60px] bg-white" id="similarBooks">
+    <section class="py-10 md:py-[60px] bg-white" id="similarBooks">
       <div class="max-w-[1080px] mx-auto px-5 lg:px-10">
         <h2 class="text-xl font-extrabold mb-7">Buku Serupa</h2>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5" id="similarGrid"></div>
+        <div class="overflow-x-auto pb-4 scrollbar-none -mx-5 px-5 md:mx-0 md:px-0">
+          <div class="flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-5 min-w-max sm:min-w-0" id="similarGrid"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -288,6 +311,20 @@
   <x-footer/>
 
   <div class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
+
+  {{-- ========== STICKY BOTTOM BAR (MOBILE ONLY) ========== --}}
+  <div id="mobileStickyBar" class="sm:hidden fixed bottom-0 left-0 right-0 z-[150] bg-white/80 backdrop-blur-xl border-t-[1.5px] border-text p-4 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-300">
+      <div class="flex items-center gap-3 min-w-0">
+          <div id="stickyBookCover" class="w-10 h-14 rounded bg-gray-100 overflow-hidden shrink-0 border border-gray-200 aspect-[2/3]"></div>
+          <div class="min-w-0">
+              <h4 id="stickyBookTitle" class="text-xs font-bold text-text truncate leading-tight"></h4>
+              <p id="stickyBookAuthor" class="text-[0.65rem] text-text/50 truncate"></p>
+          </div>
+      </div>
+      <button id="stickyPinjamBtn" class="px-5 py-2.5 text-xs font-bold text-white bg-text rounded-full border-[1.5px] border-text hover:bg-gray-800 active:bg-gray-900 transition-all shrink-0 cursor-pointer">
+          Pinjam Buku
+      </button>
+  </div>
 
 </body>
 </html>
