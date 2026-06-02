@@ -19,71 +19,97 @@
                         <a href="{{ route('katalog') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
                     </div>
 
-                    <!-- CTA Button -->
-                    <div class="flex items-center gap-3">
-                        <button id="navbar-search-btn" aria-label="Cari" class=" cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <!-- Right Actions Group (CTA + Mobile Menu) -->
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3">
+                            <button id="navbar-search-btn" aria-label="Cari" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                            </button>
+                           @auth
+                               <div class="relative" id="profile-dropdown">
+                                <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
+                                    @if(Auth::user()->foto_profil)
+                                    <img id="navbar-avatar-img" src="{{ Storage::disk('public')->url(Auth::user()->foto_profil) }}" alt="Avatar" class="w-full h-full object-cover">
+                                    <span id="navbar-avatar-initial" class="hidden">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                    @else
+                                    <span id="navbar-avatar-initial">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                    @endif
+                                </button>
+
+                                <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
+                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dashboard</a>
+                                    <form method="POST" action="/logout">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Logout</button>
+                                    </form>
+                                </div>
+                               </div>
+                           @else
+                               <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
+                           @endauth
+                        </div>
+
+                        <!-- Mobile menu button -->
+                        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M3 6h14M3 10h14M3 14h14"/>
                             </svg>
                         </button>
-                       @auth
-                           <div class="relative" id="profile-dropdown">
-                            <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
-                                @if(Auth::user()->foto_profil)
-                                <img id="navbar-avatar-img" src="{{ Storage::disk('public')->url(Auth::user()->foto_profil) }}" alt="Avatar" class="w-full h-full object-cover">
-                                <span id="navbar-avatar-initial" class="hidden">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                @else
-                                <span id="navbar-avatar-initial">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                @endif
-                            </button>
-
-                            <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
-                                <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dashboard</a>
-                                <form method="POST" action="/logout">
-                                    @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Logout</button>
-                                </form>
-                            </div>
-                           </div>
-
-                           <script>
-                            function toggleDropdown() {
-                                document.getElementById('dropdown-menu').classList.toggle('hidden');
-                            }
-                            document.addEventListener('click', function(e) {
-                                const dd = document.getElementById('profile-dropdown');
-                                if (dd && !dd.contains(e.target)) {
-                                    document.getElementById('dropdown-menu')?.classList.add('hidden');
-                                }
-                            });
-                           </script>
-                           @else
-                           <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
-                       @endauth
-                        
                     </div>
 
-                    <!-- Mobile menu button -->
-                     <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors {{ request()->routeIs('timeline*', 'chat', 'profile.edit') ? 'hidden' : '' }}" id="mobile-menu-btn" aria-label="Menu">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                            <path d="M3 6h14M3 10h14M3 14h14"/>
-                        </svg>
-                    </button>
+                    @auth
+                       <script>
+                        function toggleDropdown() {
+                            document.getElementById('dropdown-menu').classList.toggle('hidden');
+                        }
+                        document.addEventListener('click', function(e) {
+                            const dd = document.getElementById('profile-dropdown');
+                            if (dd && !dd.contains(e.target)) {
+                                document.getElementById('dropdown-menu')?.classList.add('hidden');
+                            }
+                        });
+                       </script>
+                    @endauth
                 </div>
             </div>
         </nav>
         @vite(['resources/js/global-search.js'])
-         <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex-col items-center justify-center text-center">
+         <div id="mobile-menu" class="hidden-menu fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex flex-col items-center justify-center text-center">
             <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Tutup Menu">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <path d="M4 4l12 12M16 4L4 16"/>
                 </svg>
             </button>
-            <nav class="flex flex-col gap-8 text-2xl font-black text-gray-900">
-                <a href="#" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Beranda</a>
-                <a href="#fitur" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Fitur</a>
-                <a href="#komunitas" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Komunitas</a>
-                <a href="#ulasan" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Ulasan</a>
-                <a href="#tentang" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Tentang</a>
+            <nav class="flex flex-col gap-8 text-3xl font-black text-gray-800">
+                <a href="{{ route('beranda') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Beranda</a>
+                <a href="{{ route('timeline_home') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Komunitas</a>
+                <a href="{{ route('klub') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Klub</a>
+                <a href="{{ route('katalog') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Katalog</a>
             </nav>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const closeBtn = document.getElementById('close-mobile-menu');
+
+                if (mobileMenuBtn && mobileMenu) {
+                    mobileMenuBtn.addEventListener('click', () => {
+                        mobileMenu.classList.remove('hidden-menu');
+                        mobileMenu.classList.add('visible-menu');
+                    });
+                }
+
+                window.closeMobileMenu = () => {
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('visible-menu');
+                        mobileMenu.classList.add('hidden-menu');
+                    }
+                };
+
+                closeBtn?.addEventListener('click', window.closeMobileMenu);
+            });
+        </script>

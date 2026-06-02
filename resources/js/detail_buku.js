@@ -86,13 +86,13 @@ function updateUlasanButton(hasReviewed, myReviewId) {
   }
 
   if (hasReviewed && myReviewId) {
-    btn.className = 'inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-text bg-white rounded-full border-[1.5px] border-[#ddd] transition-all duration-200 hover:-translate-y-px hover:border-text hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]';
+    btn.className = 'flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 sm:px-6 py-3 text-[0.8rem] md:text-[0.85rem] font-bold text-text bg-white rounded-full border-[1.5px] border-[#ddd] transition-all duration-200 hover:-translate-y-px hover:border-text hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] whitespace-nowrap';
     btn.innerHTML = `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
       Edit Ulasan`;
 
     btn.dataset.myReviewId = myReviewId;
   } else {
-    btn.className = 'inline-flex items-center gap-2 px-7 py-2.5 text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)]';
+    btn.className = 'flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 sm:px-6 py-3 text-[0.8rem] md:text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] whitespace-nowrap';
     btn.innerHTML = `
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
       Tulis Ulasan
@@ -111,10 +111,24 @@ function renderBookDetail(book) {
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc) metaDesc.content = `Detail buku ${book.judul} karya ${book.penulis}. Baca ulasan, lihat rating, dan pinjam buku di Alinea.`;
 
+  // Background cover backdrop
+  const backdrop = document.getElementById('detailBackdrop');
+  if (backdrop && book.foto_sampul) {
+    backdrop.style.backgroundImage = `url(${book.foto_sampul})`;
+  }
+
   // Cover
   const cover = document.getElementById('bookCover');
   if (cover && book.foto_sampul) {
     cover.innerHTML = `<img src="${book.foto_sampul}" alt="Sampul ${book.judul}" class="w-full h-full object-cover" />`;
+  }
+
+  // Sticky bar details
+  setTextById('stickyBookTitle', book.judul);
+  setTextById('stickyBookAuthor', book.penulis);
+  const stickyCover = document.getElementById('stickyBookCover');
+  if (stickyCover && book.foto_sampul) {
+    stickyCover.innerHTML = `<img src="${book.foto_sampul}" alt="Sampul ${book.judul}" class="w-full h-full object-cover" />`;
   }
 
   // Basic info
@@ -171,11 +185,18 @@ function renderBookDetail(book) {
   `).join(''));
 
   const pinjamBtn = document.getElementById('pinjamBtn');
+  const stickyPinjamBtn = document.getElementById('stickyPinjamBtn');
   if (!isAvailable) {
     pinjamBtn.disabled = true;
     pinjamBtn.style.opacity = '0.45';
     pinjamBtn.style.cursor = 'not-allowed';
-    pinjamBtn.title = 'Belum ada pemilik yang meminjamkan buku ini.'
+    pinjamBtn.title = 'Belum ada pemilik yang meminjamkan buku ini.';
+    if (stickyPinjamBtn) {
+      stickyPinjamBtn.disabled = true;
+      stickyPinjamBtn.style.opacity = '0.45';
+      stickyPinjamBtn.style.cursor = 'not-allowed';
+      stickyPinjamBtn.title = 'Belum ada pemilik yang meminjamkan buku ini.';
+    }
   }
 }
 
@@ -320,7 +341,7 @@ async function loadSimilarBooks() {
   if (!bookId || !grid) return;
 
   grid.innerHTML = Array(5).fill(0).map(() => `
-    <div class="animate-pulse">
+    <div class="animate-pulse w-[140px] shrink-0 sm:w-auto sm:shrink">
       <div class="w-full aspect-[2/3] rounded-xl bg-[#eee] mb-2.5"></div>
       <div class="h-3 bg-[#eee] rounded-full w-3/4 mb-1.5"></div>
       <div class="h-2.5 bg-[#eee] rounded-full w-1/2"></div>
@@ -345,7 +366,7 @@ async function loadSimilarBooks() {
       const coverHtml = b.cover_url ? `<img src="${b.cover_url}" alt="${b.judul}" class="w-full h-full object-cover" />` : `<span class="text-2xl font-black text-[#444444]/20">${initial}</span>`;
 
       return `
-        <a href="${b.url}" class="block cursor-pointer transition-transform duration-200 hover:-translate-y-1">
+        <a href="${b.url}" class="block cursor-pointer transition-transform duration-200 hover:-translate-y-1 w-[140px] shrink-0 sm:w-auto sm:shrink">
           <div class="w-full aspect-[2/3] rounded-xl flex items-center justify-center mb-2.5 overflow-hidden bg-gradient-to-br ${gradient}">
             ${coverHtml}
           </div>
@@ -374,7 +395,8 @@ const CURRENT_USER = {
 
 function renderOwnersTable(book, filterLoc = 'all') {
   const tbody = document.getElementById('ownersTableBody');
-  if (!tbody || !book.owners) return;
+  const mobileList = document.getElementById('ownersMobileList');
+  if (!book.owners) return;
   
   // Filter by location
   let filteredOwners = [...book.owners];
@@ -390,27 +412,50 @@ function renderOwnersTable(book, filterLoc = 'all') {
   });
 
   if (filteredOwners.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-[0.85rem] text-[#444444]/60">Tidak ada pemilik di lokasi ini yang memiliki buku.</td></tr>`;
+    if (tbody) tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-[0.85rem] text-[#444444]/60">Tidak ada pemilik di lokasi ini yang memiliki buku.</td></tr>`;
+    if (mobileList) mobileList.innerHTML = `<div class="py-6 text-center text-[0.85rem] text-[#444444]/60">Tidak ada pemilik di lokasi ini yang memiliki buku.</div>`;
     return;
   }
   
-  tbody.innerHTML = filteredOwners.map(owner => `
-    <tr class="border-b-[1.5px] border-[#eee] last:border-0 hover:bg-[#FBFBFB] transition-colors">
-      <td class="py-4 px-4">
-        <div class="flex items-center gap-3">
+  // Render desktop table rows
+  if (tbody) {
+    tbody.innerHTML = filteredOwners.map(owner => `
+      <tr class="border-b-[1.5px] border-[#eee] last:border-0 hover:bg-[#FBFBFB] transition-colors">
+        <td class="py-4 px-4">
+          <div class="flex items-center gap-3">
+            ${owner.avatar_url
+              ? `<img src="${owner.avatar_url}" alt="${owner.name}" class="w-8 h-8 rounded-full object-cover shrink-0" />`
+              : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.7rem] font-bold text-[#444444]">${owner.name[0].toUpperCase()}</div>`
+            }
+            <span class="text-[0.9rem] font-semibold text-[#444444]">${owner.name}</span>
+          </div>
+        </td>
+        <td class="py-4 px-4 text-[0.85rem] text-[#444444]/70">${owner.location}</td>
+        <td class="py-4 px-4 text-center">
+          <button class="btn-pilih-owner px-4 py-1.5 text-[0.8rem] font-bold text-[#444444] bg-white border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB] cursor-pointer" data-name="${owner.name}" data-pbid="${owner.personal_book_id}">Pilih</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Render mobile cards list
+  if (mobileList) {
+    mobileList.innerHTML = filteredOwners.map(owner => `
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 gap-2">
+        <div class="flex items-center gap-3 min-w-0">
           ${owner.avatar_url
-            ? `<img src="${owner.avatar_url}" alt="${owner.name}" class="w-8 h-8 rounded-full object-cover shrink-0" />`
-            : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-[0.7rem] font-bold text-[#444444]">${owner.name[0].toUpperCase()}</div>`
+            ? `<img src="${owner.avatar_url}" alt="${owner.name}" class="w-10 h-10 rounded-full object-cover shrink-0" />`
+            : `<div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#D4F6FF] flex items-center justify-center text-xs font-bold text-[#444444] shrink-0">${owner.name[0].toUpperCase()}</div>`
           }
-          <span class="text-[0.9rem] font-semibold text-[#444444]">${owner.name}</span>
+          <div class="min-w-0">
+            <h4 class="text-sm font-semibold text-text truncate leading-tight">${owner.name}</h4>
+            <p class="text-[0.68rem] text-text/50 mt-0.5">${owner.location}</p>
+          </div>
         </div>
-      </td>
-      <td class="py-4 px-4 text-[0.85rem] text-[#444444]/70">${owner.location}</td>
-      <td class="py-4 px-4 text-center">
-        <button class="btn-pilih-owner px-4 py-1.5 text-[0.8rem] font-bold text-[#444444] bg-white border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-[#444444] hover:bg-[#FBFBFB]" data-name="${owner.name}" data-pbid="${owner.personal_book_id}">Pilih</button>
-      </td>
-    </tr>
-  `).join('');
+        <button class="btn-pilih-owner px-4 py-2 text-xs font-bold text-text bg-white border-[1.5px] border-text rounded-full hover:bg-gray-50 active:bg-gray-100 transition-colors shrink-0 cursor-pointer" data-name="${owner.name}" data-pbid="${owner.personal_book_id}">Pilih</button>
+      </div>
+    `).join('');
+  }
 }
 
 // ══════════════════════════════════════
@@ -791,7 +836,7 @@ document.addEventListener('keydown', e => {
 let selectedPersonalBookId = null;
 
 // Handle owner selection
-document.getElementById('ownersTableBody').addEventListener('click', (e) => {
+document.getElementById('ownersModal').addEventListener('click', (e) => {
   const btn = e.target.closest('.btn-pilih-owner');
   if (!btn) return;
   
@@ -912,4 +957,33 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initBookmarkState();
+
+  // Sticky bottom action bar scroll behavior on mobile
+  const stickyBar = document.getElementById('mobileStickyBar');
+  const mainPinjamBtn = document.getElementById('pinjamBtn');
+  
+  if (stickyBar && mainPinjamBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.innerWidth < 640) {
+        const btnPosition = mainPinjamBtn.getBoundingClientRect().bottom + window.scrollY;
+        if (window.scrollY > btnPosition) {
+          stickyBar.classList.remove('translate-y-full');
+        } else {
+          stickyBar.classList.add('translate-y-full');
+        }
+      } else {
+        stickyBar.classList.add('translate-y-full');
+      }
+    }, { passive: true });
+
+    // Link sticky borrow button click directly to the main borrow flow
+    const stickyPinjamBtn = document.getElementById('stickyPinjamBtn');
+    if (stickyPinjamBtn) {
+      stickyPinjamBtn.addEventListener('click', () => {
+        if (!mainPinjamBtn.disabled) {
+          mainPinjamBtn.click();
+        }
+      });
+    }
+  }
 });
