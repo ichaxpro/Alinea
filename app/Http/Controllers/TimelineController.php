@@ -194,6 +194,25 @@ class TimelineController extends Controller
         ], 201);
     }
 
+    public function destroy(TimelinePost $post)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser) {
+            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
+        }
+
+        // Only allow owner or admin to delete
+        if ($post->id_user !== $currentUser->id && $currentUser->role !== 'admin') {
+            return response()->json(['message' => 'Anda tidak berhak menghapus unggahan ini.'], 403);
+        }
+
+        $post->delete();
+
+        return response()->json([
+            'message' => 'Unggahan berhasil dihapus.',
+        ]);
+    }
+
     public function toggleLike(TimelinePost $post)
     {
         $currentUser = Auth::user();
