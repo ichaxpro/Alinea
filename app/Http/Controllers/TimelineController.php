@@ -205,9 +205,25 @@ class TimelineController extends Controller
         if ($like) {
             $like->delete();
             $liked = false;
+            if ($post->id_user !== $currentUser->id) {
+                $author = \App\Models\User::find($post->id_user);
+                if ($author) {
+                    $author->notifications()
+                        ->where('type', \App\Notifications\PostLiked::class)
+                        ->where('data->user_id', $currentUser->id)
+                        ->where('data->post_id', $post->id)
+                        ->delete();
+                }
+            }
         } else {
             TimelineLike::create(['id_post' => $post->id, 'id_user' => $currentUser->id]);
             $liked = true;
+            if ($post->id_user !== $currentUser->id) {
+                $author = \App\Models\User::find($post->id_user);
+                if ($author) {
+                    $author->notify(new \App\Notifications\PostLiked($currentUser, $post));
+                }
+            }
         }
 
         $likesCount = TimelineLike::where('id_post', $post->id)->count();
@@ -273,6 +289,13 @@ class TimelineController extends Controller
         ]);
 
         $comment->load(['author']);
+
+        if ($post->id_user !== $currentUser->id) {
+            $author = \App\Models\User::find($post->id_user);
+            if ($author) {
+                $author->notify(new \App\Notifications\PostCommented($currentUser, $post, $comment));
+            }
+        }
 
         return response()->json([
             'message' => 'Komentar berhasil dikirim.',

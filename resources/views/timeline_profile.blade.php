@@ -67,7 +67,7 @@
                                                 data-following-count="{{ $followingCount }}"
                                                 class="sm:ml-auto px-5 py-2 rounded-full text-sm font-bold border-2 border-[#444] transition-colors cursor-pointer whitespace-nowrap
                                                        {{ $isFollowing ? 'bg-[#444] text-white' : 'bg-[#FFDDAF] hover:bg-[#ffcf90]' }}">
-                                            {{ $isFollowing ? 'Mengikuti' : 'Pengikut' }}
+                                            {{ $isFollowing ? 'Mengikuti' : 'Ikuti' }}
                                         </button>
                                     @endif
                                 @endauth

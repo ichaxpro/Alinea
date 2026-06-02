@@ -57,6 +57,11 @@ class TransactionController extends Controller
             'titik_temu' => $request->titik_temu,
         ]);
 
+        $owner = \App\Models\User::find($book->user_id);
+        if ($owner) {
+            $owner->notify(new \App\Notifications\BorrowRequested($request->user(), $book));
+        }
+
         return response()->json(['message' => 'Pengajuan pinjam berhasil dikirim', 'data' => $transaction]);
     }
 
@@ -91,6 +96,11 @@ class TransactionController extends Controller
         }
 
         $transaction->update(['status' => 'pending_return']);
+
+        $owner = \App\Models\User::find($transaction->owner_id);
+        if ($owner) {
+            $owner->notify(new \App\Notifications\ReturnRequested($request->user(), $transaction->book));
+        }
 
         return response()->json(['message' => 'Permintaan pengembalian dikirim', 'data' => $transaction]);
     }

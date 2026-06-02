@@ -102,7 +102,15 @@ Route::get('/daftar', function() {
 })->name('register');
 
 Route::get('/timeline_notifikasi', function () {
-    return view('timeline_notifikasi');
+    $user = Auth::user();
+    if (!$user) {
+        return redirect()->route('login');
+    }
+    
+    $notifications = $user->notifications;
+    $user->unreadNotifications->markAsRead();
+
+    return view('timeline_notifikasi', compact('notifications'));
 })->name('timeline_notifikasi');
 
 Route::get('/lupa_akun', function () {

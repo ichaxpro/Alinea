@@ -37,55 +37,25 @@
                 {{-- LIST NOTIFIKASI CONTAINER --}}
                 <div class="divide-y-[1.5px] divide-gray-200">
                     
+                    @foreach ($notifications as $notification)
                     @php
-                    // Data simulasi interaksi general (Like, Comment, Follow, System/Community)
-                    $notifications = [
-                        [
-                            'type' => 'like',
-                            'avatar_from' => '#FFD2D2', 'avatar_to' => '#FFA3A3',
-                            'user' => 'Dina Rahmawati',
-                            'meta' => 'Menyukai Catatan Anda',
-                            'body' => 'menyukai catatan kutipan buku Anda di "The Midnight Library".',
-                            'time' => 'Baru saja'
-                        ],
-                        [
-                            'type' => 'comment',
-                            'avatar_from' => '#D4F6FF', 'avatar_to' => '#C7E7FF',
-                            'user' => 'Budi Ashcroft',
-                            'meta' => 'Mengomentari Postingan',
-                            'body' => 'membalas ulasan Anda: "Setuju banget! Bab ke-3 benar-benar bikin plot twist yang gak disangka-sangka."',
-                            'time' => '12 Menit Lalu'
-                        ],
-                        [
-                            'type' => 'follow',
-                            'avatar_from' => '#E2FFE2', 'avatar_to' => '#A8FFA8',
-                            'user' => 'Ahmad Fauzan',
-                            'meta' => 'Pengikut Baru',
-                            'body' => 'mulai mengikuti Anda. Ikuti balik untuk mulai bertukar pesan dan berbagi rekomendasi buku!',
-                            'time' => '2 Jam Lalu'
-                        ],
-                        [
-                            'type' => 'community',
-                            'avatar_from' => '#FFE8CC', 'avatar_to' => '#FFD4A3',
-                            'user' => 'Klub Buku Horor Malang',
-                            'meta' => 'Rekomendasi Komunitas',
-                            'body' => 'baru saja dibuat! Berdasarkan preferensi membaca Anda, Anda mungkin tertarik untuk bergabung di komunitas ini.',
-                            'time' => '30 Apr'
-                        ]
-                    ];
+                        $notif = $notification->data;
+                        $time = \Carbon\Carbon::parse($notification->created_at)->locale('id')->translatedFormat('d F Y, H:i');
                     @endphp
-
-                    @foreach ($notifications as $notif)
-                    <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4 items-start">
+                    <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4 items-start {{ $notification->read_at ? '' : 'bg-blue-50/30' }}">
                         
                         {{-- Indikator Tipe Visual Kiri (Opsional untuk Icon/Warna) --}}
                         <div class="flex-shrink-0 pt-0.5">
-                            @if($notif['type'] === 'like')
+                            @if(isset($notif['type']) && $notif['type'] === 'like')
                                 <div class="w-2 h-2 rounded-full bg-red-500 mt-2"></div>
-                            @elseif($notif['type'] === 'comment')
+                            @elseif(isset($notif['type']) && $notif['type'] === 'comment')
                                 <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                            @elseif($notif['type'] === 'follow')
+                            @elseif(isset($notif['type']) && $notif['type'] === 'follow')
                                 <div class="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
+                            @elseif(isset($notif['type']) && $notif['type'] === 'borrow')
+                                <div class="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
+                            @elseif(isset($notif['type']) && $notif['type'] === 'return')
+                                <div class="w-2 h-2 rounded-full bg-teal-500 mt-2"></div>
                             @else
                                 <div class="w-2 h-2 rounded-full bg-amber-500 mt-2"></div>
                             @endif
@@ -95,24 +65,33 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1.5">
                                 {{-- Avatar User / Sistem --}}
-                                <div class="w-7 h-7 rounded-full border border-[#444] flex-shrink-0"
-                                     style="background: linear-gradient(135deg, {{ $notif['avatar_from'] }}, {{ $notif['avatar_to'] }})">
+                                @if(isset($notif['user_avatar']) && $notif['user_avatar'])
+                                <div class="w-7 h-7 rounded-full border border-[#444] flex-shrink-0 overflow-hidden">
+                                    <img src="{{ asset('storage/' . $notif['user_avatar']) }}" alt="Avatar" class="w-full h-full object-cover">
                                 </div>
-                                {{-- Info Pengirim --}}
-                                <span class="font-bold text-sm text-[#444]">{{ $notif['user'] }}</span>
-                                @if($notif['meta'])
-                                    <span class="text-xs text-gray-400 truncate">• {{ $notif['meta'] }}</span>
+                                @else
+                                <div class="w-7 h-7 rounded-full border border-[#444] flex-shrink-0"
+                                     style="background: linear-gradient(135deg, #FFDDAF, #C7E7FF)">
+                                </div>
                                 @endif
-                                <span class="text-xs text-gray-400 ml-auto flex-shrink-0">{{ $notif['time'] }}</span>
+                                {{-- Info Pengirim --}}
+                                <span class="font-bold text-sm text-[#444]">{{ $notif['user_name'] ?? 'Sistem' }}</span>
+                                <span class="text-xs text-gray-400 ml-auto flex-shrink-0">{{ $time }}</span>
                             </div>
                             
-                            {{-- Teks Detail Notifikasi (Ditata presisi tanpa margin kiri yang terlalu menjorok) --}}
+                            {{-- Teks Detail Notifikasi --}}
                             <p class="text-xs text-gray-600 leading-relaxed pl-9 break-words">
-                                <strong>{{ $notif['user'] }}</strong> {{ $notif['body'] }}
+                                <strong>{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
                             </p>
                         </div>
                     </div>
                     @endforeach
+
+                    @if($notifications->isEmpty())
+                        <div class="p-8 text-center text-gray-500">
+                            <p>Belum ada notifikasi.</p>
+                        </div>
+                    @endif
 
                 </div>
             </main>
