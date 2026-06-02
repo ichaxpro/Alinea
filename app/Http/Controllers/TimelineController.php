@@ -244,7 +244,7 @@ class TimelineController extends Controller
                     'avatar_url' => $comment->author->foto_profil ? asset('storage/' . $comment->author->foto_profil) : null,
                     'body' => $comment->isi_komentar,
                     'attachments' => $attachments,
-                    'time' => $comment->created_at ? Carbon::parse($comment->created_at)->diffForHumans() : 'Baru saja',
+                    'time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->diffForHumans() : 'Baru saja',
                     'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'likes_base' => $likesCount,
                     'likes_label' => $likes_label,

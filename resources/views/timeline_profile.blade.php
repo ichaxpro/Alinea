@@ -173,9 +173,7 @@
                                 </div>
                             @elseif($post['media_url'] && $post['media_type'] === 'video')
                                 <div class="mb-4">
-                                    <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black">
-                                        <source src="{{ $post['media_url'] }}" type="video/mp4">
-                                    </video>
+                                    <video src="{{ $post['media_url'] }}" data-media-url="{{ $post['media_url'] }}" data-media-type="video" controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] bg-black cursor-pointer hover:opacity-90 transition-opacity"></video>
                                 </div>
                             @elseif($post['media_url'])
                                 <div class="mb-3">
@@ -248,7 +246,7 @@
                                     <h3 class="font-bold text-[15px] text-[#444]">{{ $achievement->title }}</h3>
                                     <p class="text-sm text-gray-500">{{ $achievement->description }}</p>
                                     @if($achievement->pivot?->earned_at)
-                                        <p class="text-xs text-gray-400 mt-1">Diperoleh {{ \Carbon\Carbon::parse($achievement->pivot->earned_at)->diffForHumans() }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">Diperoleh {{ \Carbon\Carbon::parse($achievement->pivot->earned_at)->locale('id')->diffForHumans() }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -392,21 +390,19 @@
                                 @if(count($imgs) === 1)
                                     @php $img = reset($imgs); @endphp
                                     <div class="mb-4">
-                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" data-media-url="{{ asset('storage/' . $img['src']) }}" data-media-type="image" alt="media" class="w-full max-w-[420px] h-auto rounded-2xl border-[1.5px] border-[#444] mx-auto cursor-pointer hover:opacity-90 transition-opacity">
                                     </div>
                                 @elseif(count($imgs) > 1)
                                     <div class="grid grid-cols-2 gap-2 mb-4">
                                         @foreach ($imgs as $img)
-                                        <img src="{{ asset('storage/' . $img['src']) }}" alt="media" class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover">
+                                        <img src="{{ asset('storage/' . $img['src']) }}" data-media-url="{{ asset('storage/' . $img['src']) }}" data-media-type="image" alt="media" class="w-full h-auto rounded-xl border-[1.5px] border-[#444] object-cover cursor-pointer hover:opacity-90 transition-opacity">
                                         @endforeach
                                     </div>
                                 @endif
                                 @foreach ($media['attachments'] as $att)
                                     @if($att['type'] === 'video')
                                         <div class="mb-4">
-                                            <video controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444]">
-                                                <source src="{{ asset('storage/' . $att['src']) }}" type="video/mp4">
-                                            </video>
+                                            <video src="{{ asset('storage/' . $att['src']) }}" data-media-url="{{ asset('storage/' . $att['src']) }}" data-media-type="video" controls class="w-full max-w-[720px] mx-auto rounded-2xl border-[1.5px] border-[#444] cursor-pointer hover:opacity-90 transition-opacity"></video>
                                         </div>
                                     @elseif($att['type'] === 'file')
                                         <div class="mb-3">
