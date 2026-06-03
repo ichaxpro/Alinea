@@ -184,7 +184,7 @@ class ProfileController extends Controller
     public function toggleFollow(User $user) {
         $currentUser = Auth::user();
         if (!$currentUser) return response()->json(['message' => 'Unauthorized'], 401);
-        if ($currentUser->id === $user->id) return response()->json(['message' => 'Tidak bisa follow diri sendiri'], 422);
+        if ($currentUser->id === $user->id) return response()->json(['message' => 'Tidak bisa mengikuti diri sendiri'], 422);
 
         $existing = Follow::where('follower_id', $currentUser->id)
             ->where('following_id', $user->id)->first();
@@ -192,9 +192,14 @@ class ProfileController extends Controller
         if ($existing) {
             $existing->delete();
             $following = false;
+            $user->notifications()
+                ->where('type', \App\Notifications\UserFollowed::class)
+                ->where('data->user_id', $currentUser->id)
+                ->delete();
         } else {
             Follow::create(['follower_id' => $currentUser->id, 'following_id' => $user->id]);
             $following = true;
+            $user->notify(new \App\Notifications\UserFollowed($currentUser));
         }
 
         return response()->json([
