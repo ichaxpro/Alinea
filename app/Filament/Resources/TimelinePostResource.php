@@ -9,6 +9,7 @@ use Filament\Schemas\Schema;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
 
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
@@ -73,10 +74,11 @@ class TimelinePostResource extends Resource
                 \Filament\Schemas\Components\Section::make('Media')
                     ->schema([
                         Forms\Components\FileUpload::make('media')
+                            ->image()
                             ->disk('public')
                             ->directory('timeline_media')
-                            ->label('File Media')
-                            ->columnSpanFull(),
+                            ->visibility('public')
+                            ->label('File Media'),
                         Forms\Components\TextInput::make('media_type')
                             ->maxLength(255)
                             ->label('Tipe Media'),
@@ -97,6 +99,11 @@ class TimelinePostResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->sortable()
                     ->label('ID'),
+                ImageColumn::make('media')
+                    ->disk('public')
+                    ->label('Media')
+                    ->square()
+                    ->defaultImageUrl(url('/images/no-image.png')),
                 Tables\Columns\TextColumn::make('author.name')
                     ->searchable()
                     ->sortable()
