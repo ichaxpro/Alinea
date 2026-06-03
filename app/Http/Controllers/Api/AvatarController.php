@@ -16,7 +16,12 @@ class AvatarController extends Controller
         $user = $request->user();
         $image = $request->file('avatar');
         $ext = $image->getClientOriginalExtension() ?: 'png';
-        $filename = $user->id . '.' . $ext;
+        
+        if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+            Storage::disk('public')->delete($user->foto_profil);
+        }
+
+        $filename = $user->id . '_' . time() . '.' . $ext;
         $path = $image->storeAs('avatars', $filename, 'public');
 
         $user->foto_profil = $path;
