@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\TimelinePost;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Filament\Tables\Columns\ImageColumn;
 
 class TimelinePostSeeder extends Seeder
 {

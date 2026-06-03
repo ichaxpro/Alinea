@@ -43,28 +43,39 @@ class BookController extends Controller
         ]);
     }
 
-    private function buildFromDb(FeaturedBook $book): array {
-        return [
-            'id' => $book->id,
-            'judul' => $book->judul,
-            'penulis' => $book->penulis,
-            'penerbit' => $book->penerbit ?? '',
-            'tahun_terbit' => $book->tahun,
-            'jumlah_halaman' => $book->jumlah_halaman ?? 0,
-            'bahasa' => $book->bahasa ?? 'Indonesia',
-            'isbn' => $book->isbn ?? '',
-            'kategori' => $book->kategori ?? '',
-            'sinopsis' => $book->sinopsis ?? '',
-            'foto_sampul' => $book->cover_url,
-            'status' => $book->status ?? 'tersedia',
-            'owners' => $this->getOwners($book->isbn, $book->judul, $book->penulis),
-            'genres' => $book->genres ?? [],
-            'rating_avg' => (float) ($book->rating_avg ?? 0),
-            'rating_count' => (int) ($book->rating_count ?? 0),
-            'rating_distribution' => (object) [],
-            'book_identifier_type' => 'db',
-        ];
-    }
+ private function buildFromDb(FeaturedBook $book): array {
+
+    // 🔥 TAMBAHKAN INI DI ATAS RETURN
+    $timelineImage = \App\Models\TimelinePost::whereNotNull('media')
+        ->whereRaw('LOWER(judul_buku_dibahas) LIKE ?', ['%' . strtolower($book->judul) . '%'])
+        ->latest()
+        ->value('media');
+
+    return [
+        'id' => $book->id,
+        'judul' => $book->judul,
+        'penulis' => $book->penulis,
+        'penerbit' => $book->penerbit ?? '',
+        'tahun_terbit' => $book->tahun,
+        'jumlah_halaman' => $book->jumlah_halaman ?? 0,
+        'bahasa' => $book->bahasa ?? 'Indonesia',
+        'isbn' => $book->isbn ?? '',
+        'kategori' => $book->kategori ?? '',
+        'sinopsis' => $book->sinopsis ?? '',
+
+'foto_sampul' => $book->cover_url 
+    ? asset('storage/' . $book->cover_url)
+    : ($timelineImage ? asset($timelineImage) : null),
+
+        'status' => $book->status ?? 'tersedia',
+        'owners' => $this->getOwners($book->isbn, $book->judul, $book->penulis),
+        'genres' => $book->genres ?? [],
+        'rating_avg' => (float) ($book->rating_avg ?? 0),
+        'rating_count' => (int) ($book->rating_count ?? 0),
+        'rating_distribution' => (object) [],
+        'book_identifier_type' => 'db',
+    ];
+}
 
     private function buildFromApi(array $volume): array {
         $info = $volume['volumeInfo'] ?? [];
