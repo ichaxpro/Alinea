@@ -30,12 +30,8 @@
                            @auth
                                <div class="relative" id="profile-dropdown">
                                 <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
-                                    @if(Auth::user()->foto_profil)
-                                    <img id="navbar-avatar-img" src="{{ Storage::disk('public')->url(Auth::user()->foto_profil) }}" alt="Avatar" class="w-full h-full object-cover">
-                                    <span id="navbar-avatar-initial" class="hidden">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                    @else
-                                    <span id="navbar-avatar-initial">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
-                                    @endif
+                                    <img id="navbar-avatar-img" src="{{ Auth::user()->foto_profil ? Storage::disk('public')->url(Auth::user()->foto_profil) : '' }}" alt="Avatar" class="w-full h-full object-cover {{ Auth::user()->foto_profil ? '' : 'hidden' }}">
+                                    <span id="navbar-avatar-initial" class="{{ Auth::user()->foto_profil ? 'hidden' : '' }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </button>
 
                                 <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
