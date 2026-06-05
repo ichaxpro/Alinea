@@ -118,6 +118,11 @@ Route::get('/lupa_akun', function () {
     return view('lupa_akun');
 })->name('lupa_akun');
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
+Route::post('/lupa_akun/send-code', [ForgotPasswordController::class, 'sendResetCode']);
+Route::post('/lupa_akun/verify-code', [ForgotPasswordController::class, 'verifyResetCode']);
+Route::post('/lupa_akun/reset', [ForgotPasswordController::class, 'resetPassword']);
+
 Route::post('/login', [AuthController::class, 'loginWeb']);
 Route::post('/daftar', [AuthController::class, 'registerWeb']);
 Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth');
@@ -130,6 +135,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
     Route::delete('/personal-books/{book}', [PersonalBookController::class, 'destroy']);
     Route::post('/upload-avatar', [AvatarController::class, 'upload']);
+    
+    Route::post('/notifications/mark-read', function () {
+        auth()->user()->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
+    })->name('notifications.mark_read');
     
     // Transactions
     Route::post('/transactions', [TransactionController::class, 'store']);

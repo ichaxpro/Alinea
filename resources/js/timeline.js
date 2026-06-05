@@ -749,15 +749,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageItems = items.filter(item => item.type === 'image');
         const otherItems = items.filter(item => item.type !== 'image');
 
-            // Render each image using the same single-image styling (stacked), so multi-image posts look like single-image posts
-            const imageSlides = imageItems.map((item, index) => {
-                const caption = item.original_name ? escapeHtml(item.original_name) : 'Lampiran gambar ' + (index + 1);
-                return '<div class="mb-3"><img src="' + item.url + '" data-media-url="' + item.url + '" data-media-type="image" alt="' + caption + '" class="w-full max-w-[560px] h-auto object-contain rounded-2xl shadow-sm mx-auto cursor-pointer hover:opacity-90 transition-opacity" /></div>';
-            }).join('');
+        const imageSlides = imageItems.map((item, index) => {
+            return '<img src="' + item.url + '" data-media-url="' + item.url + '" data-media-type="image" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />';
+        }).join('');
 
         const nonImageHtml = otherItems.map(item => {
             if (item.type === 'video') {
-                return '<div class="mt-3"><video src="' + item.url + '" data-media-url="' + item.url + '" data-media-type="video" controls class="w-full h-auto max-h-[560px] rounded-2xl cursor-pointer hover:opacity-90 transition-opacity"></video></div>';
+                return '<video src="' + item.url + '" data-media-url="' + item.url + '" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>';
             }
 
             return '<div class="mt-3 text-sm"><a href="' + item.url + '" class="underline">' + escapeHtml(item.original_name || 'Unduh file') + '</a></div>';
@@ -765,8 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!imageItems.length && !otherItems.length) return '';
 
-        // For consistent design, always render images stacked with the single-image styling
-        return '<div class="mb-3">' + imageSlides + nonImageHtml + '</div>';
+        return '<div class="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4">' + imageSlides + nonImageHtml + '</div>';
 
         const trackId = 'media-track-' + Math.random().toString(36).slice(2, 10);
         const counterId = 'media-count-' + Math.random().toString(36).slice(2, 10);
@@ -1272,12 +1269,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 '</div>' +
                 '<div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">' + escapeHtml(post.tag || 'Post') + '</div>' +
             '</div>' +
-            '</div>' +
 
             tagsHtml +
 
+            '<p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4">' + escapeHtml(post.body || '') + '</p>' +
             mediaHtml +
-            '<p class="text-sm text-gray-600 leading-relaxed mb-4">' + escapeHtml(post.body || '') + '</p>' +
             '<div class="flex items-center gap-5 pt-3 border-t border-gray-100">' +
                 '<button id="comment-btn-' + post.id + '" data-comment-toggle aria-label="Komentar" class="flex items-center gap-1.5 text-gray-400 text-[13px] font-medium hover:text-[#444] transition-colors cursor-pointer">' +
                     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>' +
