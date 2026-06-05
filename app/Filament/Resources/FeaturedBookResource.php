@@ -98,15 +98,12 @@ class FeaturedBookResource extends Resource
                 \Filament\Schemas\Components\Section::make('Rating')
                     ->schema([
                         Forms\Components\TextInput::make('rating_avg')
-                            ->numeric()
-                            ->default(0)
-                            ->step(0.01)
-                            ->minValue(0)
-                            ->maxValue(5)
+                            ->disabled()
+                            ->dehydrated(false)
                             ->label('Rating Rata-rata'),
                         Forms\Components\TextInput::make('rating_count')
-                            ->numeric()
-                            ->default(0)
+                            ->disabled()
+                            ->dehydrated(false)
                             ->label('Jumlah Rating'),
                     ])->columns(2),
             ]);

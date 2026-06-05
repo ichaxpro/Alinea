@@ -92,7 +92,7 @@
             <div class="flex justify-center sm:justify-start gap-2.5 mb-6 flex-wrap" id="bookGenres"></div>
 
             {{-- Action buttons --}}
-            <div class="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-2.5 items-center mb-8 w-full">
+            <div class="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-2.5 items-center mb-8">
               <button class="flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 sm:px-6 py-3 text-[0.8rem] md:text-[0.85rem] font-bold text-text bg-accent rounded-full border-[1.5px] border-text transition-all duration-200 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] cursor-pointer whitespace-nowrap" id="tulisUlasanBtn">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14.5 2.5a2.121 2.121 0 0 1 3 3L6 17l-4 1 1-4L14.5 2.5z"/></svg>
                 Tulis Ulasan

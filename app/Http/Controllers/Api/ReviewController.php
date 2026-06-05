@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookReview;
+use App\Models\FeaturedBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +67,7 @@ class ReviewController extends Controller
         ]);
 
         $review->load('user:id,name,foto_profil');
+        $this->syncFeaturedBookRating($validated['book_identifier']);
 
         return response()->json([
             'message'   => 'Ulasan berhasil disimpan.',
@@ -121,6 +123,7 @@ class ReviewController extends Controller
 
         $review->update($validated);
         $review->load('user:id,name,foto_profil');
+        $this->syncFeaturedBookRating($review->book_identifier);
 
         return response()->json([
             'message' => 'Ulasan berhasil diperbarui.',
@@ -135,7 +138,11 @@ class ReviewController extends Controller
             return response()->json(['message' => 'Tidak diizinkan.'], 403);
         }
 
+        $bookIdentifier = $review->book_identifier;
+
         $review->delete();
+
+        $this->syncFeaturedBookRating($bookIdentifier);
 
         return response()->json(['message' => 'Ulasan berhasil dihapus.']);
     }
@@ -163,6 +170,13 @@ class ReviewController extends Controller
             'helpful'    => (int) ($r->helpful ?? 0),
             'my_vote'    => $myVote,
         ];
+    }
+
+    private function syncFeaturedBookRating(string $bookIdentifier): void {
+        $featured = FeaturedBook::find((int) $bookIdentifier);
+        if ($featured) {
+            $featured->syncRatings();
+        }
     }
 
     public function stats(Request $request) {
