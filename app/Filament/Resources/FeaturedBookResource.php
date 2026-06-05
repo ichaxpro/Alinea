@@ -57,13 +57,8 @@ class FeaturedBookResource extends Resource
                         Forms\Components\TextInput::make('kategori')
                             ->maxLength(255)
                             ->label('Kategori'),
-                        Forms\Components\Select::make('status')
-                            ->options([
-                                'tersedia' => 'Tersedia',
-                                'dipinjam' => 'Dipinjam',
-                                'tidak_tersedia' => 'Tidak Tersedia',
-                            ])
-                            ->default('tersedia')
+                        Forms\Components\TextInput::make('status')
+                            ->disabled()
                             ->label('Status'),
                     ])->columns(2),
 

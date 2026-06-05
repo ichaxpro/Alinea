@@ -74,7 +74,7 @@
 
           <div class="flex flex-col items-center sm:items-start">
             {{-- Kategori --}}
-            <span class="inline-block px-5 py-1 text-[0.78rem] font-semibold text-text border-[1.5px] border-[#ddd] rounded-full mb-3" id="bookCategory"></span>
+            <span class="inline-block text-[0.72rem] font-bold text-[#444444]/50 uppercase tracking-[0.1em] mb-3" id="bookCategory"></span>
 
             {{-- Judul --}}
             <h1 class="text-3xl md:text-[2.2rem] font-black text-text leading-tight tracking-[-0.02em] mb-2" id="bookTitle"></h1>
@@ -86,7 +86,7 @@
             <div class="flex items-center justify-center sm:justify-start gap-2.5 mb-4" id="bookRating"></div>
 
             {{-- Sinopsis --}}
-            <p class="text-[0.85rem] leading-relaxed text-text/75 mb-5 max-w-140" id="bookSynopsis"></p>
+            <p class="text-[0.85rem] leading-relaxed text-[#444444]/90 mb-5 max-w-140 whitespace-pre-line" id="bookSynopsis"></p>
 
             {{-- Genre pills --}}
             <div class="flex justify-center sm:justify-start gap-2.5 mb-6 flex-wrap" id="bookGenres"></div>

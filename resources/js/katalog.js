@@ -184,6 +184,14 @@ function showToast(msg) {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3200);
 }
 
+function truncateSynopsis(text, maxLength = 150) {
+  if (!text) return '';
+  // Strip HTML tags since Google Books API can return HTML in descriptions
+  const stripped = text.replace(/<[^>]*>/g, '');
+  if (stripped.length <= maxLength) return stripped;
+  return stripped.substring(0, maxLength).trimEnd() + '…';
+}
+
 async function fetchRatingStats(ids) {
   if (!ids.length) return {};
   try {
@@ -359,7 +367,7 @@ function renderCards(books) {
         </div>
 
         <!-- Synopsis (desktop only) -->
-        <p class="hidden md:block text-[0.78rem] text-text/55 leading-relaxed mb-4 flex-1 line-clamp-2">${book.sinopsis}</p>
+        <p class="hidden md:block text-[0.78rem] text-text/55 leading-relaxed mb-4 flex-1 line-clamp-3">${truncateSynopsis(book.sinopsis, 150)}</p>
 
         <!-- Genre pills (desktop only) -->
         <div class="hidden md:flex gap-1.5 flex-wrap mb-4">

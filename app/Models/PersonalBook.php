@@ -19,6 +19,30 @@ class PersonalBook extends Model
         ];
     }
 
+    protected static function booted(): void {
+        $syncStatus = function (PersonalBook $pb) {
+            // Find matching FeaturedBooks and sync their status
+            FeaturedBook::query()
+                ->where(function ($q) use ($pb) {
+                    if (!empty($pb->isbn)) {
+                        $q->where('isbn', $pb->isbn)->orWhere(function ($q2) use ($pb) {
+                            $q2->where('judul', $pb->judul)
+                               ->where('penulis', $pb->penulis);
+                        });
+                    } else {
+                        $q->where('judul', $pb->judul)
+                          ->where('penulis', $pb->penulis);
+                    }
+                })
+                ->get()
+                ->each->syncStatus();
+        };
+
+        static::created($syncStatus);
+        static::updated($syncStatus);
+        static::deleted($syncStatus);
+    }
+
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);
     }

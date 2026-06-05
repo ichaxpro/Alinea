@@ -135,7 +135,44 @@ function renderBookDetail(book) {
   setTextById('bookCategory', book.kategori);
   setTextById('bookTitle', book.judul);
   setTextById('bookMeta', `${book.penulis} • ${book.tahun_terbit} • ${book.jumlah_halaman} Halaman`);
-  setTextById('bookSynopsis', book.sinopsis);
+
+  // Sinopsis dengan Show More
+  const synopsisEl = document.getElementById('bookSynopsis');
+  if (synopsisEl) {
+    synopsisEl.textContent = book.sinopsis;
+    synopsisEl.classList.add('line-clamp-4'); // Truncate text to 4 lines
+    synopsisEl.classList.replace('mb-5', 'mb-1'); // Reduce bottom margin since button will be below it
+
+    // Hapus button lama jika ada (saat render ulang)
+    const oldBtn = document.getElementById('toggleSynopsisBtn');
+    if (oldBtn) oldBtn.remove();
+
+    requestAnimationFrame(() => {
+      // Cek apakah teks terpotong
+      if (synopsisEl.scrollHeight > synopsisEl.clientHeight || synopsisEl.scrollHeight > 100) {
+        const btn = document.createElement('button');
+        btn.id = 'toggleSynopsisBtn';
+        btn.className = 'text-[#444444]/60 text-[0.78rem] font-bold underline decoration-[1.5px] decoration-[#444444]/30 hover:text-[#444444] hover:decoration-[#444444] transition-all mb-5 block';
+        btn.textContent = 'Baca Selengkapnya';
+        synopsisEl.parentNode.insertBefore(btn, synopsisEl.nextSibling);
+
+        let isExpanded = false;
+        btn.addEventListener('click', () => {
+          isExpanded = !isExpanded;
+          if (isExpanded) {
+            synopsisEl.classList.remove('line-clamp-4');
+            btn.textContent = 'Sembunyikan';
+          } else {
+            synopsisEl.classList.add('line-clamp-4');
+            btn.textContent = 'Baca Selengkapnya';
+          }
+        });
+      } else {
+        // Jika tidak dipotong, kembalikan margin bottom
+        synopsisEl.classList.replace('mb-1', 'mb-5');
+      }
+    });
+  }
 
   // Modal title
   setTextById('modalBookTitle', book.judul);
@@ -161,14 +198,14 @@ function renderBookDetail(book) {
 
   // Genres
   setHtmlById('bookGenres', book.genres.map(g =>
-    `<span class="px-6 py-1.5 text-[0.8rem] font-medium text-text border-[1.5px] border-[#ddd] rounded-full transition-all duration-200 hover:border-text hover:bg-[#FBFBFB]">${g}</span>`
+    `<span class="px-5 py-1 text-[0.75rem] font-semibold text-[#444444]/70 bg-[#F5F5F5] rounded-full transition-all duration-200 hover:bg-[#EAEAEA]">${g}</span>`
   ).join(''));
 
   // Info grid
   const owners = window.__BOOK_DATA__.owners ?? [];
   const isAvailable = owners.length > 0;
 
-  const statusColor = isAvailable ? 'text-[#22c55e]' : 'text-red-500';
+  const statusColor = isAvailable ? 'text-[#22c55e]' : 'text-rose-500';
   const statusText = isAvailable ? 'Tersedia' : 'Tidak Tersedia';
 
   const infoItems = [
@@ -179,7 +216,7 @@ function renderBookDetail(book) {
   ];
   setHtmlById('bookInfoGrid', infoItems.map(([label, value]) => `
     <div>
-      <span class="block text-[0.72rem] font-semibold text-[#444444]/45 uppercase tracking-[0.06em] mb-0.5">${label}</span>
+      <span class="block text-[0.68rem] font-bold text-[#444444]/40 uppercase tracking-[0.08em] mb-1">${label}</span>
       <span class="text-[0.85rem] font-medium text-[#444444]">${value}</span>
     </div>
   `).join(''));
