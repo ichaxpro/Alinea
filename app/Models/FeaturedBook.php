@@ -7,7 +7,7 @@ use App\Models\BookReview;
 
 class FeaturedBook extends Model
 {
-    protected $fillable = ['judul', 'penulis', 'tahun', 'sinopsis', 'genres', 'cover_url', 'gradient_from', 'gradient_to', 'isbn', 'jumlah_halaman', 'bahasa', 'kategori', 'status', 'rating_avg', 'rating_count',];
+    protected $fillable = ['judul', 'penulis', 'penerbit', 'tahun', 'sinopsis', 'genres', 'cover_url', 'gradient_from', 'gradient_to', 'isbn', 'jumlah_halaman', 'bahasa', 'kategori', 'status', 'rating_avg', 'rating_count',];
 
     protected function casts(): array
     {
@@ -27,5 +27,30 @@ class FeaturedBook extends Model
             'rating_avg' => $stats?->avg_rating ?? 0,
             'rating_count' => $stats?->count ?? 0,
         ]);
+    }
+
+    public function syncStatus(): void {
+        $hasOwners = PersonalBook::where('is_available', true)
+            ->where(function ($q) {
+                if (!empty($this->isbn)) {
+                    $q->where('isbn', $this->isbn)->orWhere(function ($q2) {
+                        $q2->where('judul', $this->judul)
+                           ->where('penulis', $this->penulis);
+                    });
+                } else {
+                    $q->where('judul', $this->judul)
+                      ->where('penulis', $this->penulis);
+                }
+            })
+            ->exists();
+
+        $newStatus = $hasOwners ? 'tersedia' : 'tidak_tersedia';
+        if ($this->status !== $newStatus) {
+            $this->update(['status' => $newStatus]);
+        }
+    }
+
+    public static function syncAllStatuses(): void {
+        static::all()->each->syncStatus();
     }
 }

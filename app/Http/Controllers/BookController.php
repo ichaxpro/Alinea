@@ -203,7 +203,7 @@ class BookController extends Controller
             'id'                => $b->id,
             'judul'             => $b->judul,
             'penulis'           => $b->penulis,
-            'cover_url'         => $b->cover_url,
+            'cover_url'         => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : (str_starts_with($b->cover_url, '/') ? asset(ltrim($b->cover_url, '/')) : asset('storage/' . $b->cover_url))) : null,
             'rating_avg'        => (float) ($realRatings[(string) $b->id] ?? 0),
             'kategori'          => $b->kategori ?? '',
             'identifier_type'   => 'db',
