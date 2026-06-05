@@ -64,7 +64,7 @@ class BookController extends Controller
         'sinopsis' => $book->sinopsis ?? '',
 
 'foto_sampul' => $book->cover_url 
-    ? asset('storage/' . $book->cover_url)
+    ? (str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url)))
     : ($timelineImage ? asset($timelineImage) : null),
 
         'status' => $book->status ?? 'tersedia',
