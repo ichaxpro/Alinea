@@ -215,7 +215,32 @@ document.addEventListener('DOMContentLoaded', () => {
             chatBox.appendChild(btn);
         }
 
+        let lastDateString = null;
+        const todayStr = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
         currentMessages.forEach(msg => {
+            if (msg.created_at) {
+                const msgDate = new Date(msg.created_at);
+                const dateStr = msgDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                if (dateStr !== lastDateString) {
+                    const divider = document.createElement('div');
+                    divider.className = 'flex justify-center my-4';
+                    
+                    let displayText = dateStr;
+                    if (dateStr === todayStr) displayText = 'Hari ini';
+                    else if (dateStr === yesterdayStr) displayText = 'Kemarin';
+                    
+                    divider.innerHTML = `<span class="bg-white shadow-sm border border-gray-100 text-gray-500 text-[11px] px-3 py-1 rounded-full font-medium">${displayText}</span>`;
+                    chatBox.appendChild(divider);
+                    
+                    lastDateString = dateStr;
+                }
+            }
+
             chatBox.appendChild(buildBubble(msg));
         });
 

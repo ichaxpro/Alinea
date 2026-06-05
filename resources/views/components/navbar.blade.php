@@ -22,12 +22,83 @@
                     <!-- Right Actions Group (CTA + Mobile Menu) -->
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-3">
-                            <button id="navbar-search-btn" aria-label="Cari" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:bg-white/10 transition-colors">
+                            <button id="navbar-search-btn" aria-label="Cari" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                                 </svg>
                             </button>
                            @auth
+                                @php
+                                    $unreadCount = auth()->user()->unreadNotifications->count();
+                                    $latestNotifications = auth()->user()->notifications()->take(3)->get();
+                                @endphp
+                                
+                                <div class="relative" id="notification-dropdown">
+                                    <button onclick="toggleNotificationDropdown()" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200 relative">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                        </svg>
+                                        @if($unreadCount > 0)
+                                            <span id="navbar-notif-badge" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                                        @endif
+                                    </button>
+
+                                    <div id="notif-dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-80 bg-white border-2 border-[#444] rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col">
+                                        <div class="px-4 py-3 border-b-[1.5px] border-gray-100 flex justify-between items-center">
+                                            <span class="font-bold text-[#444]">Notifikasi</span>
+                                            @if($unreadCount > 0)
+                                                <div class="flex items-center gap-2" id="notif-header-actions">
+                                                    <button onclick="markNotificationsAsRead()" class="text-[10px] font-bold text-gray-400 hover:text-blue-500 transition-colors cursor-pointer">
+                                                        Tandai sudah dibaca
+                                                    </button>
+                                                    <span class="text-xs font-bold bg-[#FFDDAF] text-[#444] px-2 py-0.5 rounded-full">{{ $unreadCount }} Baru</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="max-h-80 overflow-y-auto flex flex-col divide-y-[1.5px] divide-gray-100">
+                                            @forelse($latestNotifications as $notification)
+                                                @php
+                                                    $notif = $notification->data;
+                                                    $time = \Carbon\Carbon::parse($notification->created_at)->locale('id')->diffForHumans();
+                                                @endphp
+                                                <div class="p-3 hover:bg-gray-50 transition-colors flex gap-3 items-start {{ $notification->read_at ? '' : 'bg-blue-50/30 notif-item-unread' }}">
+                                                    <div class="flex-shrink-0 pt-0.5">
+                                                        @if(isset($notif['type']) && $notif['type'] === 'like')
+                                                            <div class="w-2 h-2 rounded-full bg-red-500 mt-1.5"></div>
+                                                        @elseif(isset($notif['type']) && $notif['type'] === 'comment')
+                                                            <div class="w-2 h-2 rounded-full bg-blue-500 mt-1.5"></div>
+                                                        @elseif(isset($notif['type']) && $notif['type'] === 'follow')
+                                                            <div class="w-2 h-2 rounded-full bg-green-500 mt-1.5"></div>
+                                                        @elseif(isset($notif['type']) && $notif['type'] === 'borrow')
+                                                            <div class="w-2 h-2 rounded-full bg-purple-500 mt-1.5"></div>
+                                                        @elseif(isset($notif['type']) && $notif['type'] === 'return')
+                                                            <div class="w-2 h-2 rounded-full bg-teal-500 mt-1.5"></div>
+                                                        @else
+                                                            <div class="w-2 h-2 rounded-full bg-amber-500 mt-1.5"></div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-[13px] text-gray-600 leading-relaxed line-clamp-2">
+                                                            <strong class="text-[#444]">{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
+                                                        </p>
+                                                        <span class="text-[11px] text-gray-400 mt-1 block">{{ $time }}</span>
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <div class="p-4 text-center text-[13px] text-gray-500">
+                                                    Belum ada notifikasi.
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                        <div class="border-t-[1.5px] border-gray-100 p-2">
+                                            <a href="{{ route('timeline_notifikasi') }}" class="block w-full text-center py-2 text-[13px] font-bold text-gray-600 hover:text-[#444] hover:bg-gray-50 rounded-xl transition-colors">
+                                                Lihat semua notifikasi
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
                                <div class="relative" id="profile-dropdown">
                                 <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
                                     <img id="navbar-avatar-img" src="{{ Auth::user()->foto_profil ? Storage::disk('public')->url(Auth::user()->foto_profil) : '' }}" alt="Avatar" class="w-full h-full object-cover {{ Auth::user()->foto_profil ? '' : 'hidden' }}">
@@ -59,13 +130,47 @@
                        <script>
                         function toggleDropdown() {
                             document.getElementById('dropdown-menu').classList.toggle('hidden');
+                            document.getElementById('notif-dropdown-menu')?.classList.add('hidden');
                         }
+                        
+                        function toggleNotificationDropdown() {
+                            document.getElementById('notif-dropdown-menu').classList.toggle('hidden');
+                            document.getElementById('dropdown-menu')?.classList.add('hidden');
+                        }
+
                         document.addEventListener('click', function(e) {
-                            const dd = document.getElementById('profile-dropdown');
-                            if (dd && !dd.contains(e.target)) {
+                            const profileDd = document.getElementById('profile-dropdown');
+                            const notifDd = document.getElementById('notification-dropdown');
+                            
+                            if (profileDd && !profileDd.contains(e.target)) {
                                 document.getElementById('dropdown-menu')?.classList.add('hidden');
                             }
+                            if (notifDd && !notifDd.contains(e.target)) {
+                                document.getElementById('notif-dropdown-menu')?.classList.add('hidden');
+                            }
                         });
+
+                        function markNotificationsAsRead() {
+                            fetch('{{ route('notifications.mark_read') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            }).then(res => res.json()).then(data => {
+                                if(data.success) {
+                                    const iconBadge = document.getElementById('navbar-notif-badge');
+                                    if(iconBadge) iconBadge.remove();
+                                    
+                                    const headerActions = document.getElementById('notif-header-actions');
+                                    if(headerActions) headerActions.remove();
+                                    
+                                    document.querySelectorAll('.notif-item-unread').forEach(el => {
+                                        el.classList.remove('bg-blue-50/30', 'notif-item-unread');
+                                    });
+                                }
+                            }).catch(err => console.error(err));
+                        }
                        </script>
                     @endauth
                 </div>

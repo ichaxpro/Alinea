@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="h-full bg-white font-['Poppins',_sans-serif] overflow-x-hidden m-0 p-0 box-border">
@@ -110,15 +111,38 @@
   </div>
 
   <script>
-    function goToVerify() {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    async function goToVerify() {
       const emailInput = document.getElementById('email').value;
       if(emailInput.trim() === "") {
         alert("Silakan masukkan email Anda terlebih dahulu.");
         return;
       }
-      document.getElementById('display-email').innerText = emailInput;
-      document.getElementById('step-email').classList.add('hidden');
-      document.getElementById('step-verify').classList.remove('hidden');
+      
+      try {
+        const response = await fetch('/lupa_akun/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({ email: emailInput })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.message || "Gagal mengirim kode verifikasi.");
+          return;
+        }
+
+        document.getElementById('display-email').innerText = emailInput;
+        document.getElementById('step-email').classList.add('hidden');
+        document.getElementById('step-verify').classList.remove('hidden');
+      } catch (error) {
+        alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+      }
     }
 
     function goToEmail() {
@@ -126,20 +150,42 @@
       document.getElementById('step-email').classList.remove('hidden');
     }
 
-    // Fungsi Baru: Masuk ke halaman Ganti Sandi setelah Verifikasi sukses
-    function goToPassword() {
+    async function goToPassword() {
+      const emailInput = document.getElementById('email').value;
       const codeInput = document.getElementById('code').value;
       if(codeInput.trim().length < 6) {
         alert("Masukkan 6 digit kode verifikasi yang valid.");
         return;
       }
       
-      // Sembunyikan bagian verifikasi kode, tampilkan form ganti sandi
-      document.getElementById('step-verify').classList.add('hidden');
-      document.getElementById('step-password').classList.remove('hidden');
+      try {
+        const response = await fetch('/lupa_akun/verify-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({ email: emailInput, code: codeInput })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.message || "Kode verifikasi salah atau kedaluwarsa.");
+          return;
+        }
+
+        // Sembunyikan bagian verifikasi kode, tampilkan form ganti sandi
+        document.getElementById('step-verify').classList.add('hidden');
+        document.getElementById('step-password').classList.remove('hidden');
+      } catch (error) {
+        alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+      }
     }
 
-    function submitNewPassword() {
+    async function submitNewPassword() {
+      const emailInput = document.getElementById('email').value;
+      const codeInput = document.getElementById('code').value;
       const newPass = document.getElementById('new_password').value;
       const confirmPass = document.getElementById('confirm_password').value;
 
@@ -153,9 +199,38 @@
         return;
       }
 
-      alert("Kata sandi berhasil diperbarui! Silakan login kembali.");
-      // Di sini Anda bisa mengarahkan user kembali ke login asli Laravel
-      window.location.href = "/login"; 
+      if(newPass.length < 8) {
+        alert("Kata sandi minimal 8 karakter!");
+        return;
+      }
+
+      try {
+        const response = await fetch('/lupa_akun/reset', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({ 
+            email: emailInput, 
+            code: codeInput, 
+            password: newPass,
+            password_confirmation: confirmPass
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          alert(data.message || "Gagal memperbarui kata sandi.");
+          return;
+        }
+
+        alert("Kata sandi berhasil diperbarui! Silakan login kembali.");
+        window.location.href = "/login"; 
+      } catch (error) {
+        alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+      }
     }
   </script>
 </body>
