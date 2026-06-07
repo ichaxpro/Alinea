@@ -10,15 +10,13 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Forms;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 
 class BookReviewResource extends Resource
 {
@@ -57,7 +55,7 @@ class BookReviewResource extends Resource
                             ->label('Rating'),
                         Textarea::make('ulasan')
                             ->disabled()
-                            ->row(5)
+                            ->rows(5)
                             ->label('Ulasan'),
                         TextInput::make('helpful')
                             ->disabled()

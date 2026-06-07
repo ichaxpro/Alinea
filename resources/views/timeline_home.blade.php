@@ -32,8 +32,8 @@
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
                 {{-- Tab switcher (sticky with bg mask so posts slide behind it) --}}
-                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100">
-                    <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden"
+                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex items-center gap-2">
+                    <div class="flex-1 flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden"
                          role="tablist" aria-label="Pilih umpan">
                         <button data-tab-btn role="tab" id="tab-for-you" aria-selected="{{ request('tab', 'untukmu') === 'untukmu' ? 'true' : 'false' }}" aria-controls="feed-panel"
                                 class="flex-1 py-2.5 text-sm max-sm:py-2 max-sm:text-xs max-sm:px-2 {{ request('tab', 'untukmu') === 'untukmu' ? 'font-bold text-[#444] bg-[#FFDDAF]' : 'text-gray-400 hover:bg-gray-50' }} rounded-full transition-colors cursor-pointer">
@@ -43,6 +43,27 @@
                                 class="flex-1 py-2.5 text-sm max-sm:py-2 max-sm:text-xs max-sm:px-2 {{ request('tab') === 'mengikuti' ? 'font-bold text-[#444] bg-[#FFDDAF]' : 'text-gray-400 hover:bg-gray-50' }} rounded-full transition-colors cursor-pointer">
                             Mengikuti
                         </button>
+                    </div>
+
+                    {{-- Filter Dropdown --}}
+                    <div class="relative">
+                        <button type="button" onclick="document.getElementById('filter-dropdown-menu-home').classList.toggle('hidden')" class="flex-shrink-0 w-[42px] h-[42px] max-sm:w-[34px] max-sm:h-[34px] flex items-center justify-center bg-white border-[1.5px] border-[#444] rounded-full hover:bg-gray-50 transition-colors {{ request('tag_filter') ? 'bg-[#FFDDAF]' : '' }}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="max-sm:w-4 max-sm:h-4">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </button>
+                        
+                        <div id="filter-dropdown-menu-home" class="hidden absolute right-0 mt-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 overflow-hidden">
+                            <div class="px-4 py-2 border-b border-gray-100 font-bold text-[10px] text-gray-400 uppercase tracking-wider bg-gray-50">
+                                Filter Status
+                            </div>
+                            <div class="flex flex-col py-1">
+                                <a href="{{ request()->fullUrlWithQuery(['tag_filter' => null]) }}" class="px-4 py-2 text-sm hover:bg-gray-50 transition-colors {{ !request('tag_filter') ? 'font-bold text-[#444]' : 'text-gray-600' }}">Semua Status</a>
+                                @foreach (['Dibaca', 'Selesai', 'Kutipan'] as $tag)
+                                <a href="{{ request()->fullUrlWithQuery(['tag_filter' => $tag]) }}" class="px-4 py-2 text-sm hover:bg-gray-50 transition-colors {{ request('tag_filter') === $tag ? 'font-bold text-[#444]' : 'text-gray-600' }}">{{ $tag }}</a>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                 </div>
 

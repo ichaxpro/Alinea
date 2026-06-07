@@ -62,7 +62,7 @@
                                                     $notif = $notification->data;
                                                     $time = \Carbon\Carbon::parse($notification->created_at)->locale('id')->diffForHumans();
                                                 @endphp
-                                                <div class="p-3 hover:bg-gray-50 transition-colors flex gap-3 items-start {{ $notification->read_at ? '' : 'bg-blue-50/30 notif-item-unread' }}">
+                                                <div class="p-3 hover:bg-gray-50 transition-colors flex gap-3 items-start {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'bg-red-50' : ($notification->read_at ? '' : 'bg-blue-50/30 notif-item-unread') }}">
                                                     <div class="flex-shrink-0 pt-0.5">
                                                         @if(isset($notif['type']) && $notif['type'] === 'like')
                                                             <div class="w-2 h-2 rounded-full bg-red-500 mt-1.5"></div>
@@ -74,15 +74,21 @@
                                                             <div class="w-2 h-2 rounded-full bg-purple-500 mt-1.5"></div>
                                                         @elseif(isset($notif['type']) && $notif['type'] === 'return')
                                                             <div class="w-2 h-2 rounded-full bg-teal-500 mt-1.5"></div>
+                                                        @elseif(isset($notif['type']) && $notif['type'] === 'user_warning')
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                                                         @else
                                                             <div class="w-2 h-2 rounded-full bg-amber-500 mt-1.5"></div>
                                                         @endif
                                                     </div>
                                                     <div class="flex-1 min-w-0">
-                                                        <p class="text-[13px] text-gray-600 leading-relaxed line-clamp-2">
-                                                            <strong class="text-[#444]">{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
+                                                        <p class="text-[13px] leading-relaxed line-clamp-2 {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'text-red-600 font-medium' : 'text-gray-600' }}">
+                                                            @if(isset($notif['type']) && $notif['type'] === 'user_warning')
+                                                                <strong class="text-red-700">Peringatan Admin</strong> {{ $notif['message'] }}
+                                                            @else
+                                                                <strong class="text-[#444]">{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
+                                                            @endif
                                                         </p>
-                                                        <span class="text-[11px] text-gray-400 mt-1 block">{{ $time }}</span>
+                                                        <span class="text-[11px] {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'text-red-400' : 'text-gray-400' }} mt-1 block">{{ $time }}</span>
                                                     </div>
                                                 </div>
                                             @empty

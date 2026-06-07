@@ -16,4 +16,16 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getTabs(): array
+    {
+        return [
+            'Semua' => \Filament\Schemas\Components\Tabs\Tab::make(),
+            'Aktif' => \Filament\Schemas\Components\Tabs\Tab::make()
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('is_banned', false)),
+            'Diblokir' => \Filament\Schemas\Components\Tabs\Tab::make()
+                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('is_banned', true))
+                ->badge(\App\Models\User::where('is_banned', true)->count()),
+        ];
+    }
 }

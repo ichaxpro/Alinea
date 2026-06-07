@@ -31,14 +31,33 @@
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
                 {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
-                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex flex-col gap-3">
-                    <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
+                <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex items-center gap-2">
+                    <div class="flex-1 flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
                         <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">
-                            Klub Saya
+                            Timeline Komunitas
                         </div>
                     </div>
 
-
+                    {{-- Filter Dropdown --}}
+                    <div class="relative">
+                        <button type="button" onclick="document.getElementById('filter-dropdown-menu-komunitas').classList.toggle('hidden')" class="flex-shrink-0 w-[42px] h-[42px] max-sm:w-[34px] max-sm:h-[34px] flex items-center justify-center bg-white border-[1.5px] border-[#444] rounded-full hover:bg-gray-50 transition-colors {{ request('tag_filter') ? 'bg-[#FFDDAF]' : '' }}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="max-sm:w-4 max-sm:h-4">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </button>
+                        
+                        <div id="filter-dropdown-menu-komunitas" class="hidden absolute right-0 mt-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 overflow-hidden">
+                            <div class="px-4 py-2 border-b border-gray-100 font-bold text-[10px] text-gray-400 uppercase tracking-wider bg-gray-50">
+                                Filter Status
+                            </div>
+                            <div class="flex flex-col py-1">
+                                <a href="{{ request()->fullUrlWithQuery(['tag_filter' => null]) }}" class="px-4 py-2 text-sm hover:bg-gray-50 transition-colors {{ !request('tag_filter') ? 'font-bold text-[#444]' : 'text-gray-600' }}">Semua Status</a>
+                                @foreach (['Diskusi', 'Tanya Jawab', 'Rekomendasi', 'Pengumuman'] as $tag)
+                                <a href="{{ request()->fullUrlWithQuery(['tag_filter' => $tag]) }}" class="px-4 py-2 text-sm hover:bg-gray-50 transition-colors {{ request('tag_filter') === $tag ? 'font-bold text-[#444]' : 'text-gray-600' }}">{{ $tag }}</a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Composer --}}
@@ -260,14 +279,8 @@
             {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
             <x-timeline-sidebar-right
                 searchPlaceholder="Cari diskusi klub..."
-                trendingTitle="Klub Terpopuler"
-                :trendingItems="[
-                    ['Romance Readers',  '30 Member'],
-                    ['Dunia Fantasi',    '24 Member'],
-                    ['Buku Anak Muda',   '22 Member'],
-                    ['Sastra Nusantara', '18 Member'],
-                    ['Filsafat Kopi',    '15 Member'],
-                ]"
+                trendingTitle="Klub Terpopuler Minggu Ini"
+                :trendingItems="$trendingItems"
             />
 
         </div>
@@ -292,43 +305,19 @@
         <div class="flex-1 overflow-y-auto px-4 py-4">
             <div id="mobile-search-dropdown" class="hidden"></div>
             <div id="mobile-search-trending">
-                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">Klub Terpopuler</h3>
+                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">Klub Terpopuler Minggu Ini</h3>
                 <div class="flex flex-col gap-3">
+                    @forelse ($trendingItems as $index => $item)
                     <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">1</span>
+                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">{{ $index + 1 }}</span>
                         <div>
-                            <span class="font-bold text-[13px] leading-tight block">Romance Readers</span>
-                            <span class="text-[11px] text-gray-400">30 Member</span>
+                            <span class="font-bold text-[13px] leading-tight block">{{ $item[0] }}</span>
+                            <span class="text-[11px] text-gray-400">{{ $item[1] }}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">2</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Dunia Fantasi</span>
-                            <span class="text-[11px] text-gray-400">24 Member</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">3</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Buku Anak Muda</span>
-                            <span class="text-[11px] text-gray-400">22 Member</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">4</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Sastra Nusantara</span>
-                            <span class="text-[11px] text-gray-400">18 Member</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
-                        <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">5</span>
-                        <div>
-                            <span class="font-bold text-[13px] leading-tight block">Filsafat Kopi</span>
-                            <span class="text-[11px] text-gray-400">15 Member</span>
-                        </div>
-                    </div>
+                    @empty
+                    <p class="text-sm text-gray-400 italic">Belum ada klub terpopuler minggu ini.</p>
+                    @endforelse
                 </div>
             </div>
         </div>
