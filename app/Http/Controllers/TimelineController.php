@@ -85,7 +85,7 @@ class TimelineController extends Controller
                     'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'location' => $post->author->kota ?: 'Online',
                     'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                    'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'book' => $post->judul_buku_dibahas,
                     'body' => $post->pesan,
                     'comments' => $comments_label,
@@ -115,6 +115,73 @@ class TimelineController extends Controller
             ->all();
 
         return view('timeline_home', compact('posts', 'trendingItems', 'activeBook', 'activeTag'));
+    }
+
+    public function show(TimelinePost $post)
+    {
+        $currentUser = Auth::user();
+        
+        $post->load(['author', 'attachments', 'likes', 'club']);
+        $post->loadCount('comments');
+
+        $payloadAttachments = $post->attachments->map(fn($attachment) => [
+            'id' => $attachment->id,
+            'path' => $attachment->path,
+            'url' => asset('storage/' . $attachment->path),
+            'type' => $attachment->type,
+            'original_name' => $attachment->original_name,
+            'size' => $attachment->size,
+        ])->values()->all();
+
+        $firstAttachment = $payloadAttachments[0] ?? null;
+        $likesCount = $post->likes->count();
+        $liked = $currentUser ? $post->likes->contains('id_user', $currentUser->id) : false;
+        
+        $likes_label = $likesCount >= 1000 ? round($likesCount/1000, 1) . 'K' : (string) $likesCount;
+        $comments_label = $post->comments_count >= 1000 ? round($post->comments_count/1000, 1) . 'K' : (string) $post->comments_count;
+
+        $bookmarked = $currentUser ? PostBookmark::where('id_post', $post->id)->where('id_user', $currentUser->id)->exists() : false;
+
+        $formattedPost = [
+            'id' => $post->id,
+            'name' => $post->author->name ?? 'Pengguna',
+            'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
+            'location' => $post->author->kota ?: 'Online',
+            'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
+            'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+            'book' => $post->judul_buku_dibahas,
+            'body' => $post->pesan,
+            'comments' => $comments_label,
+            'likes_base' => $likesCount,
+            'likes_label' => $likes_label,
+            'liked' => $liked,
+            'bookmarked' => $bookmarked,
+            'avatar_url' => $post->author->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author->avatar_url ?? null),
+            'avatar_from' => '#FFDDAF',
+            'avatar_to' => '#C7E7FF',
+            'tag' => $post->tag ?: 'Post',
+            'klub' => $post->club ? $post->club->nama : null,
+            'media' => $firstAttachment['path'] ?? $post->media ?? null,
+            'media_url' => $firstAttachment['url'] ?? ($post->media ? asset('storage/' . $post->media) : null),
+            'media_type' => $firstAttachment['type'] ?? $post->media_type ?? null,
+            'media_original_name' => $firstAttachment['original_name'] ?? $post->media_original_name ?? null,
+            'media_size' => $firstAttachment['size'] ?? $post->media_size ?? null,
+            'attachments' => $payloadAttachments,
+        ];
+
+        $trendingItems = collect($this->trendingService->getWeeklyTrending())
+            ->map(fn ($item) => [
+                $item['judul'],
+                $item['count'] . ' postingan',
+                route('timeline_home', ['book' => $item['judul']]),
+            ])
+            ->all();
+
+        return view('timeline_post', [
+            'post' => $formattedPost,
+            'trendingItems' => $trendingItems,
+            'isOwnProfile' => $currentUser && $currentUser->id === $post->id_user
+        ]);
     }
 
     public function store(Request $request)
@@ -180,8 +247,8 @@ class TimelineController extends Controller
                 'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'location' => $currentUser->kota ?: 'Online',
-                'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                'time' => 'Baru saja',
+                'absolute_time' => \Carbon\Carbon::now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i'),
                 'book' => $post->judul_buku_dibahas,
                 'body' => $post->pesan,
                 'comments' => '0',
@@ -291,7 +358,7 @@ class TimelineController extends Controller
                     'body' => $comment->isi_komentar,
                     'attachments' => $attachments,
                     'time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                    'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'absolute_time' => $comment->created_at ? \Carbon\Carbon::parse($comment->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'likes_base' => $likesCount,
                     'likes_label' => $likes_label,
                     'liked' => $liked,
@@ -339,7 +406,7 @@ class TimelineController extends Controller
                 'body' => $comment->isi_komentar,
                 'attachments' => [],
                 'time' => 'Baru saja',
-                'absolute_time' => 'Baru saja',
+                'absolute_time' => \Carbon\Carbon::now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i'),
                 'likes_base' => 0,
                 'likes_label' => '0',
                 'liked' => false,
@@ -435,7 +502,7 @@ class TimelineController extends Controller
                     'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'location' => $post->author->kota ?: 'Online',
                     'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                    'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'book' => $post->judul_buku_dibahas,
                     'body' => $post->pesan,
                     'comments' => $comments_label,

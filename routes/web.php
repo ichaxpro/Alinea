@@ -44,6 +44,7 @@ use App\Http\Controllers\TimelineController;
 
 Route::get('/timeline_home', [TimelineController::class, 'index'])->name('timeline_home');
 Route::get('/timeline_simpanan', [TimelineController::class, 'simpanan'])->name('timeline_simpanan');
+Route::get('/timeline/posts/{post}', [TimelineController::class, 'show'])->name('timeline.post');
 Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
 Route::delete('/timeline/posts/{post}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
 Route::post('/timeline/posts/{post}/bookmark', [TimelineController::class, 'toggleBookmark'])->name('timeline.bookmark');

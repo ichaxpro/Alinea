@@ -7,6 +7,7 @@
     <title>Alinea — Timeline Komunitas</title>
     <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ auth()->id() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -248,10 +249,20 @@
                                         class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}">
                                     <x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" />
                                 </button>
-                                <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
-                                        class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
-                                    <x-icon-share fill="none" />
-                                </button>
+                                <div class="relative">
+                                    <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan"
+                                            class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-50 transition-colors cursor-pointer">
+                                        <x-icon-share fill="none" />
+                                    </button>
+                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-share-dropdown>
+                                        <button class="w-full px-4 py-2.5 text-left text-sm font-bold text-[#222] hover:bg-[#FFDDAF] transition-colors" data-share-chat-btn>
+                                            Bagikan ke-
+                                        </button>
+                                        <button class="w-full px-4 py-2.5 text-left text-sm font-bold text-[#222] hover:bg-gray-100 transition-colors border-t border-gray-100" data-share-copy-btn>
+                                            Salin Tautan
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
