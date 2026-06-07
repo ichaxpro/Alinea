@@ -144,8 +144,21 @@ class ProfileController extends Controller
             ])
             ->all();
 
+        $isBlockedByMe = false;
+        $hasBlockedMe = false;
+        if ($currentUser && !$isOwnProfile) {
+            $isBlockedByMe = \Illuminate\Support\Facades\DB::table('blocks')
+                ->where('user_id', $currentUser->id)
+                ->where('blocked_user_id', $user->id)
+                ->exists();
+            $hasBlockedMe = \Illuminate\Support\Facades\DB::table('blocks')
+                ->where('user_id', $user->id)
+                ->where('blocked_user_id', $currentUser->id)
+                ->exists();
+        }
+
         return view('timeline_profile', compact(
-            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser', 'trendingItems',
+            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser', 'trendingItems', 'isBlockedByMe', 'hasBlockedMe'
         ));
     }
 

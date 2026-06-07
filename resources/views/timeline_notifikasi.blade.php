@@ -42,7 +42,7 @@
                         $notif = $notification->data;
                         $time = \Carbon\Carbon::parse($notification->created_at)->locale('id')->translatedFormat('d F Y, H:i');
                     @endphp
-                    <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4 items-start {{ $notification->read_at ? '' : 'bg-blue-50/30' }}">
+                    <div class="p-4 hover:bg-gray-50 transition-colors flex gap-4 items-start {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'bg-red-50' : ($notification->read_at ? '' : 'bg-blue-50/30') }}">
                         
                         {{-- Indikator Tipe Visual Kiri (Opsional untuk Icon/Warna) --}}
                         <div class="flex-shrink-0 pt-0.5">
@@ -56,6 +56,8 @@
                                 <div class="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
                             @elseif(isset($notif['type']) && $notif['type'] === 'return')
                                 <div class="w-2 h-2 rounded-full bg-teal-500 mt-2"></div>
+                            @elseif(isset($notif['type']) && $notif['type'] === 'user_warning')
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-red-600 mt-1"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                             @else
                                 <div class="w-2 h-2 rounded-full bg-amber-500 mt-2"></div>
                             @endif
@@ -65,7 +67,11 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1.5">
                                 {{-- Avatar User / Sistem --}}
-                                @if(isset($notif['user_avatar']) && $notif['user_avatar'])
+                                @if(isset($notif['type']) && $notif['type'] === 'user_warning')
+                                <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-red-100 text-red-600">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+                                </div>
+                                @elseif(isset($notif['user_avatar']) && $notif['user_avatar'])
                                 <div class="w-7 h-7 rounded-full border border-[#444] flex-shrink-0 overflow-hidden">
                                     <img src="{{ asset('storage/' . $notif['user_avatar']) }}" alt="Avatar" class="w-full h-full object-cover">
                                 </div>
@@ -75,13 +81,17 @@
                                 </div>
                                 @endif
                                 {{-- Info Pengirim --}}
-                                <span class="font-bold text-sm text-[#444]">{{ $notif['user_name'] ?? 'Sistem' }}</span>
+                                <span class="font-bold text-sm {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'text-red-700' : 'text-[#444]' }}">{{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'Peringatan Admin' : ($notif['user_name'] ?? 'Sistem') }}</span>
                                 <span class="text-xs text-gray-400 ml-auto flex-shrink-0">{{ $time }}</span>
                             </div>
                             
                             {{-- Teks Detail Notifikasi --}}
-                            <p class="text-xs text-gray-600 leading-relaxed pl-9 break-words">
-                                <strong>{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
+                            <p class="text-xs leading-relaxed pl-9 break-words {{ (isset($notif['type']) && $notif['type'] === 'user_warning') ? 'text-red-600 font-medium' : 'text-gray-600' }}">
+                                @if(isset($notif['type']) && $notif['type'] === 'user_warning')
+                                    {{ $notif['message'] }}
+                                @else
+                                    <strong>{{ $notif['user_name'] ?? 'Sistem' }}</strong> {{ $notif['body'] ?? '' }}
+                                @endif
                             </p>
                         </div>
                     </div>

@@ -6,9 +6,21 @@ use App\Filament\Resources\FeaturedBookResource\Pages;
 use App\Models\FeaturedBook;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class FeaturedBookResource extends Resource
 {
@@ -28,75 +40,75 @@ class FeaturedBookResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Informasi Buku')
+                Section::make('Informasi Buku')
                     ->schema([
-                        Forms\Components\TextInput::make('judul')
+                        TextInput::make('judul')
                             ->required()
                             ->maxLength(255)
                             ->label('Judul'),
-                        Forms\Components\TextInput::make('penulis')
+                        TextInput::make('penulis')
                             ->required()
                             ->maxLength(255)
                             ->label('Penulis'),
-                        Forms\Components\TextInput::make('penerbit')
+                        TextInput::make('penerbit')
                             ->maxLength(255)
                             ->label('Penerbit'),
-                        Forms\Components\TextInput::make('isbn')
+                        TextInput::make('isbn')
                             ->maxLength(255)
                             ->label('ISBN'),
-                        Forms\Components\TextInput::make('tahun')
+                        TextInput::make('tahun')
                             ->numeric()
                             ->label('Tahun Terbit'),
-                        Forms\Components\TextInput::make('jumlah_halaman')
+                        TextInput::make('jumlah_halaman')
                             ->numeric()
                             ->label('Jumlah Halaman'),
-                        Forms\Components\TextInput::make('bahasa')
+                        TextInput::make('bahasa')
                             ->default('Indonesia')
                             ->maxLength(255)
                             ->label('Bahasa'),
-                        Forms\Components\TextInput::make('kategori')
+                        TextInput::make('kategori')
                             ->maxLength(255)
                             ->label('Kategori'),
-                        Forms\Components\TextInput::make('status')
+                        TextInput::make('status')
                             ->disabled()
                             ->label('Status'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Deskripsi')
+                Section::make('Deskripsi')
                     ->schema([
-                        Forms\Components\Textarea::make('sinopsis')
+                        Textarea::make('sinopsis')
                             ->rows(4)
                             ->label('Sinopsis')
                             ->columnSpanFull(),
-                        Forms\Components\TagsInput::make('genres')
+                        TagsInput::make('genres')
                             ->placeholder('Tambah genre')
                             ->label('Genres')
                             ->columnSpanFull(),
                     ]),
 
-                \Filament\Schemas\Components\Section::make('Tampilan')
+                Section::make('Tampilan')
                     ->schema([
-                        Forms\Components\FileUpload::make('cover_url')
+                        FileUpload::make('cover_url')
                             ->image()
                             ->directory('featured_books')
                             ->disk('public')
                             ->label('Cover Buku')
                             ->columnSpanFull(),
-                        Forms\Components\ColorPicker::make('gradient_from')
+                        ColorPicker::make('gradient_from')
                             ->default('#C7E7FF')
                             ->label('Gradient From'),
-                        Forms\Components\ColorPicker::make('gradient_to')
+                        ColorPicker::make('gradient_to')
                             ->default('#FFDDAF')
                             ->label('Gradient To'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Rating')
+                Section::make('Rating')
                     ->schema([
-                        Forms\Components\TextInput::make('rating_avg')
+                        TextInput::make('rating_avg')
                             ->disabled()
                             ->dehydrated(false)
                             ->label('Rating Rata-rata'),
-                        Forms\Components\TextInput::make('rating_count')
+                        TextInput::make('rating_count')
                             ->disabled()
                             ->dehydrated(false)
                             ->label('Jumlah Rating'),
@@ -108,29 +120,29 @@ class FeaturedBookResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_url')
+                ImageColumn::make('cover_url')
                     ->disk('public')
                     ->label('Cover')
                     ->width(50)
                     ->height(70),
-                Tables\Columns\TextColumn::make('judul')
+                TextColumn::make('judul')
                     ->searchable()
                     ->sortable()
                     ->limit(40)
                     ->label('Judul'),
-                Tables\Columns\TextColumn::make('penulis')
+                TextColumn::make('penulis')
                     ->searchable()
                     ->sortable()
                     ->label('Penulis'),
-                Tables\Columns\TextColumn::make('tahun')
+                TextColumn::make('tahun')
                     ->sortable()
                     ->label('Tahun'),
-                Tables\Columns\TextColumn::make('kategori')
+                TextColumn::make('kategori')
                     ->searchable()
                     ->badge()
                     ->label('Kategori')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'tersedia' => 'success',
@@ -139,40 +151,40 @@ class FeaturedBookResource extends Resource
                         default => 'gray',
                     })
                     ->label('Status'),
-                Tables\Columns\TextColumn::make('rating_avg')
+                TextColumn::make('rating_avg')
                     ->sortable()
                     ->label('Rating')
                     ->formatStateUsing(fn ($state) => $state ? number_format($state, 2) . ' ⭐' : '-'),
-                Tables\Columns\TextColumn::make('rating_count')
+                TextColumn::make('rating_count')
                     ->sortable()
                     ->label('Reviews')
                     ->toggleable(),
-                Tables\Columns\ColorColumn::make('gradient_from')
+                ColorColumn::make('gradient_from')
                     ->label('Warna 1')
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable()
                     ->label('Dibuat'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->options([
                         'tersedia' => 'Tersedia',
                         'dipinjam' => 'Dipinjam',
                         'tidak_tersedia' => 'Tidak Tersedia',
                     ]),
-                Tables\Filters\SelectFilter::make('kategori')
+                SelectFilter::make('kategori')
                     ->options(fn () => FeaturedBook::query()->whereNotNull('kategori')->distinct()->pluck('kategori', 'kategori')->toArray()),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

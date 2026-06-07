@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'personal-books',
             'personal-books/*',
         ]);
+
+        $middleware->appendToGroup('web', \App\Http\Middleware\EnsureNotBanned::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\EnsureNotBanned::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

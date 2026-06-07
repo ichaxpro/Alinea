@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
-#[Fillable(['name', 'username', 'email', 'password', 'role', 'kota', 'no_telp', 'preferred_genres', 'foto_profil', 'deskripsi'])]
+#[Fillable(['name', 'username', 'email', 'password', 'role', 'kota', 'no_telp', 'preferred_genres', 'foto_profil', 'deskripsi', 'sp_count', 'is_banned'])]
 #[Hidden(['password', 'remember_token', 'deskripsi'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -107,6 +107,29 @@ class User extends Authenticatable implements FilamentUser
 
     public function readingBooks(): HasMany {
         return $this->hasMany(PersonalBook::class)->whereNotNull('reading_status');
+    }
+
+    public function blockedUsers(): BelongsToMany {
+        return $this->belongsToMany(User::class, 'blocks', 'user_id', 'blocked_user_id')->withTimestamps();
+    }
+
+    public function blockedBy(): BelongsToMany {
+        return $this->belongsToMany(User::class, 'blocks', 'blocked_user_id', 'user_id')->withTimestamps();
+    }
+
+    public function scopeExcludeBlocked($query)
+    {
+        if (auth()->check()) {
+            $authId = auth()->id();
+            $blockedByAuth = \Illuminate\Support\Facades\DB::table('blocks')->where('user_id', $authId)->pluck('blocked_user_id');
+            $blockedAuth = \Illuminate\Support\Facades\DB::table('blocks')->where('blocked_user_id', $authId)->pluck('user_id');
+            $excludedIds = $blockedByAuth->merge($blockedAuth)->unique();
+
+            if ($excludedIds->isNotEmpty()) {
+                $query->whereNotIn('id', $excludedIds);
+            }
+        }
+        return $query;
     }
 
     public function canAccessPanel(Panel $panel): bool {

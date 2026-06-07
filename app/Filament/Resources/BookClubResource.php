@@ -6,9 +6,21 @@ use App\Filament\Resources\BookClubResource\Pages;
 use App\Models\BookClub;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class BookClubResource extends Resource
 {
@@ -30,49 +42,49 @@ class BookClubResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Informasi Klub')
+                Section::make('Informasi Klub')
                     ->schema([
-                        Forms\Components\TextInput::make('nama_klub')
+                        TextInput::make('nama_klub')
                             ->required()
                             ->maxLength(255)
                             ->label('Nama Klub'),
-                        Forms\Components\TextInput::make('kategori')
+                        TextInput::make('kategori')
                             ->required()
                             ->maxLength(255)
                             ->label('Kategori'),
-                        Forms\Components\Select::make('id_owner')
+                        Select::make('id_owner')
                             ->relationship('owner', 'name')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->label('Owner'),
-                        Forms\Components\Select::make('admin_id')
+                        Select::make('admin_id')
                             ->relationship('admin', 'name')
                             ->searchable()
                             ->preload()
                             ->label('Admin'),
-                        Forms\Components\TextInput::make('member_count')
+                        TextInput::make('member_count')
                             ->numeric()
                             ->default(0)
                             ->label('Jumlah Anggota'),
-                        Forms\Components\Textarea::make('deskripsi')
+                        Textarea::make('deskripsi')
                             ->required()
                             ->rows(3)
                             ->label('Deskripsi')
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Tampilan')
+                Section::make('Tampilan')
                     ->schema([
-                        Forms\Components\FileUpload::make('foto_klub')
+                        FileUpload::make('foto_klub')
                             ->image()
                             ->directory('foto_klub')
                             ->disk('public')
                             ->label('Foto Klub'),
-                        Forms\Components\ColorPicker::make('gradient_from')
+                        ColorPicker::make('gradient_from')
                             ->default('#FFDDAF')
                             ->label('Gradient From'),
-                        Forms\Components\ColorPicker::make('gradient_to')
+                        ColorPicker::make('gradient_to')
                             ->default('#C7E7FF')
                             ->label('Gradient To'),
                     ])->columns(3),
@@ -83,48 +95,48 @@ class BookClubResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('foto_klub')
+                ImageColumn::make('foto_klub')
                     ->disk('public')
                     ->circular()
                     ->label('Foto'),
-                Tables\Columns\TextColumn::make('nama_klub')
+                TextColumn::make('nama_klub')
                     ->searchable()
                     ->sortable()
                     ->label('Nama Klub'),
-                Tables\Columns\TextColumn::make('kategori')
+                TextColumn::make('kategori')
                     ->searchable()
                     ->sortable()
                     ->badge()
                     ->label('Kategori'),
-                Tables\Columns\TextColumn::make('owner.name')
+                TextColumn::make('owner.name')
                     ->searchable()
                     ->sortable()
                     ->label('Owner'),
-                Tables\Columns\TextColumn::make('member_count')
+                TextColumn::make('member_count')
                     ->sortable()
                     ->label('Anggota'),
-                Tables\Columns\ColorColumn::make('gradient_from')
+                ColorColumn::make('gradient_from')
                     ->label('Warna 1'),
-                Tables\Columns\ColorColumn::make('gradient_to')
+                ColorColumn::make('gradient_to')
                     ->label('Warna 2'),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable()
                     ->label('Dibuat'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('kategori')
+                SelectFilter::make('kategori')
                     ->options(fn () => BookClub::query()->distinct()->pluck('kategori', 'kategori')->toArray())
                     ->label('Kategori'),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
