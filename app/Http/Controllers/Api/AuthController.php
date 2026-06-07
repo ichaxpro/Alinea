@@ -114,6 +114,29 @@ class AuthController extends Controller
         return redirect('/dashboard');
     }
 
+    public function changePassword(Request $request) {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'Kata sandi saat ini salah',
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return response()->json([
+            'message' => 'Kata sandi berhasil diubah',
+        ]);
+    }
+
     public function logoutWeb(Request $request) {
         Auth::logout();
         $request->session()->invalidate();

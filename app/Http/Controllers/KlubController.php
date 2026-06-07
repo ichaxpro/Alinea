@@ -62,6 +62,8 @@ class KlubController extends Controller
         return [
             'id' => $comment->id,
             'name' => $author?->name ?? 'Pengguna',
+            'username' => $author?->username,
+            'profile_url' => $author?->username ? route('profile.by_username', ['username' => ltrim($author->username, '@')]) : '#',
             'handle' => $author?->username ? '@' . ltrim($author->username, '@') : '@pengguna',
             'avatar_url' => $author?->avatar_url ?? null,
             'body' => $comment->isi_komentar,
@@ -584,6 +586,8 @@ class KlubController extends Controller
                     return [
                         'id' => $post->id,
                         'name' => $post->name ?? 'Pengguna',
+                        'username' => $post->handle ? ltrim($post->handle, '@') : null,
+                        'profile_url' => $post->handle ? route('profile.by_username', ['username' => ltrim($post->handle, '@')]) : '#',
                         'handle' => $post->handle ? '@' . ltrim($post->handle, '@') : '@pengguna',
                         'location' => $post->location ?: 'Online',
                         'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
@@ -689,6 +693,8 @@ class KlubController extends Controller
             'post' => [
                 'id' => $post->id,
                 'name' => $currentUser->name,
+                'username' => $currentUser->username,
+                'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'location' => $currentUser->kota ?: 'Online',
                 'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',

@@ -75,6 +75,8 @@ class TimelineController extends Controller
                 return [
                     'id' => $post->id,
                     'name' => $post->author->name ?? 'Pengguna',
+                    'username' => $post->author->username,
+                    'profile_url' => $post->author->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',
                     'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'location' => $post->author->kota ?: 'Online',
                     'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
@@ -169,6 +171,8 @@ class TimelineController extends Controller
             'post' => [
                 'id' => $post->id,
                 'name' => $currentUser->name,
+                'username' => $currentUser->username,
+                'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'location' => $currentUser->kota ?: 'Online',
                 'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
@@ -275,6 +279,8 @@ class TimelineController extends Controller
                 return [
                     'id' => $comment->id,
                     'name' => $comment->author->name ?? 'Pengguna',
+                    'username' => $comment->author->username,
+                    'profile_url' => $comment->author->username ? route('profile.by_username', ['username' => ltrim($comment->author->username, '@')]) : '#',
                     'handle' => $comment->author->username ? '@' . ltrim($comment->author->username, '@') : '@pengguna',
                     'avatar_url' => $comment->author->foto_profil ? asset('storage/' . $comment->author->foto_profil) : null,
                     'body' => $comment->isi_komentar,
@@ -321,6 +327,8 @@ class TimelineController extends Controller
             'comment' => [
                 'id' => $comment->id,
                 'name' => $currentUser->name,
+                'username' => $currentUser->username,
+                'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'avatar_url' => $currentUser->foto_profil ? asset('storage/' . $currentUser->foto_profil) : null,
                 'body' => $comment->isi_komentar,
@@ -417,6 +425,8 @@ class TimelineController extends Controller
                 return [
                     'id' => $post->id,
                     'name' => $post->author->name ?? 'Pengguna',
+                    'username' => $post->author->username,
+                    'profile_url' => $post->author->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',
                     'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'location' => $post->author->kota ?: 'Online',
                     'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',

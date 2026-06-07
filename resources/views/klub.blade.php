@@ -24,23 +24,29 @@
     <main class="pt-14 flex-1">
         <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
 
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-black text-text tracking-[-0.02em] mb-2">
+                    Klub
+                </h1>
+            </div>
+
             {{-- Toolbar: Search + Filters + Create --}}
-            <div class="flex flex-wrap items-center gap-3 mb-8">
+            <div class="flex flex-wrap items-center gap-3 mb-8 w-full">
                 {{-- Search --}}
-                <div class="flex items-center gap-2 bg-white border-[1.5px] border-text rounded-lg px-4 py-2.5 w-full sm:w-64">
+                <div class="flex items-center gap-2 bg-white border-[1.5px] border-[#444] rounded-lg px-4 py-2.5 w-full sm:flex-1 min-w-[200px] focus-within:border-[#FFDDAF] transition-all duration-200">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                     <input type="search" id="klub-search-input" placeholder="Cari klub buku..."
-                           class="border-none outline-none bg-transparent text-sm placeholder-gray-300 w-full" />
+                           class="border-none outline-none bg-transparent text-sm placeholder-gray-400 text-[#444] w-full" />
                 </div>
 
-                {{-- Filter + Sort + Create on same row --}}
-                <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                {{-- Filter + Sort + Create container --}}
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
                     {{-- Category filter --}}
-                    <div class="relative grow sm:grow-0">
+                    <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
                         <select id="klub-filter-category"
-                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors w-full">
+                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-all w-full">
                             <option value="">Semua Genre</option>
                             @foreach ($categories as $cat)
                                 <option value="{{ $cat }}">{{ $cat }}</option>
@@ -52,13 +58,13 @@
                     </div>
 
                     {{-- Sort --}}
-                    <div class="relative grow sm:grow-0">
+                    <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
                         <select id="klub-sort"
-                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 transition-colors w-full">
+                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-all w-full">
                             <option value="name-asc">Nama A–Z</option>
                             <option value="name-desc">Nama Z–A</option>
-                            <option value="members-desc">Member Terbanyak</option>
-                            <option value="members-asc">Member Tersedikit</option>
+                            <option value="members-desc">Anggota Terbanyak</option>
+                            <option value="members-asc">Anggota Tersedikit</option>
                             <option value="newest">Terbaru</option>
                         </select>
                         <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#444]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -68,7 +74,7 @@
 
                     {{-- Create button --}}
                     <button id="buat-klub-btn"
-                            class="bg-accent text-[#444] font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-[1.5px] border-text hover:bg-amber-500 transition-colors whitespace-nowrap flex-shrink-0 sm:ml-auto">
+                            class="bg-[#FFDDAF] text-[#444] font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0px_#444] active:translate-y-0 active:translate-x-0 active:shadow-none transition-all whitespace-nowrap w-full sm:w-auto text-center flex-shrink-0">
                         + Buat Klub
                     </button>
                 </div>

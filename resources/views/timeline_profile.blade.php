@@ -117,17 +117,17 @@
                         @forelse ($posts as $post)
                         <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $post['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
-                                <div class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                <a href="{{ $post['profile_url'] ?? '#' }}" class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                                     @if($post['avatar_url'])
                                         <img src="{{ $post['avatar_url'] }}" alt="" class="w-full h-full object-cover">
                                     @else
                                         <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($post['name'], 0, 1)) }}</span>
                                     @endif
-                                </div>
+                                </a>
                                 <div class="flex-1 min-w-0">
-                                    <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
+                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">{{ $post['name'] }}</a>
                                     <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
-                                        <span class="whitespace-nowrap">{{ $post['handle'] }}</span>
+                                        <a href="{{ $post['profile_url'] ?? '#' }}" class="whitespace-nowrap hover:underline cursor-pointer">{{ $post['handle'] }}</a>
                                         <span class="text-gray-200 whitespace-nowrap">•</span>
                                         <span class="flex items-center gap-1 whitespace-nowrap">
                                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -369,17 +369,17 @@
                         @forelse ($mediaPosts as $media)
                         <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $media['id'] }}">
                             <div class="flex items-start gap-3 mb-3">
-                                <div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">
+                                <a href="{{ $media['profile_url'] ?? '#' }}" class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                                     @if($media['avatar_url'])
                                         <img src="{{ $media['avatar_url'] }}" alt="" class="w-full h-full object-cover">
                                     @else
                                         <span class="text-xs font-bold text-[#444]">{{ strtoupper(substr($media['name'], 0, 1)) }}</span>
                                     @endif
-                                </div>
+                                </a>
                                 <div class="flex-1 min-w-0">
-                                    <span class="font-bold text-[15px] leading-tight">{{ $media['name'] }}</span>
+                                    <a href="{{ $media['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">{{ $media['name'] }}</a>
                                     <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
-                                        <span class="whitespace-nowrap">{{ $media['handle'] }}</span>
+                                        <a href="{{ $media['profile_url'] ?? '#' }}" class="whitespace-nowrap hover:underline cursor-pointer">{{ $media['handle'] }}</a>
                                         <span class="text-gray-200">•</span>
                                         @if($media['location'])
                                         <span class="flex items-center gap-1 whitespace-nowrap">

@@ -951,7 +951,7 @@ async function handleAddBook(e) {
 }
 
 // ── PASSWORD ──
-function handleChangePassword(e) {
+async function handleChangePassword(e) {
   e.preventDefault();
   const cur = $('#pw-current')?.value;
   const nw = $('#pw-new')?.value;
@@ -959,8 +959,18 @@ function handleChangePassword(e) {
   if (!cur||!nw||!conf) { toast('Semua field wajib diisi','error'); return; }
   if (nw.length < 8) { toast('Password baru minimal 8 karakter','error'); return; }
   if (nw !== conf) { toast('Konfirmasi password tidak cocok','error'); return; }
-  toast('Password berhasil diubah!');
-  e.target.reset();
+
+  try {
+    const res = await apiCall('POST', '/change-password', {
+      current_password: cur,
+      new_password: nw,
+      new_password_confirmation: conf,
+    });
+    toast(res.message || 'Kata sandi berhasil diubah!');
+    e.target.reset();
+  } catch (err) {
+    toast(err.message || 'Gagal mengubah kata sandi', 'error');
+  }
 }
 
 // ── PERSONAL INFO ──

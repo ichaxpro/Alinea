@@ -49,6 +49,8 @@ class ProfileController extends Controller
                 return [
                     'id' => $post->id,
                     'name' => $post->author?->name ?? 'Pengguna',
+                    'username' => $post->author?->username,
+                    'profile_url' => $post->author?->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',
                     'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
                     'location' => $post->author?->kota ?: 'Online',
@@ -99,6 +101,8 @@ class ProfileController extends Controller
                 return [
                     'id' => $post->id,
                     'name' => $post->author?->name ?? 'Pengguna',
+                    'username' => $post->author?->username,
+                    'profile_url' => $post->author?->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',
                     'handle' => $post->author?->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
                     'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
                     'location' => $post->author?->kota ?: 'Online',
