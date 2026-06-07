@@ -74,7 +74,7 @@ class KlubController extends Controller
             'media_size' => $firstAttachment['size'] ?? $comment->media_size,
             'attachments' => $payloadAttachments,
             'time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-            'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+            'absolute_time' => $comment->created_at ? Carbon::parse($comment->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
         ];
     }
 
@@ -591,7 +591,7 @@ class KlubController extends Controller
                         'handle' => $post->handle ? '@' . ltrim($post->handle, '@') : '@pengguna',
                         'location' => $post->location ?: 'Online',
                         'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                        'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                        'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                         'book' => $post->book,
                         'klub' => $post->klub,
                         'body' => $post->body,
@@ -698,7 +698,7 @@ class KlubController extends Controller
                 'handle' => $currentUser->username ? '@' . ltrim($currentUser->username, '@') : '@pengguna',
                 'location' => $currentUser->kota ?: 'Online',
                 'time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                'absolute_time' => $post->created_at ? \Carbon\Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                 'book' => $post->judul_buku_dibahas,
                 'klub' => $club?->nama_klub,
                 'body' => $post->pesan,

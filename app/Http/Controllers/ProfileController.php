@@ -55,7 +55,7 @@ class ProfileController extends Controller
                     'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
                     'location' => $post->author?->kota ?: 'Online',
                     'time' => $post->created_at ? Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                    'absolute_time' => $post->created_at ? Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'absolute_time' => $post->created_at ? Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'book' => $post->judul_buku_dibahas,
                     'body' => $post->pesan,
                     'tag' => $post->tag ?: 'Post',
@@ -107,7 +107,7 @@ class ProfileController extends Controller
                     'avatar_url' => $post->author?->foto_profil ? asset('storage/' . $post->author->foto_profil) : ($post->author?->avatar_url ?? null),
                     'location' => $post->author?->kota ?: 'Online',
                     'time' => $post->created_at ? Carbon::parse($post->created_at)->locale('id')->diffForHumans() : 'Baru saja',
-                    'absolute_time' => $post->created_at ? Carbon::parse($post->created_at)->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
+                    'absolute_time' => $post->created_at ? Carbon::parse($post->created_at)->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d M Y, H:i') : 'Baru saja',
                     'tag' => $post->tag ?: 'Post',
                     'caption' => $post->pesan,
                     'attachments' => $post->attachments->isNotEmpty()
