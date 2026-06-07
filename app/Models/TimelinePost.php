@@ -11,6 +11,30 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class TimelinePost extends Model
 {
     use SoftDeletes;
+    
+    protected static function booted()
+    {
+        static::addGlobalScope('excludeBlocked', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            if (auth()->check()) {
+                $authId = auth()->id();
+                
+                $blockedByAuth = \Illuminate\Support\Facades\DB::table('blocks')
+                    ->where('user_id', $authId)
+                    ->pluck('blocked_user_id');
+                    
+                $blockedAuth = \Illuminate\Support\Facades\DB::table('blocks')
+                    ->where('blocked_user_id', $authId)
+                    ->pluck('user_id');
+                    
+                $excludedIds = $blockedByAuth->merge($blockedAuth)->unique();
+                
+                if ($excludedIds->isNotEmpty()) {
+                    $builder->whereNotIn('id_user', $excludedIds);
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'id_user',
         'id_klub',

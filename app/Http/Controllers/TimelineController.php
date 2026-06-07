@@ -39,9 +39,14 @@ class TimelineController extends Controller
             ->whereNull('id_klub');
         
         $activeBook = $request->query('book');
+        $activeTag = $request->query('tag_filter');
 
         if ($activeBook) {
             $query->where(DB::raw('LOWER(TRIM(judul_buku_dibahas))'), strtolower(trim($activeBook)));
+        }
+
+        if ($activeTag) {
+            $query->where('tag', $activeTag);
         }
 
         $query->orderByDesc('created_at');
@@ -109,7 +114,7 @@ class TimelineController extends Controller
             ])
             ->all();
 
-        return view('timeline_home', compact('posts', 'trendingItems', 'activeBook'));
+        return view('timeline_home', compact('posts', 'trendingItems', 'activeBook', 'activeTag'));
     }
 
     public function show(TimelinePost $post)

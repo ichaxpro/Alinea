@@ -6,11 +6,16 @@ use App\Filament\Resources\TimelinePostResource\Pages;
 use App\Models\TimelinePost;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
-
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -19,6 +24,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class TimelinePostResource extends Resource
 {
@@ -36,24 +43,24 @@ class TimelinePostResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Detail Post')
+                Section::make('Detail Post')
                     ->schema([
-                        Forms\Components\Select::make('id_user')
+                        Select::make('id_user')
                             ->relationship('author', 'name')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->label('Author'),
-                        Forms\Components\Select::make('id_klub')
+                        Select::make('id_klub')
                             ->relationship('club', 'nama_klub')
                             ->searchable()
                             ->preload()
                             ->label('Klub')
                             ->nullable(),
-                        Forms\Components\TextInput::make('judul_buku_dibahas')
+                        TextInput::make('judul_buku_dibahas')
                             ->maxLength(120)
                             ->label('Judul Buku Dibahas'),
-                        Forms\Components\Select::make('tag')
+                        Select::make('tag')
                             ->options([
                                 'review' => 'Review',
                                 'diskusi' => 'Diskusi',
@@ -63,29 +70,29 @@ class TimelinePostResource extends Resource
                             ->label('Tag'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Konten')
+                Section::make('Konten')
                     ->schema([
-                        Forms\Components\RichEditor::make('pesan')
+                        RichEditor::make('pesan')
                             ->required()
                             ->label('Pesan')
                             ->columnSpanFull(),
                     ]),
 
-                \Filament\Schemas\Components\Section::make('Media')
+                Section::make('Media')
                     ->schema([
-                        Forms\Components\FileUpload::make('media')
+                        FileUpload::make('media')
                             ->image()
                             ->disk('public')
                             ->directory('timeline_media')
                             ->visibility('public')
                             ->label('File Media'),
-                        Forms\Components\TextInput::make('media_type')
+                        TextInput::make('media_type')
                             ->maxLength(255)
                             ->label('Tipe Media'),
-                        Forms\Components\TextInput::make('media_original_name')
+                        TextInput::make('media_original_name')
                             ->maxLength(255)
                             ->label('Nama File Asli'),
-                        Forms\Components\TextInput::make('media_size')
+                        TextInput::make('media_size')
                             ->numeric()
                             ->label('Ukuran Media (Bytes)'),
                     ])->columns(2)->collapsible(),
@@ -96,7 +103,7 @@ class TimelinePostResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->sortable()
                     ->label('ID'),
                 ImageColumn::make('media')
@@ -104,20 +111,20 @@ class TimelinePostResource extends Resource
                     ->label('Media')
                     ->square()
                     ->defaultImageUrl(url('/images/no-image.png')),
-                Tables\Columns\TextColumn::make('author.name')
+                TextColumn::make('author.name')
                     ->searchable()
                     ->sortable()
                     ->label('Author'),
-                Tables\Columns\TextColumn::make('judul_buku_dibahas')
+                TextColumn::make('judul_buku_dibahas')
                     ->searchable()
                     ->limit(30)
                     ->label('Buku Dibahas')
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('pesan')
+                TextColumn::make('pesan')
                     ->limit(50)
                     ->label('Pesan')
                     ->html(),
-                Tables\Columns\TextColumn::make('tag')
+                TextColumn::make('tag')
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
                         'review' => 'info',
@@ -126,45 +133,45 @@ class TimelinePostResource extends Resource
                         'kutipan' => 'primary',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('club.nama_klub')
+                TextColumn::make('club.nama_klub')
                     ->label('Klub')
                     ->toggleable()
                     ->default('-'),
-                Tables\Columns\TextColumn::make('comments_count')
+                TextColumn::make('comments_count')
                     ->counts('comments')
                     ->label('Komentar')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('likes_count')
+                TextColumn::make('likes_count')
                     ->counts('likes')
                     ->label('Likes')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime('d M Y H:i')
                     ->sortable()
                     ->label('Dibuat'),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('tag')
+                SelectFilter::make('tag')
                     ->options([
                         'review' => 'Review',
                         'diskusi' => 'Diskusi',
                         'rekomendasi' => 'Rekomendasi',
                         'kutipan' => 'Kutipan',
                     ]),
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
-                \Filament\Actions\ForceDeleteAction::make(),
-                \Filament\Actions\RestoreAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
-                    \Filament\Actions\ForceDeleteBulkAction::make(),
-                    \Filament\Actions\RestoreBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -183,11 +190,11 @@ class TimelinePostResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
-                \Illuminate\Database\Eloquent\SoftDeletingScope::class,
+                SoftDeletingScope::class,
             ]);
     }
 }

@@ -492,12 +492,17 @@ class KlubController extends Controller
         $popularClubs = collect();
         $joinedClubs = collect();
         $posts = collect();
+        $trendingItems = [];
 
         $currentUser = Auth::user();
 
         if (Schema::hasTable('klub')) {
+            $startOfWeek = \Carbon\Carbon::now()->startOfWeek();
             $popularClubs = DB::table('klub')
-                ->leftJoin('klub_member', 'klub.id', '=', 'klub_member.id_klub')
+                ->join('klub_member', function ($join) use ($startOfWeek) {
+                    $join->on('klub.id', '=', 'klub_member.id_klub')
+                         ->where('klub_member.joined_at', '>=', $startOfWeek);
+                })
                 ->select([
                     'klub.id',
                     'klub.nama_klub',
@@ -508,6 +513,13 @@ class KlubController extends Controller
                 ->orderBy('klub.nama_klub')
                 ->limit(5)
                 ->get();
+
+            $trendingItems = $popularClubs->map(function ($club) {
+                return [
+                    $club->nama_klub,
+                    $club->member_count . ' Member Baru',
+                ];
+            })->all();
 
             if ($currentUser && Schema::hasTable('klub_member')) {
                 $joinedClubs = DB::table('klub_member')
@@ -522,8 +534,8 @@ class KlubController extends Controller
                     ->get();
             }
 
-            if (Schema::hasTable('timeline_posts') && $joinedClubs->isNotEmpty()) {
-                $posts = DB::table('timeline_posts')
+            if (Schema::hasTable('timeline_posts')) {
+                $postsQuery = DB::table('timeline_posts')
                     ->leftJoin('users', 'timeline_posts.id_user', '=', 'users.id')
                     ->leftJoin('klub', 'timeline_posts.id_klub', '=', 'klub.id')
                     ->leftJoin(DB::raw('(select id_post, count(*) as comments_count from timeline_comments group by id_post) as comments'), function ($join) {
@@ -540,8 +552,15 @@ class KlubController extends Controller
                         $join->on('timeline_posts.id', '=', 'user_bookmark.id_post')
                              ->where('user_bookmark.id_user', '=', $currentUser ? $currentUser->id : 0);
                     })
-                    ->whereIn('timeline_posts.id_klub', $joinedClubs->pluck('id')->all())
-                    ->select([
+                    ->whereNotNull('timeline_posts.id_klub')
+                    ->whereNull('timeline_posts.deleted_at');
+
+                $activeTag = request()->query('tag_filter');
+                if ($activeTag) {
+                    $postsQuery->where('timeline_posts.tag', $activeTag);
+                }
+
+                $posts = $postsQuery->select([
                         'timeline_posts.id',
                         'timeline_posts.media',
                         'timeline_posts.media_type',
@@ -615,7 +634,7 @@ class KlubController extends Controller
             }
         }
 
-        return view('timeline_komunitas', compact('popularClubs', 'joinedClubs', 'posts'));
+        return view('timeline_komunitas', compact('popularClubs', 'joinedClubs', 'posts', 'activeTag', 'trendingItems'));
     }
 
     public function storeTimelinePost(Request $request)

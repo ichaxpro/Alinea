@@ -33,6 +33,19 @@ class ChatController extends Controller
     {
         $ids = $this->parseConversationId($conversationId);
         abort_if(!in_array(Auth::id(), $ids), 403, 'Unauthorized');
+
+        $authId = Auth::id();
+        $otherId = $ids[0] === $authId ? $ids[1] : $ids[0];
+
+        $isBlocked = \Illuminate\Support\Facades\DB::table('blocks')
+            ->where(function($q) use ($authId, $otherId) {
+                $q->where('user_id', $authId)->where('blocked_user_id', $otherId);
+            })->orWhere(function($q) use ($authId, $otherId) {
+                $q->where('user_id', $otherId)->where('blocked_user_id', $authId);
+            })->exists();
+
+        abort_if($isBlocked, 403, 'Percakapan tidak tersedia karena pengguna diblokir.');
+
         return $ids;
     }
 
@@ -83,7 +96,7 @@ class ChatController extends Controller
             ->values();
 
         $conversations = $partnerIds->map(function ($partnerId) use ($authId) {
-            $partner = User::find($partnerId);
+            $partner = User::excludeBlocked()->find($partnerId);
             if (!$partner) return null;
 
             $convId = $this->buildConversationId($authId, $partnerId);
@@ -138,7 +151,7 @@ class ChatController extends Controller
         $partnerId = (int) $request->user_id;
         abort_if($partnerId === Auth::id(), 422, 'Cannot chat with yourself');
 
-        $partner = User::findOrFail($partnerId);
+        $partner = User::excludeBlocked()->findOrFail($partnerId);
         $convId  = $this->buildConversationId(Auth::id(), $partnerId);
 
         $lastMsg = Message::withTrashed()->where(
@@ -341,8 +354,17 @@ class ChatController extends Controller
     {
         $request->validate(['reason' => 'nullable|string|max:500']);
 
-        \Log::info('User report', [
-            'reporter' => Auth::id(),
+        $reporterId = Auth::id();
+
+        \App\Models\Report::create([
+            'reporter_id' => $reporterId,
+            'reported_user_id' => $userId,
+            'reason' => $request->input('reason'),
+            'status' => 'pending',
+        ]);
+
+        \Log::info('User report created', [
+            'reporter' => $reporterId,
             'reported' => $userId,
             'reason'   => $request->input('reason'),
         ]);
@@ -355,11 +377,37 @@ class ChatController extends Controller
      */
     public function blockUser(int $userId)
     {
-        \Log::info('User block', [
-            'blocker' => Auth::id(),
-            'blocked' => $userId,
+        $authId = Auth::id();
+        
+        abort_if($authId === $userId, 422, 'Cannot block yourself');
+
+        $block = \App\Models\Block::where('user_id', $authId)
+            ->where('blocked_user_id', $userId)
+            ->first();
+
+        if ($block) {
+            $block->delete();
+            $action = 'unblocked';
+        } else {
+            \App\Models\Block::create([
+                'user_id' => $authId,
+                'blocked_user_id' => $userId,
+            ]);
+            $action = 'blocked';
+
+            // Sever any follows
+            \App\Models\Follow::where(function ($q) use ($authId, $userId) {
+                $q->where('follower_id', $authId)->where('following_id', $userId);
+            })->orWhere(function ($q) use ($authId, $userId) {
+                $q->where('follower_id', $userId)->where('following_id', $authId);
+            })->delete();
+        }
+
+        \Log::info("User {$action}", [
+            'actor' => $authId,
+            'target' => $userId,
         ]);
 
-        return response()->json(['ok' => true]);
+        return response()->json(['ok' => true, 'action' => $action]);
     }
 }

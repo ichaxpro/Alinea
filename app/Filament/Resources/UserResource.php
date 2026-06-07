@@ -6,9 +6,24 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Forms;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TagsInput;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Notifications\Notification;
 
 class UserResource extends Resource
 {
@@ -24,25 +39,25 @@ class UserResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Informasi Akun')
+                Section::make('Informasi Akun')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('username')
+                        TextInput::make('username')
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        Forms\Components\TextInput::make('email')
+                        TextInput::make('email')
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        Forms\Components\TextInput::make('password')
+                        TextInput::make('password')
                             ->password()
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->maxLength(255),
-                        Forms\Components\Select::make('role')
+                        Select::make('role')
                             ->options([
                                 'user' => 'User',
                                 'admin' => 'Admin',
@@ -51,22 +66,22 @@ class UserResource extends Resource
                             ->required(),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Profil')
+                Section::make('Profil')
                     ->schema([
-                        Forms\Components\FileUpload::make('foto_profil')
+                        FileUpload::make('foto_profil')
                             ->image()
                             ->directory('foto_profil')
                             ->disk('public')
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('kota')
+                        TextInput::make('kota')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('no_telp')
+                        TextInput::make('no_telp')
                             ->tel()
                             ->maxLength(255),
-                        Forms\Components\Textarea::make('deskripsi')
+                        Textarea::make('deskripsi')
                             ->rows(3)
                             ->columnSpanFull(),
-                        Forms\Components\TagsInput::make('preferred_genres')
+                        TagsInput::make('preferred_genres')
                             ->placeholder('Tambah genre')
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -77,48 +92,74 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('foto_profil')
+                ImageColumn::make('foto_profil')
                     ->disk('public')
                     ->circular()
                     ->label('Foto'),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('username')
+                TextColumn::make('username')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('email')
+                TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('role')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'danger',
                         'user' => 'primary',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('kota')
+                TextColumn::make('kota')
                     ->searchable()
                     ->toggleable(),
-                Tables\Columns\TextColumn::make('created_at')
+                IconColumn::make('is_banned')
+                    ->label('Diblokir')
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('created_at')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('role')
+                SelectFilter::make('role')
                     ->options([
                         'user' => 'User',
                         'admin' => 'Admin',
                     ]),
+                TernaryFilter::make('is_banned')
+                    ->label('Status Blokir')
+                    ->placeholder('Semua')
+                    ->trueLabel('Diblokir')
+                    ->falseLabel('Aktif'),
             ])
             ->actions([
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                Action::make('buka_blokir')
+                    ->label('Buka Blokir')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Buka Blokir Pengguna?')
+                    ->modalDescription('Pengguna ini akan dipulihkan dan dapat menggunakan platform secara normal.')
+                    ->action(function (User $record) {
+                        $record->update(['is_banned' => false]);
+                        
+                        Notification::make()
+                            ->title('Blokir Pengguna Dibuka')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (User $record) => $record->is_banned),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->bulkActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
