@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let validFiles = [];
                 for (const file of newFiles) {
                     const isVideo = file.type.startsWith('video/');
-                    const maxSizeMB = isVideo ? 35 : 20;
+                    const maxSizeMB = isVideo ? 100 : 20;
                     
                     if (file.size > maxSizeMB * 1024 * 1024) {
                         showToast(`File "${file.name}" terlalu besar (maks ${maxSizeMB}MB).`);
@@ -93,14 +93,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             video.preload = 'metadata';
                             video.onloadedmetadata = () => {
                                 window.URL.revokeObjectURL(video.src);
-                                resolve(video.duration <= 60);
+                                resolve(video.duration <= 180);
                             };
                             video.onerror = () => resolve(false);
                             video.src = window.URL.createObjectURL(file);
                         });
 
                         if (!isValidDuration) {
-                            showToast(`Video "${file.name}" lebih dari 1 menit tidak dapat diunggah.`);
+                            showToast(`Video "${file.name}" lebih dari 3 menit tidak dapat diunggah.`);
                             continue;
                         }
                     }

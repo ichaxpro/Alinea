@@ -122,7 +122,7 @@ class TimelineController extends Controller
             'pesan' => ['required', 'string', 'max:250'],
             'tag' => ['nullable', 'string', 'max:30'],
             'media' => ['nullable', 'array', 'max:4'],
-            'media.*' => ['file', 'max:35840'], // max 35MB per file
+            'media.*' => ['file', 'max:102400'], // max 100MB per file
         ]);
 
         $files = $request->file('media', []);

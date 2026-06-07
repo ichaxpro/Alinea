@@ -621,8 +621,8 @@ class KlubController extends Controller
             'judul_buku_dibahas' => ['nullable', 'string', 'max:120'],
             'pesan' => ['required', 'string', 'max:250'],
             'tag' => ['nullable', 'string', 'max:30'],
-            'media' => ['nullable'],
-            'media.*' => ['file', 'max:35840'],
+            'media' => ['nullable', 'array', 'max:4'],
+            'media.*' => ['file', 'max:102400'],
         ]);
 
         $currentUser = $request->user();
