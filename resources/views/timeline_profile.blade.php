@@ -341,7 +341,11 @@
                                 <article class="group">
                                     <div class="relative aspect-[2/3] rounded-2xl border-2 border-[#444] overflow-hidden shadow-sm bg-gray-100">
                                         @if($book->cover_url)
-                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]">
+                                        @php
+                                            $cover = str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url));
+                                        @endphp
+                                        <img src="{{ $cover }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <div style="display: none;" class="w-full h-full items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-sm font-bold p-4 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @else
                                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-sm font-bold p-4 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @endif
@@ -373,7 +377,11 @@
                                 <article class="group">
                                     <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-[#444] overflow-hidden bg-gray-100 transition-transform duration-200 group-hover:translate-y-[-2px]">
                                         @if($book->cover_url)
-                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]">
+                                        @php
+                                            $cover = str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url));
+                                        @endphp
+                                        <img src="{{ $cover }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover [filter:sepia(0.38)_saturate(0.8)_brightness(0.9)]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <div style="display: none;" class="w-full h-full items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @else
                                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] text-[#444] text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @endif
@@ -402,7 +410,11 @@
                                 <article class="group">
                                     <div class="relative aspect-[2/3] rounded-xl border-[1.5px] border-dashed border-gray-400 overflow-hidden bg-gray-50 transition-transform duration-200 group-hover:translate-y-[-2px]">
                                         @if($book->cover_url)
-                                        <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover opacity-60">
+                                        @php
+                                            $cover = str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url));
+                                        @endphp
+                                        <img src="{{ $cover }}" alt="Sampul {{ $book->judul }}" class="w-full h-full object-cover opacity-60" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <div style="display: none;" class="w-full h-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @else
                                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 text-xs font-bold p-2 text-center">{{ strtoupper(substr($book->judul, 0, 1)) }}</div>
                                         @endif

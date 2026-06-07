@@ -250,6 +250,7 @@ class KlubController extends Controller
             'gradient_from' => $data['gradient_from'] ?? '#FFDDAF',
             'gradient_to' => $data['gradient_to'] ?? '#C7E7FF',
             'id_owner' => $user ? $user->id : null,
+            'member_count' => $user ? 1 : 0,
         ]);
 
         if ($user && Schema::hasTable('klub_member')) {
@@ -291,6 +292,7 @@ class KlubController extends Controller
                     'role_di_klub' => 'member',
                     'joined_at' => now(),
                 ]);
+                $club->increment('member_count');
             }
         }
 
@@ -383,10 +385,14 @@ class KlubController extends Controller
         }
 
         if (Schema::hasTable('klub_member')) {
-            DB::table('klub_member')
+            $deleted = DB::table('klub_member')
                 ->where('id_klub', $club->id)
                 ->where('id_user', $user->id)
                 ->delete();
+            
+            if ($deleted) {
+                $club->decrement('member_count');
+            }
         }
 
         return response()->json($this->clubPayload($club->fresh(), $user->id));
@@ -506,10 +512,10 @@ class KlubController extends Controller
                 ->select([
                     'klub.id',
                     'klub.nama_klub',
-                    DB::raw('COUNT(DISTINCT klub_member.id_user) as member_count'),
+                    DB::raw('COUNT(DISTINCT klub_member.id_user) as new_members_count'),
                 ])
                 ->groupBy('klub.id', 'klub.nama_klub')
-                ->orderByDesc('member_count')
+                ->orderByDesc('new_members_count')
                 ->orderBy('klub.nama_klub')
                 ->limit(5)
                 ->get();
@@ -517,7 +523,7 @@ class KlubController extends Controller
             $trendingItems = $popularClubs->map(function ($club) {
                 return [
                     $club->nama_klub,
-                    $club->member_count . ' Member Baru',
+                    $club->new_members_count . ' Member Baru',
                 ];
             })->all();
 
@@ -786,10 +792,14 @@ class KlubController extends Controller
         }
 
         if (Schema::hasTable('klub_member')) {
-            DB::table('klub_member')
+            $deleted = DB::table('klub_member')
                 ->where('id_klub', $club->id)
                 ->where('id_user', $userId)
                 ->delete();
+            
+            if ($deleted) {
+                $club->decrement('member_count');
+            }
         }
 
         return response()->json($this->clubPayload($club->fresh(), $currentUser->id));

@@ -543,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             const imgSrc = book.cover_url ? book.cover_url : '/images/book.svg';
                             li.innerHTML = `
-                                <img src="${imgSrc}" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" alt="Cover">
+                                <img src="${imgSrc}" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0" alt="Cover" onerror="this.src='/images/book.svg'">
                                 <div>
                                     <div class="font-bold text-[#444]">${escapeHtml(book.judul)}</div>
                                     <div class="text-xs text-gray-500">${escapeHtml(book.penulis || '')}</div>

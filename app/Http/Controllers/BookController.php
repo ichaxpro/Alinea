@@ -274,7 +274,7 @@ class BookController extends Controller
                     'id' => $book->id,
                     'judul' => $book->judul,
                     'penulis' => $book->penulis,
-                    'cover_url' => $book->cover_url,
+                    'cover_url' => $book->cover_url ? (str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url))) : null,
                     'source' => 'featured',
                 ];
             });

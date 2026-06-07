@@ -1,3 +1,4 @@
+import "./custom-select";
 /* ═══════════════════════════════════════════
    detail_buku.js — Alinea Book Detail Page
    Data-driven: semua data dari JS, siap integrasi DB

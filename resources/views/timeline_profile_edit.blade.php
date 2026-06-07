@@ -144,14 +144,16 @@
                         </svg>
                     </button>
                 </div>
-                <select id="riwayat-filter-status"
-                        class="border-[1.5px] border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none
-                               focus:border-[#444] bg-white cursor-pointer w-full sm:w-auto">
-                    <option value="">Semua Status</option>
-                    <option value="sedang_dibaca">Sedang Dibaca</option>
-                    <option value="selesai">Selesai</option>
-                    <option value="diinginkan">Ingin Dibaca</option>
-                </select>
+                <x-custom-select 
+                    id="riwayat-filter-status" 
+                    title="Filter Status"
+                    placeholder="Semua Status" 
+                    :options="[
+                        'sedang_dibaca' => 'Sedang Dibaca',
+                        'selesai' => 'Selesai',
+                        'diinginkan' => 'Ingin Dibaca'
+                    ]" 
+                />
             </div>
             <p class="text-xs text-gray-400 mb-5">
                 Menampilkan <strong id="riwayat-result-count">0</strong> buku
@@ -233,8 +235,15 @@
                         <div class="flex items-start gap-3 flex-1 min-w-0">
                             {{-- Cover --}}
                             @if($book->cover_url)
-                                <img src="{{ $book->cover_url }}" alt="Sampul {{ $book->judul }}"
-                                     class="w-9 h-12 object-cover rounded-md flex-shrink-0">
+                                @php
+                                    $cover = str_starts_with($book->cover_url, 'http') ? $book->cover_url : (str_starts_with($book->cover_url, '/') ? asset(ltrim($book->cover_url, '/')) : asset('storage/' . $book->cover_url));
+                                @endphp
+                                <img src="{{ $cover }}" alt="Sampul {{ $book->judul }}"
+                                     class="w-9 h-12 object-cover rounded-md flex-shrink-0"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                <div style="display: none;" class="w-9 h-12 rounded-md bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF] flex-shrink-0 items-center justify-center text-sm font-bold text-white/70">
+                                    {{ strtoupper(substr($book->judul, 0, 1)) }}
+                                </div>
                             @else
                                 <div class="w-9 h-12 rounded-md bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]
                                             flex-shrink-0 flex items-center justify-center text-sm font-bold text-white/70">

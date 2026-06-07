@@ -1,3 +1,4 @@
+import "./custom-select";
 /**
  * katalog.js — Alinea Book Browser / Review Listing
  *
@@ -148,22 +149,8 @@ const PER_PAGE = 12;
 let currentPage = 1;
 let debounceTimer = null;
 
-// ══════════════════════════════════════
-// DOM REFS
-// ══════════════════════════════════════
-
-const grid           = document.getElementById('ulasan-grid');
-const pagination     = document.getElementById('ulasan-pagination');
-const searchInput    = document.getElementById('ulasan-search-input');
-const searchClear    = document.getElementById('ulasan-search-clear');
-const filterGenre    = document.getElementById('ulasan-filter-genre');
-const filterRating   = document.getElementById('ulasan-filter-rating');
-const sortSelect     = document.getElementById('ulasan-sort');
-const resultCount    = document.getElementById('ulasan-result-count');
-const emptyState     = document.getElementById('ulasan-empty');
-const resetBtn       = document.getElementById('ulasan-reset-filters');
-const activeFilters  = document.getElementById('ulasan-active-filters');
-const scrollTopBtn   = document.getElementById('scrollTopBtn');
+// DOM refs - will be initialized when DOM is ready
+let grid, pagination, searchInput, searchClear, filterGenre, filterRating, sortSelect, resultCount, emptyState, resetBtn, activeFilters, scrollTopBtn;
 
 // ══════════════════════════════════════
 // HELPERS
@@ -213,14 +200,107 @@ async function fetchRatingStats(ids) {
 function populateGenres() {
   const allBooks = window.__BOOKS_DATA__ || [];
   const genres = [...new Set(allBooks.flatMap(b => b.genres))].sort();
-  const mobileGenre = document.getElementById('mobile-filter-genre');
+  
+  // Desktop genre select container
+  const desktopGenreContainer = document.getElementById('ulasan-filter-genre-container');
+  const desktopSelect = document.getElementById('ulasan-filter-genre');
+  const desktopOptionsDiv = desktopGenreContainer?.querySelector('.custom-select-options');
+  
+  // Mobile genre select container
+  const mobileGenreContainer = document.getElementById('mobile-filter-genre-container');
+  const mobileSelect = document.getElementById('mobile-filter-genre');
+  const mobileOptionsDiv = mobileGenreContainer?.querySelector('.custom-select-options');
+  
   genres.forEach(g => {
-    const opt = document.createElement('option');
-    opt.value = g;
-    opt.textContent = g;
-    filterGenre.appendChild(opt);
-    if (mobileGenre) {
-      mobileGenre.appendChild(opt.cloneNode(true));
+    // Hidden Select options
+    const optDesktop = document.createElement('option');
+    optDesktop.value = g;
+    optDesktop.textContent = g;
+    if (desktopSelect) desktopSelect.appendChild(optDesktop);
+    
+    if (mobileSelect) {
+      const optMobile = optDesktop.cloneNode(true);
+      mobileSelect.appendChild(optMobile);
+    }
+    
+    // Custom Checkbox for Desktop
+    if (desktopOptionsDiv) {
+        const label = document.createElement('label');
+        label.className = 'custom-select-option px-4 py-2 text-sm hover:bg-gray-50 transition-colors cursor-pointer flex items-start gap-2';
+        label.innerHTML = `
+            <div class="mt-0.5 relative flex items-center justify-center w-4 h-4 border-2 border-gray-300 rounded focus-within:border-[#444] bg-white transition-colors">
+                <input type="checkbox" name="ulasan-filter-genre[]" value="${g}" data-label="${g}" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full m-0">
+                <svg class="peer-checked:opacity-100 opacity-0 pointer-events-none text-[#444]" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <span class="flex-1 text-gray-600 peer-checked:font-bold peer-checked:text-[#444] leading-tight select-none">${g}</span>
+        `;
+        desktopOptionsDiv.appendChild(label);
+        
+        // Add event listener to new checkbox
+        const cb = label.querySelector('input[type="checkbox"]');
+        cb.addEventListener('change', () => {
+            const container = cb.closest('.custom-select-container');
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const selected = Array.from(checkboxes).filter(c => c.checked);
+            const labelEl = container.querySelector('.custom-select-label');
+            
+            if (selected.length === 0) {
+                labelEl.textContent = 'Semua Genre';
+            } else if (selected.length === 1) {
+                labelEl.textContent = selected[0].dataset.label;
+            } else if (selected.length <= 2) {
+                 labelEl.textContent = selected.map(c => c.dataset.label).join(', ');
+            } else {
+                labelEl.textContent = `${selected.length} Dipilih`;
+            }
+            
+            Array.from(desktopSelect.options).forEach(opt => {
+                opt.selected = selected.some(c => c.value === opt.value);
+            });
+            desktopSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
+
+    // Custom Checkbox for Mobile
+    if (mobileOptionsDiv) {
+        const label = document.createElement('label');
+        label.className = 'custom-select-option px-4 py-2 text-sm hover:bg-gray-50 transition-colors cursor-pointer flex items-start gap-2';
+        label.innerHTML = `
+            <div class="mt-0.5 relative flex items-center justify-center w-4 h-4 border-2 border-gray-300 rounded focus-within:border-[#444] bg-white transition-colors">
+                <input type="checkbox" name="mobile-filter-genre[]" value="${g}" data-label="${g}" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full m-0">
+                <svg class="peer-checked:opacity-100 opacity-0 pointer-events-none text-[#444]" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <span class="flex-1 text-gray-600 peer-checked:font-bold peer-checked:text-[#444] leading-tight select-none">${g}</span>
+        `;
+        mobileOptionsDiv.appendChild(label);
+        
+        // Add event listener to new checkbox
+        const cb = label.querySelector('input[type="checkbox"]');
+        cb.addEventListener('change', () => {
+            const container = cb.closest('.custom-select-container');
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const selected = Array.from(checkboxes).filter(c => c.checked);
+            const labelEl = container.querySelector('.custom-select-label');
+            
+            if (selected.length === 0) {
+                labelEl.textContent = 'Semua Genre';
+            } else if (selected.length === 1) {
+                labelEl.textContent = selected[0].dataset.label;
+            } else if (selected.length <= 2) {
+                 labelEl.textContent = selected.map(c => c.dataset.label).join(', ');
+            } else {
+                labelEl.textContent = `${selected.length} Dipilih`;
+            }
+            
+            Array.from(mobileSelect.options).forEach(opt => {
+                opt.selected = selected.some(c => c.value === opt.value);
+            });
+            // We don't dispatch change immediately on mobile, it relies on "Terapkan" button
+        });
     }
   });
 }
@@ -234,7 +314,10 @@ function applyFilters(resetPage = true) {
 
   const allBooks = window.__BOOKS_DATA__ || [];
   const query      = searchInput.value.toLowerCase().trim();
-  const genre      = filterGenre.value;
+  
+  // Read selected genres (multiple)
+  const selectedGenres = Array.from(filterGenre.selectedOptions).map(opt => opt.value).filter(val => val !== "");
+  
   const minRating  = filterRating.value ? Number(filterRating.value) : 0;
   const sortKey    = sortSelect.value;
 
@@ -242,9 +325,22 @@ function applyFilters(resetPage = true) {
   const mobileGenre = document.getElementById('mobile-filter-genre');
   const mobileRating = document.getElementById('mobile-filter-rating');
   const mobileSort = document.getElementById('mobile-sort');
-  if (mobileGenre) mobileGenre.value = genre;
-  if (mobileRating) mobileRating.value = minRating ? String(minRating) : '';
-  if (mobileSort) mobileSort.value = sortKey;
+  
+  if (mobileGenre) {
+      Array.from(mobileGenre.options).forEach(opt => {
+          opt.selected = selectedGenres.includes(opt.value);
+      });
+      // trigger event to update ui
+      mobileGenre.dispatchEvent(new Event('change'));
+  }
+  if (mobileRating) {
+      mobileRating.value = minRating ? String(minRating) : '';
+      mobileRating.dispatchEvent(new Event('change'));
+  }
+  if (mobileSort) {
+      mobileSort.value = sortKey;
+      mobileSort.dispatchEvent(new Event('change'));
+  }
 
   // Toggle clear button
   searchClear.classList.toggle('hidden', !query);
@@ -254,7 +350,9 @@ function applyFilters(resetPage = true) {
       || b.judul.toLowerCase().includes(query)
       || b.penulis.toLowerCase().includes(query)
       || b.genres.some(g => g.toLowerCase().includes(query));
-    const matchGenre = !genre || b.genres.includes(genre);
+      
+    // Match ANY of the selected genres. If none selected, allow all.
+    const matchGenre = selectedGenres.length === 0 || b.genres.some(g => selectedGenres.includes(g));
     const matchRating = b.rating_avg >= minRating;
     return matchSearch && matchGenre && matchRating;
   });
@@ -272,7 +370,7 @@ function applyFilters(resetPage = true) {
   resultCount.textContent = result.length;
   renderCards(paged);
   renderPagination(totalPages);
-  renderActiveFilters(query, genre, minRating);
+  renderActiveFilters(query, selectedGenres, minRating);
 
   // Empty state
   if (result.length === 0) {
@@ -321,7 +419,12 @@ function renderSkeletons() {
 }
 
 function renderCards(books) {
-  grid.innerHTML = books.map((book, i) => `
+  try {
+  grid.innerHTML = books.map((book, i) => {
+    const avg = Number(book.rating_avg) || 0;
+    const count = Number(book.rating_count) || 0;
+    const genres = book.genres || [];
+    return `
     <article class="card-animate group bg-white border-[1.5px] border-[#e8e8e8] rounded-2xl overflow-hidden cursor-pointer
                     flex flex-col hover:border-[#444] hover:-translate-y-1 transition-all duration-300"
              style="animation-delay: ${i * 0.06}s"
@@ -333,14 +436,14 @@ function renderCards(books) {
         ${book.cover
           ? `<img src="${book.cover}" alt="Sampul ${book.judul}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />`
           : `<div class="w-full h-full flex items-center justify-center text-3xl font-black text-white/20 group-hover:scale-105 transition-transform duration-500"
-                  style="background: linear-gradient(135deg, ${book.gradient_from}, ${book.gradient_to})">
+                  style="background: linear-gradient(135deg, ${book.gradient_from || '#C7E7FF'}, ${book.gradient_to || '#FFDDAF'})">
                 ${book.judul.charAt(0)}
              </div>`
         }
         <!-- Rating Badge on Cover -->
         <div class="md:hidden absolute top-2 left-2 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-[0.68rem] font-bold">
           <span class="text-[#F5C518]">★</span>
-          <span>${book.rating_avg > 0 ? book.rating_avg.toFixed(1) : '-'}</span>
+          <span>${avg > 0 ? avg.toFixed(1) : '-'}</span>
         </div>
         <!-- Hover overlay -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-end p-4">
@@ -357,13 +460,13 @@ function renderCards(books) {
 
         <!-- Rating (desktop only) -->
         <div class="hidden md:flex items-center gap-1.5 mb-3">
-          <div class="flex gap-0.5">${starsHtml(book.rating_avg)}</div>
-          <span class="text-[0.75rem] font-bold text-text">${book.rating_avg}</span>
-          <span class="text-[0.7rem] text-text/35">(${book.rating_count} Ulasan)</span>
+          <div class="flex gap-0.5">${starsHtml(avg)}</div>
+          <span class="text-[0.75rem] font-bold text-text">${avg > 0 ? avg.toFixed(1) : '0'}</span>
+          <span class="text-[0.7rem] text-text/35">(${count} Ulasan)</span>
         </div>
         <!-- Rating (mobile only) -->
         <div class="flex md:hidden items-center gap-1 mb-2">
-          <span class="text-[0.65rem] text-text/40">(${book.rating_count} Ulasan)</span>
+          <span class="text-[0.65rem] text-text/40">(${count} Ulasan)</span>
         </div>
 
         <!-- Synopsis (desktop only) -->
@@ -371,7 +474,7 @@ function renderCards(books) {
 
         <!-- Genre pills (desktop only) -->
         <div class="hidden md:flex gap-1.5 flex-wrap mb-4">
-          ${book.genres.map(g => `
+          ${genres.map(g => `
             <span class="px-3 py-1 text-[0.68rem] font-medium text-text/70 border border-[#e0e0e0] rounded-full">${g}</span>
           `).join('')}
         </div>
@@ -385,7 +488,11 @@ function renderCards(books) {
         </a>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
+  } catch(err) {
+    console.error('renderCards error:', err);
+  }
 
   // Click on card = navigate
   grid.querySelectorAll('[data-book-id]').forEach(card => {
@@ -403,7 +510,7 @@ function renderCards(books) {
 // RENDER ACTIVE FILTER CHIPS
 // ══════════════════════════════════════
 
-function renderActiveFilters(query, genre, minRating) {
+function renderActiveFilters(query, genres, minRating) {
   const chips = [];
 
   if (query) {
@@ -414,13 +521,15 @@ function renderActiveFilters(query, genre, minRating) {
       </button>
     `);
   }
-  if (genre) {
-    chips.push(`
-      <button class="inline-flex items-center gap-1.5 px-3 py-1 text-[0.72rem] font-semibold text-text bg-[#C7E7FF]/40 border border-[#C7E7FF] rounded-full hover:bg-[#C7E7FF] transition-colors"
-              data-clear="genre">
-        📂 ${genre} <span class="text-text/40">×</span>
-      </button>
-    `);
+  if (genres && genres.length > 0) {
+    genres.forEach(g => {
+      chips.push(`
+        <button class="inline-flex items-center gap-1.5 px-3 py-1 text-[0.72rem] font-semibold text-text bg-[#C7E7FF]/40 border border-[#C7E7FF] rounded-full hover:bg-[#C7E7FF] transition-colors"
+                data-clear="genre" data-genre-value="${g}">
+          📂 ${g} <span class="text-text/40">×</span>
+        </button>
+      `);
+    });
   }
   if (minRating) {
     chips.push(`
@@ -437,9 +546,17 @@ function renderActiveFilters(query, genre, minRating) {
   activeFilters.querySelectorAll('[data-clear]').forEach(btn => {
     btn.addEventListener('click', () => {
       const type = btn.dataset.clear;
-      if (type === 'search')  { searchInput.value = ''; }
-      if (type === 'genre')   { filterGenre.value = ''; }
-      if (type === 'rating')  { filterRating.value = ''; }
+      if (type === 'search') { searchInput.value = ''; }
+      if (type === 'genre') {
+        const genreVal = btn.dataset.genreValue;
+        const container = document.getElementById('ulasan-filter-genre-container');
+        if (container) {
+          const cb = container.querySelector(`input[type="checkbox"][value="${genreVal}"]`);
+          if (cb) { cb.checked = false; cb.dispatchEvent(new Event('change', { bubbles: true })); return; }
+        }
+        filterGenre.value = '';
+      }
+      if (type === 'rating') { filterRating.value = ''; filterRating.dispatchEvent(new Event('change')); }
       applyFilters();
     });
   });
@@ -504,160 +621,185 @@ function getPageNumbers(current, total) {
 }
 
 // ══════════════════════════════════════
-// EVENT LISTENERS
+// INIT — all DOM-dependent code runs here
 // ══════════════════════════════════════
 
-// Debounced search — fetches from Google Books API
-searchInput.addEventListener('input', () => {
-  clearTimeout(debounceTimer);
-  const query = searchInput.value.trim();
-  if (query.length < 3) {
-    window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
-    applyFilters();
-    return;
-  }
-  
-  // Show loading skeleton while typing/waiting for debounce
-  renderSkeletons();
-  
-  debounceTimer = setTimeout(async () => {
-    try {
-      const books = await fetchBooks(query);
-      window.__BOOKS_DATA__ = books;
-      applyFilters();
-      const allIds = books.map(b => b.google_id || String(b.id)).filter(Boolean);
-      const stats = await fetchRatingStats(allIds);
-      window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => {
-        const key = b.google_id || String(b.id);
-        const s = stats[key];
-        if (s) {
-          return {...b, rating_avg: s.rating_avg, rating_count: s.rating_count};
-        }
-        return b;
-      });
-      applyFilters(false);
-    } catch (err) {
-      showToast('Gagal mencari buku');
+function initKatalog() {
+  // DOM REFS
+  grid           = document.getElementById('ulasan-grid');
+  pagination     = document.getElementById('ulasan-pagination');
+  searchInput    = document.getElementById('ulasan-search-input');
+  searchClear    = document.getElementById('ulasan-search-clear');
+  filterGenre    = document.getElementById('ulasan-filter-genre');
+  filterRating   = document.getElementById('ulasan-filter-rating');
+  sortSelect     = document.getElementById('ulasan-sort');
+  resultCount    = document.getElementById('ulasan-result-count');
+  emptyState     = document.getElementById('ulasan-empty');
+  resetBtn       = document.getElementById('ulasan-reset-filters');
+  activeFilters  = document.getElementById('ulasan-active-filters');
+  scrollTopBtn   = document.getElementById('scrollTopBtn');
+
+  // Guard: if we're not on the katalog page, bail out
+  if (!grid || !searchInput) return;
+
+  // EVENT LISTENERS
+
+  // Debounced search — fetches from Google Books API
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const query = searchInput.value.trim();
+    if (query.length < 3) {
       window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
       applyFilters();
+      return;
     }
-  }, 400);
-});
+    
+    // Show loading skeleton while typing/waiting for debounce
+    renderSkeletons();
+    
+    debounceTimer = setTimeout(async () => {
+      try {
+        const books = await fetchBooks(query);
+        window.__BOOKS_DATA__ = books;
+        applyFilters();
+        const allIds = books.map(b => b.google_id || String(b.id)).filter(Boolean);
+        const stats = await fetchRatingStats(allIds);
+        window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => {
+          const key = b.google_id || String(b.id);
+          const s = stats[key];
+          if (s) {
+            return {...b, rating_avg: s.rating_avg, rating_count: s.rating_count};
+          }
+          return b;
+        });
+        applyFilters(false);
+      } catch (err) {
+        showToast('Gagal mencari buku');
+        window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
+        applyFilters();
+      }
+    }, 400);
+  });
 
-// Clear search
-searchClear.addEventListener('click', () => {
-  searchInput.value = '';
-  window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
-  applyFilters();
-  searchInput.focus();
-});
-
-// Keyboard shortcut: "/" to focus search
-document.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-    e.preventDefault();
+  // Clear search
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
+    applyFilters();
     searchInput.focus();
-    showToast('💡 Tekan / untuk mencari buku');
-  }
-  if (e.key === 'Escape' && document.activeElement === searchInput) {
-    searchInput.blur();
-  }
-});
-
-// Filters & sort
-filterGenre.addEventListener('change', () => applyFilters());
-filterRating.addEventListener('change', () => applyFilters());
-sortSelect.addEventListener('change', () => applyFilters());
-
-// Reset all filters
-resetBtn.addEventListener('click', () => {
-  searchInput.value = '';
-  filterGenre.value = '';
-  filterRating.value = '';
-  sortSelect.value = 'rating-desc';
-  window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
-  applyFilters();
-  showToast('Filter telah direset');
-});
-
-// Scroll-to-top button
-window.addEventListener('scroll', () => {
-  scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
-}, { passive: true });
-
-scrollTopBtn.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// Mobile Filter Dialog Event Listeners
-const mobileFilterDialog = document.getElementById('mobile-filter-dialog');
-const mobileFilterBtn = document.getElementById('ulasan-mobile-filter-btn');
-const mobileFilterClose = document.getElementById('close-filter-dialog');
-const mobileFilterReset = document.getElementById('mobile-filter-reset');
-
-if (mobileFilterBtn && mobileFilterDialog) {
-  mobileFilterBtn.addEventListener('click', () => {
-    mobileFilterDialog.showModal();
   });
-}
 
-if (mobileFilterClose && mobileFilterDialog) {
-  mobileFilterClose.addEventListener('click', () => {
-    mobileFilterDialog.close();
-  });
-}
-
-if (mobileFilterDialog) {
-  // Light dismiss on backdrop click
-  mobileFilterDialog.addEventListener('click', (e) => {
-    const rect = mobileFilterDialog.getBoundingClientRect();
-    const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-      rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
-    if (!isInDialog) {
-      mobileFilterDialog.close();
+  // Keyboard shortcut: "/" to focus search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      searchInput.focus();
+      showToast('💡 Tekan / untuk mencari buku');
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.blur();
     }
   });
 
-  // Handle Form Submission within Dialog
-  const form = mobileFilterDialog.querySelector('form');
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      filterGenre.value = document.getElementById('mobile-filter-genre').value;
-      filterRating.value = document.getElementById('mobile-filter-rating').value;
-      sortSelect.value = document.getElementById('mobile-sort').value;
-      applyFilters();
-    });
-  }
-}
+  // Filters & sort
+  filterGenre.addEventListener('change', () => applyFilters());
+  filterRating.addEventListener('change', () => applyFilters());
+  sortSelect.addEventListener('change', () => applyFilters());
 
-if (mobileFilterReset && mobileFilterDialog) {
-  mobileFilterReset.addEventListener('click', () => {
+  // Reset all filters
+  resetBtn.addEventListener('click', () => {
     searchInput.value = '';
     filterGenre.value = '';
     filterRating.value = '';
     sortSelect.value = 'rating-desc';
     window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
     applyFilters();
-    mobileFilterDialog.close();
     showToast('Filter telah direset');
   });
-}
 
-// ══════════════════════════════════════
-// INIT
-// ══════════════════════════════════════
+  // Scroll-to-top button
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
 
-document.addEventListener('DOMContentLoaded', async () => {
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Mobile Filter Dialog Event Listeners
+  const mobileFilterDialog = document.getElementById('mobile-filter-dialog');
+  const mobileFilterBtn = document.getElementById('ulasan-mobile-filter-btn');
+  const mobileFilterClose = document.getElementById('close-filter-dialog');
+  const mobileFilterReset = document.getElementById('mobile-filter-reset');
+
+  if (mobileFilterBtn && mobileFilterDialog) {
+    mobileFilterBtn.addEventListener('click', () => {
+      mobileFilterDialog.showModal();
+    });
+  }
+
+  if (mobileFilterClose && mobileFilterDialog) {
+    mobileFilterClose.addEventListener('click', () => {
+      mobileFilterDialog.close();
+    });
+  }
+
+  if (mobileFilterDialog) {
+    // Light dismiss on backdrop click
+    mobileFilterDialog.addEventListener('click', (e) => {
+      const rect = mobileFilterDialog.getBoundingClientRect();
+      const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!isInDialog) {
+        mobileFilterDialog.close();
+      }
+    });
+
+    // Handle Form Submission within Dialog
+    const form = mobileFilterDialog.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        filterGenre.value = document.getElementById('mobile-filter-genre').value;
+        filterRating.value = document.getElementById('mobile-filter-rating').value;
+        sortSelect.value = document.getElementById('mobile-sort').value;
+        applyFilters();
+      });
+    }
+  }
+
+  if (mobileFilterReset && mobileFilterDialog) {
+    mobileFilterReset.addEventListener('click', () => {
+      searchInput.value = '';
+      filterGenre.value = '';
+      filterRating.value = '';
+      sortSelect.value = 'rating-desc';
+      window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
+      applyFilters();
+      mobileFilterDialog.close();
+      showToast('Filter telah direset');
+    });
+  }
+
+  // Load data and render
   window.__BOOKS_DATA__ = window.__FEATURED_BOOKS__;
   populateGenres();
   applyFilters();
 
-  const ids = window.__FEATURED_BOOKS__.map(b => String(b.id));
-  const stats = await fetchRatingStats(ids);
-  window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => ({
-    ...b,
-    rating_avg: stats[String(b.id)]?.rating_avg ?? b.rating_avg,
-    rating_count: stats[String(b.id)]?.rating_count ?? b.rating_count,
-  }));
-  applyFilters(false);
-});
+  // Fetch live rating stats
+  const ids = (window.__FEATURED_BOOKS__ || []).map(b => String(b.id));
+  fetchRatingStats(ids).then(stats => {
+    window.__BOOKS_DATA__ = window.__BOOKS_DATA__.map(b => ({
+      ...b,
+      rating_avg: stats[String(b.id)]?.rating_avg ?? b.rating_avg,
+      rating_count: stats[String(b.id)]?.rating_count ?? b.rating_count,
+    }));
+    applyFilters(false);
+  });
+}
+
+// Run when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initKatalog);
+} else {
+  initKatalog();
+}
