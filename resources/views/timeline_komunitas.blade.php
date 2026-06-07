@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Alinea — Timeline Komunitas</title>
     <meta name="description" content="Ikuti timeline komunitas Alinea — lihat diskusi dari klub buku yang kamu ikuti." />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -147,16 +148,18 @@
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
-                            @if(!empty($post['avatar_url']))
-                            <img src="{{ $post['avatar_url'] }}" alt="avatar" class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0 object-cover" />
-                            @else
-                            <div class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0"
-                                 style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
-                            @endif
+                            <a href="{{ $post['profile_url'] ?? '#' }}" class="flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+                                @if(!empty($post['avatar_url']))
+                                <img src="{{ $post['avatar_url'] }}" alt="avatar" class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] object-cover" />
+                                @else
+                                <div class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444]"
+                                     style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
+                                @endif
+                            </a>
                             <div class="flex-1">
-                                <span class="font-bold text-[15px] leading-tight">{{ $post['name'] }}</span>
+                                <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">{{ $post['name'] }}</a>
                                 <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
-                                    <span class="whitespace-nowrap">{{ $post['handle'] }}</span>
+                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="whitespace-nowrap hover:underline cursor-pointer">{{ $post['handle'] }}</a>
                                     <span class="text-gray-200">•</span>
                                     <span class="flex items-center gap-1 whitespace-nowrap">
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

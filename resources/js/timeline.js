@@ -78,25 +78,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 let validFiles = [];
+                let hasError = false;
                 for (const file of newFiles) {
                     const isVideo = file.type.startsWith('video/');
                     const maxSizeMB = isVideo ? 100 : 20;
                     
                     if (file.size > maxSizeMB * 1024 * 1024) {
                         showToast(`File "${file.name}" terlalu besar (maks ${maxSizeMB}MB).`);
+                        hasError = true;
                         continue;
                     }
 
                     if (isVideo) {
                         const isValidDuration = await new Promise(resolve => {
                             const video = document.createElement('video');
+                            const objectUrl = window.URL.createObjectURL(file);
                             video.preload = 'metadata';
                             video.onloadedmetadata = () => {
                                 window.URL.revokeObjectURL(video.src);
                                 resolve(video.duration <= 180);
                             };
-                            video.onerror = () => resolve(false);
-                            video.src = window.URL.createObjectURL(file);
+                            // If browser can't read metadata, don't block the upload, let backend handle size
+                            video.onerror = () => {
+                                window.URL.revokeObjectURL(objectUrl);
+                                resolve(true);
+                            };
+                            video.src = objectUrl;
                         });
 
                         if (!isValidDuration) {
@@ -115,7 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     bindRemoveButtons();
                 }
 
-                showToast(validFiles.length ? `${validFiles.length} file ditambahkan.` : 'Gagal menambahkan file.');
+                if (validFiles.length > 0) {
+                    showToast(`${validFiles.length} file ditambahkan.`);
+                } else if (!hasError) {
+                    showToast('Gagal menambahkan file.');
+                }
+                
                 mediaInput.value = ''; 
             }
         });
@@ -842,13 +854,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCommentItem(comment) {
         return '<div class="flex gap-3 rounded-xl bg-gray-50 p-3 border border-gray-100">' +
-            '<div class="w-8 h-8 rounded-full border border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center flex-shrink-0">' +
+            '<a href="' + (comment.profile_url || '#') + '" class="w-8 h-8 rounded-full border border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity">' +
                 renderAvatarHtml(comment) +
-            '</div>' +
+            '</a>' +
             '<div class="min-w-0 flex-1">' +
                 '<div class="flex flex-wrap items-center gap-2 text-xs text-gray-400 mb-1">' +
-                    '<span class="font-semibold text-gray-700 whitespace-nowrap">' + escapeHtml(comment.name || 'Pengguna') + '</span>' +
-                    '<span class="whitespace-nowrap">' + escapeHtml(comment.handle || '@pengguna') + '</span>' +
+                    '<a href="' + (comment.profile_url || '#') + '" class="font-semibold text-gray-700 whitespace-nowrap hover:underline cursor-pointer">' + escapeHtml(comment.name || 'Pengguna') + '</a>' +
+                    '<a href="' + (comment.profile_url || '#') + '" class="whitespace-nowrap hover:underline cursor-pointer">' + escapeHtml(comment.handle || '@pengguna') + '</a>' +
                     '<span class="whitespace-nowrap">•</span>' +
                     '<span class="whitespace-nowrap" title="' + escapeHtml(comment.absolute_time || '') + '">' + escapeHtml(comment.time || 'Baru saja') + '</span>' +
                 '</div>' +
@@ -1251,11 +1263,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         article.innerHTML =
             '<div class="flex items-center gap-3 mb-3 justify-between">' +
-                '<div class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center">' + renderAvatarHtml(post) + '</div>' +
+                '<a href="' + (post.profile_url || '#') + '" class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">' + renderAvatarHtml(post) + '</a>' +
                 '<div class="flex-1">' +
-                    '<span class="font-bold text-[15px] leading-tight">' + escapeHtml(post.name || 'Pengguna') + '</span>' +
+                    '<a href="' + (post.profile_url || '#') + '" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">' + escapeHtml(post.name || 'Pengguna') + '</a>' +
                     '<div class="flex flex-wrap items-center gap-1.5 text-xs text-gray-400">' +
-                        '<span class="whitespace-nowrap">' + escapeHtml(post.handle || '@pengguna') + '</span>' +
+                        '<a href="' + (post.profile_url || '#') + '" class="whitespace-nowrap hover:underline cursor-pointer">' + escapeHtml(post.handle || '@pengguna') + '</a>' +
                         '<span class="text-gray-200">•</span>' +
                         '<span class="flex items-center gap-1 whitespace-nowrap">' +
                             '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +

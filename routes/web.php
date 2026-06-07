@@ -162,4 +162,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/reading-books/{book}', [ProfileController::class, 'destroyReadingBook'])->name('profile.reading-books.destroy');
     
     Route::get('/api/books/autocomplete', [App\Http\Controllers\BookController::class, 'searchAutocomplete'])->name('api.books.autocomplete');
+
+    // Change password
+    Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change_password');
 });

@@ -126,7 +126,7 @@ function getMemberRoleLabel(role) {
         case 'moderator':
             return 'Admin';
         default:
-            return 'Member';
+            return 'Anggota';
     }
 }
 
@@ -291,7 +291,7 @@ function updateMemberRole(clubId, userId, userName, newRole) {
     const club = CLUBS.find(c => c.id === clubId);
     if (!club || !club.isOwner) return;
 
-    const roleLabel = {admin: 'Admin', member: 'Member', owner: 'Owner'}[newRole] || newRole;
+    const roleLabel = {admin: 'Admin', member: 'Anggota', owner: 'Owner'}[newRole] || newRole;
     const confirmMsg = newRole === 'owner'
         ? `Transfer ownership ke "${userName}"? Kamu akan menjadi Admin setelahnya.`
         : `Jadikan "${userName}" sebagai ${roleLabel}?`;
@@ -575,24 +575,24 @@ function renderCards(clubs) {
     }
     grid.innerHTML = clubs.map(club => {
         const coverHtml = club.coverUrl
-            ? `<div class="w-20 h-20 rounded-xl border-[1.5px] border-[#444] flex-shrink-0 bg-cover bg-center" style="background-image: url('${club.coverUrl}')"></div>`
-            : `<div class="w-20 h-20 rounded-xl border-[1.5px] border-[#444] flex-shrink-0" style="background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})"></div>`;
+            ? `<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-[1.5px] border-[#444] flex-shrink-0 bg-cover bg-center" style="background-image: url('${club.coverUrl}')"></div>`
+            : `<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-[1.5px] border-[#444] flex-shrink-0" style="background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})"></div>`;
 
         return `
         <article data-club-id="${club.id}"
-                 class="group bg-white border-[1.5px] border-[#444] rounded-2xl p-5 cursor-pointer
-                        flex flex-col w-full hover:-translate-y-1 transition-all duration-300">
-            <div class="flex items-start gap-4 mb-3">
+                 class="group bg-white border-[1.5px] border-[#e8e8e8] rounded-[1.25rem] p-4 sm:p-5 cursor-pointer
+                        flex flex-col w-full hover:-translate-y-1 hover:border-[#444] transition-all duration-300 h-full">
+            <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                 ${coverHtml}
-                <div class="min-w-0">
-                    <h3 class="font-bold text-base leading-tight mb-1.5 line-clamp-2 whitespace-normal break-words overflow-hidden">${club.name}</h3>
-                    <span class="inline-block text-xs font-medium px-3 py-0.5 rounded-lg border-[1.5px] border-[#444]">${club.category}</span>
+                <div class="min-w-0 pt-0.5 sm:pt-1">
+                    <h3 class="font-bold text-lg sm:text-xl text-[#444] leading-tight mb-2 sm:mb-3 line-clamp-2 whitespace-normal break-words overflow-hidden">${club.name}</h3>
+                    <span class="inline-block text-[0.65rem] sm:text-xs font-bold px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border-[1.5px] border-[#444] text-[#444]">${club.category}</span>
                 </div>
             </div>
-            <p class="text-xs text-gray-500 leading-relaxed flex-1 line-clamp-3 overflow-hidden break-words">${club.description}</p>
-            <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
-                <button data-primary-action-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors ${club.joined || club.isOwner ? '' : ''}">${getPrimaryActionLabel(club)}</button>
-                <span class="text-xs font-semibold text-gray-400">${club.members} Member</span>
+            <p class="text-[0.8rem] sm:text-sm text-[#444] leading-relaxed line-clamp-3 overflow-hidden break-words mb-4 h-[60px] sm:h-[68px]">${club.description}</p>
+            <div class="flex items-center justify-between pt-3 sm:pt-4 mt-auto border-t-[1.5px] border-gray-200">
+                <button data-primary-action-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs sm:text-sm px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[3px_3px_0px_#444] active:translate-y-0 active:translate-x-0 active:shadow-none transition-all">${getPrimaryActionLabel(club)}</button>
+                <span class="text-xs sm:text-sm font-bold text-[#444]">${club.members} Anggota</span>
             </div>
         </article>
     `}).join('');
@@ -639,21 +639,21 @@ function openModal(club) {
             : `<button data-join-club-btn="${club.id}" class="bg-[#FFDDAF] text-[#444] font-bold text-xs px-5 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors flex-shrink-0">Bergabung</button>`;
 
     modalContent.innerHTML = `
-        <div class="h-28 sm:h-36 rounded-t-2xl relative" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}">
-            <div class="absolute -bottom-10 left-6">
-                <div class="w-20 h-20 rounded-xl border-[2.5px] border-[#444] bg-white p-1">
-                    <div class="w-full h-full rounded-lg" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}"></div>
+        <div class="h-32 sm:h-48 rounded-t-2xl relative border-b-[1.5px] border-[#444]" style="${club.coverUrl ? `background-image: url('${club.coverUrl}'); background-size: cover; background-position: center;` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}">
+            <div class="absolute -bottom-12 left-6 sm:left-8">
+                <div class="w-24 h-24 rounded-2xl border-[2.5px] border-[#444] bg-white p-1">
+                    <div class="w-full h-full rounded-xl bg-cover bg-center" style="${club.coverUrl ? `background-image: url('${club.coverUrl}');` : `background: linear-gradient(135deg, ${club.gradientFrom}, ${club.gradientTo})`}"></div>
                 </div>
             </div>
         </div>
-        <div class="pt-14 px-6 pb-6">
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-1 gap-2 sm:gap-3">
-                <h2 class="font-bold text-xl break-words whitespace-normal">${club.name}</h2>
+        <div class="pt-16 px-6 sm:px-8 pb-8">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-2 gap-2 sm:gap-3">
+                <h2 class="font-bold text-2xl sm:text-3xl break-words whitespace-normal text-[#444] leading-tight">${club.name}</h2>
                 <div class="flex-shrink-0 self-start sm:self-auto">${actionButtonsHtml}</div>
             </div>
-            <div class="flex flex-wrap items-center gap-2 mb-4">
+            <div class="flex flex-wrap items-center gap-2 mb-5">
                 <span class="inline-block text-xs font-medium px-3 py-0.5 rounded-full border-[1.5px] border-[#444]">${club.category}</span>
-                <span class="text-xs text-gray-400">${club.members} Member</span>
+                <span class="text-xs text-gray-400">${club.members} Anggota</span>
                 <span class="text-xs text-gray-300">•</span>
                 <span class="text-xs text-gray-400">Didirikan ${club.founded}</span>
             </div>
