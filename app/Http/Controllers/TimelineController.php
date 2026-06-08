@@ -79,6 +79,7 @@ class TimelineController extends Controller
 
                 return [
                     'id' => $post->id,
+                    'user_id' => $post->id_user,
                     'name' => $post->author->name ?? 'Pengguna',
                     'username' => $post->author->username,
                     'profile_url' => $post->author->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',
@@ -144,6 +145,7 @@ class TimelineController extends Controller
 
         $formattedPost = [
             'id' => $post->id,
+            'user_id' => $post->id_user,
             'name' => $post->author->name ?? 'Pengguna',
             'handle' => $post->author->username ? '@' . ltrim($post->author->username, '@') : '@pengguna',
             'location' => $post->author->kota ?: 'Online',
@@ -242,6 +244,7 @@ class TimelineController extends Controller
             'message' => 'Postingan berhasil diunggah.',
             'post' => [
                 'id' => $post->id,
+                'user_id' => $currentUser->id,
                 'name' => $currentUser->name,
                 'username' => $currentUser->username,
                 'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
@@ -462,6 +465,28 @@ class TimelineController extends Controller
         ]);
     }
 
+    public function reportPost(Request $request, TimelinePost $post)
+    {
+        $currentUser = Auth::user();
+        if (!$currentUser) {
+            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
+        }
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'min:8'],
+        ]);
+
+        \App\Models\ReportPost::create([
+            'reporter_id' => $currentUser->id,
+            'post_id' => $post->id,
+            'reason' => $validated['reason'],
+        ]);
+
+        return response()->json([
+            'message' => 'Laporan berhasil dikirim dan akan segera kami tinjau.',
+        ]);
+    }
+
     public function simpanan(Request $request)
     {
         $currentUser = Auth::user();
@@ -496,6 +521,7 @@ class TimelineController extends Controller
 
                 return [
                     'id' => $post->id,
+                    'user_id' => $post->id_user,
                     'name' => $post->author->name ?? 'Pengguna',
                     'username' => $post->author->username,
                     'profile_url' => $post->author->username ? route('profile.by_username', ['username' => ltrim($post->author->username, '@')]) : '#',

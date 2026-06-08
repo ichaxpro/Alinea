@@ -48,6 +48,7 @@ Route::get('/timeline/posts/{post}', [TimelineController::class, 'show'])->name(
 Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
 Route::delete('/timeline/posts/{post}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
 Route::post('/timeline/posts/{post}/bookmark', [TimelineController::class, 'toggleBookmark'])->name('timeline.bookmark');
+Route::post('/timeline/posts/{post}/report', [TimelineController::class, 'reportPost'])->name('timeline.report');
 Route::post('/timeline_home/posts/{post}/like', [TimelineController::class, 'toggleLike'])->name('timeline_home.like');
 Route::get('/timeline_home/posts/{post}/comments', [TimelineController::class, 'comments'])->name('timeline_home.comments');
 Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 'storeComment'])->name('timeline_home.comments.store');
