@@ -18,7 +18,7 @@
 
   <div class="flex flex-col min-h-screen w-screen lg:flex-row lg:h-screen lg:min-h-0">
 
-    <div class="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#D1EAFA] px-[30px] py-[50px] min-h-[400px] lg:pl-[80px] lg:pr-0 lg:py-0 lg:min-h-0">
+    <div class="relative flex flex-1 flex-col justify-center overflow-hidden bg-[#D1EAFA] px-[30px] pt-[50px] pb-[180px] min-h-[450px] lg:pl-[80px] lg:pr-0 lg:py-0 lg:min-h-0">
       <div class="relative z-10 -mt-[60px] lg:-mt-[300px]">
         <h1 class="mb-6 text-[36px] font-extrabold leading-[1.15] tracking-[-1.5px] text-[#38556D] sm:text-[44px] lg:text-[58px]">
           <span>Di mana</span>
