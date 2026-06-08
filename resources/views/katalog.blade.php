@@ -14,16 +14,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-    @vite(['resources/css/app.css', 'resources/js/katalog.js'])
-
     <script>
         window.__FEATURED_BOOKS__ = {!! json_encode($featuredBooks->map(fn($b) => [
             'id' => $b->id,
             'judul' => $b->judul,
             'penulis' => $b->penulis,
             'tahun' => $b->tahun,
-            'rating_avg' => 0,
-            'rating_count' => 0,
+            'rating_avg' => (float) ($b->rating_avg ?? 0),
+            'rating_count' => (int) ($b->rating_count ?? 0),
             'sinopsis' => $b->sinopsis,
             'genres' => $b->genres ?? [],
             'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : (str_starts_with($b->cover_url, '/') ? asset(ltrim($b->cover_url, '/')) : asset('storage/' . $b->cover_url))) : '',
@@ -31,6 +29,8 @@
             'gradient_to' => $b->gradient_to,
         ])->values()) !!};
     </script>
+
+    @vite(['resources/css/app.css', 'resources/js/katalog.js'])
 
     <style>
         /* ── Skeleton shimmer ── */
@@ -153,36 +153,46 @@
                 </div>
 
                 {{-- Genre filter --}}
-                <div class="relative hidden sm:block">
-                    <select id="ulasan-filter-genre"
-                            class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
-                        <option value="">Semua Genre</option>
-                    </select>
+                <div class="relative hidden sm:block ">
+                    <x-custom-select 
+                        id="ulasan-filter-genre" 
+                        title="Filter Genre"
+                        placeholder="Semua Genre" 
+                        :multiple="true" 
+                        :options="[]" 
+                    />
                 </div>
 
                 {{-- Rating filter --}}
-                <div class="relative hidden sm:block">
-                    <select id="ulasan-filter-rating"
-                            class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
-                        <option value="">Semua Rating</option>
-                        <option value="5">★★★★★ (5)</option>
-                        <option value="4">★★★★☆ (4+)</option>
-                        <option value="3">★★★☆☆ (3+)</option>
-                        <option value="2">★★☆☆☆ (2+)</option>
-                    </select>
+                <div class="relative hidden sm:block ">
+                    <x-custom-select 
+                        id="ulasan-filter-rating" 
+                        title="Filter Rating"
+                        placeholder="Semua Rating" 
+                        :options="[
+                            '5' => '★★★★★ (5)',
+                            '4' => '★★★★☆ (4+)',
+                            '3' => '★★★☆☆ (3+)',
+                            '2' => '★★☆☆☆ (2+)',
+                        ]" 
+                    />
                 </div>
 
                 {{-- Sort --}}
-                <div class="relative hidden sm:block">
-                    <select id="ulasan-sort"
-                            class="custom-select bg-white border-[1.5px] border-[#444] rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-colors">
-                        <option value="rating-desc">Rating Tertinggi</option>
-                        <option value="rating-asc">Rating Terendah</option>
-                        <option value="reviews-desc">Ulasan Terbanyak</option>
-                        <option value="title-asc">Judul A–Z</option>
-                        <option value="title-desc">Judul Z–A</option>
-                        <option value="newest">Terbaru</option>
-                    </select>
+                <div class="relative hidden sm:block ">
+                    <x-custom-select 
+                        id="ulasan-sort" 
+                        title="Urutkan"
+                        :placeholder="false" 
+                        :options="[
+                            'rating-desc' => 'Rating Tertinggi',
+                            'rating-asc' => 'Rating Terendah',
+                            'reviews-desc' => 'Ulasan Terbanyak',
+                            'title-asc' => 'Judul A–Z',
+                            'title-desc' => 'Judul Z–A',
+                            'newest' => 'Terbaru'
+                        ]" 
+                    />
                 </div>
             </div>
 
@@ -242,34 +252,47 @@
             {{-- Genre Filter --}}
             <div class="flex flex-col gap-1.5">
                 <label for="mobile-filter-genre" class="text-xs font-bold uppercase tracking-wider text-text/50">Genre</label>
-                <select id="mobile-filter-genre" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
-                    <option value="">Semua Genre</option>
-                </select>
+                <x-custom-select 
+                    id="mobile-filter-genre" 
+                    title="Filter Genre"
+                    placeholder="Semua Genre" 
+                    :multiple="true" 
+                    :options="[]" 
+                />
             </div>
             
             {{-- Rating Filter --}}
             <div class="flex flex-col gap-1.5">
                 <label for="mobile-filter-rating" class="text-xs font-bold uppercase tracking-wider text-text/50">Rating Minimum</label>
-                <select id="mobile-filter-rating" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
-                    <option value="">Semua Rating</option>
-                    <option value="5">★★★★★ (5)</option>
-                    <option value="4">★★★★☆ (4+)</option>
-                    <option value="3">★★★☆☆ (3+)</option>
-                    <option value="2">★★☆☆☆ (2+)</option>
-                </select>
+                <x-custom-select 
+                    id="mobile-filter-rating" 
+                    title="Filter Rating"
+                    placeholder="Semua Rating" 
+                    :options="[
+                        '5' => '★★★★★ (5)',
+                        '4' => '★★★★☆ (4+)',
+                        '3' => '★★★☆☆ (3+)',
+                        '2' => '★★☆☆☆ (2+)',
+                    ]" 
+                />
             </div>
             
             {{-- Sort Select --}}
             <div class="flex flex-col gap-1.5">
                 <label for="mobile-sort" class="text-xs font-bold uppercase tracking-wider text-text/50">Urutkan</label>
-                <select id="mobile-sort" class="custom-select w-full bg-white border-[1.5px] border-text rounded-lg pl-4 pr-10 py-3 text-sm font-medium text-text outline-none cursor-pointer">
-                    <option value="rating-desc">Rating Tertinggi</option>
-                    <option value="rating-asc">Rating Terendah</option>
-                    <option value="reviews-desc">Ulasan Terbanyak</option>
-                    <option value="title-asc">Judul A–Z</option>
-                    <option value="title-desc">Judul Z–A</option>
-                    <option value="newest">Terbaru</option>
-                </select>
+                <x-custom-select 
+                    id="mobile-sort" 
+                    title="Urutkan"
+                    :placeholder="false" 
+                    :options="[
+                        'rating-desc' => 'Rating Tertinggi',
+                        'rating-asc' => 'Rating Terendah',
+                        'reviews-desc' => 'Ulasan Terbanyak',
+                        'title-asc' => 'Judul A–Z',
+                        'title-desc' => 'Judul Z–A',
+                        'newest' => 'Terbaru'
+                    ]" 
+                />
             </div>
             
             {{-- Action Buttons --}}

@@ -135,13 +135,19 @@
           <h2 class="text-xl font-extrabold text-[#444444]">Ulasan Pembaca</h2>
           <div class="flex items-center gap-2">
             <label for="sortSelect" class="text-[0.78rem] text-[#444444]/55">Urutkan:</label>
-            <select id="sortSelect" class="font-['Poppins'] text-[0.8rem] font-semibold text-[#444444] bg-white border border-[#ddd] rounded-md px-3 py-1.5 outline-none cursor-pointer">
-              <option value="newest">Terbaru</option>
-              <option value="oldest">Terlama</option>
-              <option value="highest">Rating Tertinggi</option>
-              <option value="lowest">Rating Terendah</option>
-              <option value="helpful">Paling Membantu</option>
-            </select>
+            <x-custom-select 
+                id="sortSelect" 
+                title="Urutkan"
+                :placeholder="false" 
+                class="!py-1.5 !px-3 !text-[0.8rem] !font-semibold !rounded-md !border-[#ddd]"
+                :options="[
+                    'newest' => 'Terbaru',
+                    'oldest' => 'Terlama',
+                    'highest' => 'Rating Tertinggi',
+                    'lowest' => 'Rating Terendah',
+                    'helpful' => 'Paling Membantu'
+                ]" 
+            />
           </div>
         </div>
 
@@ -196,40 +202,46 @@
           <p class="text-[0.9rem] text-text/60 m-0">Berikut daftar pengguna yang memiliki buku ini.</p>
           <div class="flex items-center gap-2">
             <label for="lokasiFilter" class="text-[0.8rem] font-semibold text-[#444444] whitespace-nowrap">Filter Lokasi:</label>
-            <select id="lokasiFilter" class="font-['Poppins'] text-[0.8rem] text-[#444444] border-[1.5px] border-[#ddd] rounded-lg px-2 py-1.5 outline-none bg-white focus:border-[#3FA9F5]">
-              <option value="all">Semua Jawa Timur</option>
-              <option value="Bangkalan">Bangkalan</option>
-              <option value="Banyuwangi">Banyuwangi</option>
-              <option value="Batu">Batu</option>
-              <option value="Blitar">Blitar</option>
-              <option value="Bojonegoro">Bojonegoro</option>
-              <option value="Bondowoso">Bondowoso</option>
-              <option value="Gresik">Gresik</option>
-              <option value="Jember">Jember</option>
-              <option value="Jombang">Jombang</option>
-              <option value="Kediri">Kediri</option>
-              <option value="Lamongan">Lamongan</option>
-              <option value="Lumajang">Lumajang</option>
-              <option value="Madiun">Madiun</option>
-              <option value="Magetan">Magetan</option>
-              <option value="Malang">Malang</option>
-              <option value="Mojokerto">Mojokerto</option>
-              <option value="Nganjuk">Nganjuk</option>
-              <option value="Ngawi">Ngawi</option>
-              <option value="Pacitan">Pacitan</option>
-              <option value="Pamekasan">Pamekasan</option>
-              <option value="Pasuruan">Pasuruan</option>
-              <option value="Ponorogo">Ponorogo</option>
-              <option value="Probolinggo">Probolinggo</option>
-              <option value="Sampang">Sampang</option>
-              <option value="Sidoarjo">Sidoarjo</option>
-              <option value="Situbondo">Situbondo</option>
-              <option value="Sumenep">Sumenep</option>
-              <option value="Surabaya">Surabaya</option>
-              <option value="Trenggalek">Trenggalek</option>
-              <option value="Tuban">Tuban</option>
-              <option value="Tulungagung">Tulungagung</option>
-            </select>
+            <x-custom-select 
+                id="lokasiFilter" 
+                title="Filter Lokasi"
+                :placeholder="false" 
+                class="!py-1.5 !px-3 !text-[0.8rem] !font-medium !rounded-md !border-[#ddd]"
+                :options="[
+                    'all' => 'Semua Jawa Timur',
+                    'Bangkalan' => 'Bangkalan',
+                    'Banyuwangi' => 'Banyuwangi',
+                    'Batu' => 'Batu',
+                    'Blitar' => 'Blitar',
+                    'Bojonegoro' => 'Bojonegoro',
+                    'Bondowoso' => 'Bondowoso',
+                    'Gresik' => 'Gresik',
+                    'Jember' => 'Jember',
+                    'Jombang' => 'Jombang',
+                    'Kediri' => 'Kediri',
+                    'Lamongan' => 'Lamongan',
+                    'Lumajang' => 'Lumajang',
+                    'Madiun' => 'Madiun',
+                    'Magetan' => 'Magetan',
+                    'Malang' => 'Malang',
+                    'Mojokerto' => 'Mojokerto',
+                    'Nganjuk' => 'Nganjuk',
+                    'Ngawi' => 'Ngawi',
+                    'Pacitan' => 'Pacitan',
+                    'Pamekasan' => 'Pamekasan',
+                    'Pasuruan' => 'Pasuruan',
+                    'Ponorogo' => 'Ponorogo',
+                    'Probolinggo' => 'Probolinggo',
+                    'Sampang' => 'Sampang',
+                    'Sidoarjo' => 'Sidoarjo',
+                    'Situbondo' => 'Situbondo',
+                    'Sumenep' => 'Sumenep',
+                    'Surabaya' => 'Surabaya',
+                    'Trenggalek' => 'Trenggalek',
+                    'Tuban' => 'Tuban',
+                    'Tulungagung' => 'Tulungagung'
+                ]" 
+            />
           </div>
         </div>
 

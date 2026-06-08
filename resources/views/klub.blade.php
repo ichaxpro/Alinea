@@ -43,33 +43,34 @@
 
                 {{-- Filter + Sort + Create container --}}
                 <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
-                    {{-- Category filter --}}
                     <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
-                        <select id="klub-filter-category"
-                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-all w-full">
-                            <option value="">Semua Genre</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat }}">{{ $cat }}</option>
-                            @endforeach
-                        </select>
-                        <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#444]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
+                        @php
+                            $catOptions = [];
+                            foreach($categories as $cat) {
+                                $catOptions[$cat] = $cat;
+                            }
+                        @endphp
+                        <x-custom-select 
+                            id="klub-filter-category" 
+                            title="Filter Kategori"
+                            placeholder="Semua Kategori" 
+                            :options="$catOptions" 
+                        />
                     </div>
 
-                    {{-- Sort --}}
                     <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
-                        <select id="klub-sort"
-                                class="appearance-none bg-white border-[1.5px] border-[#444] rounded-lg pl-3 pr-8 py-2 text-xs sm:text-sm sm:pl-4 sm:pr-9 sm:py-2.5 font-medium text-[#444] outline-none cursor-pointer hover:bg-gray-50 focus:border-[#FFDDAF] transition-all w-full">
-                            <option value="name-asc">Nama A–Z</option>
-                            <option value="name-desc">Nama Z–A</option>
-                            <option value="members-desc">Anggota Terbanyak</option>
-                            <option value="members-asc">Anggota Tersedikit</option>
-                            <option value="newest">Terbaru</option>
-                        </select>
-                        <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#444]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
+                        <x-custom-select 
+                            id="klub-sort" 
+                            title="Urutkan"
+                            :placeholder="false" 
+                            :options="[
+                                'name-asc' => 'Nama A–Z',
+                                'name-desc' => 'Nama Z–A',
+                                'members-desc' => 'Anggota Terbanyak',
+                                'members-asc' => 'Anggota Tersedikit',
+                                'newest' => 'Terbaru'
+                            ]" 
+                        />
                     </div>
 
                     {{-- Create button --}}

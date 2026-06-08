@@ -1,3 +1,4 @@
+import "./custom-select";
 /**
  * Klub (Club) page — card grid, filter/sort, detail modal, CREATE CLUB form.
  *
@@ -668,10 +669,6 @@ function openModal(club) {
                             ${club.adminUsername ? `<div class="text-[11px] text-gray-400 leading-tight truncate">@${club.adminUsername}</div>` : ''}
                         </div>
                     </div>
-                </div>
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Buku Terakhir Dibaca</h4>
-                    <div class="flex flex-wrap gap-2">${(club.recentBooks||[]).map(b => `<span class="text-xs font-medium px-3 py-1.5 rounded-full bg-[#FFDDAF] border-[1.5px] border-[#444]">${b}</span>`).join('')}</div>
                 </div>
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
                     <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Anggota (${club.members})</h4>

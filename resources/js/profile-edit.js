@@ -1,3 +1,4 @@
+import "./custom-select";
 document.addEventListener('DOMContentLoaded', () => {
     const csrfToken        = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
@@ -169,7 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${b.cover
                         ? `<img src="${b.cover}" alt="${b.judul}"
                                class="w-8 h-11 object-cover rounded flex-shrink-0"
-                               onerror="this.style.display='none'">`
+                               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                           <div style="display:none;" class="w-8 h-11 rounded bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]
+                                          flex-shrink-0 items-center justify-center text-xs font-bold text-white/70">
+                                ${(b.judul || '?').charAt(0).toUpperCase()}
+                           </div>`
                         : `<div class="w-8 h-11 rounded bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]
                                        flex-shrink-0 flex items-center justify-center text-xs font-bold text-white/70">
                                ${(b.judul || '?').charAt(0).toUpperCase()}
@@ -204,7 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (book.cover) {
             selectedCover.innerHTML = `<img src="${book.cover}" class="w-full h-full object-cover"
-                                            onerror="this.remove()">`;
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                       <div style="display:none;" class="w-full h-full items-center justify-center text-lg font-bold text-white/50 bg-gradient-to-br from-[#C7E7FF] to-[#FFDDAF]">
+                                            ${(book.judul || '?').charAt(0).toUpperCase()}
+                                       </div>`;
         } else {
             selectedCover.innerHTML = '';
             selectedCover.textContent = (book.judul || '?').charAt(0).toUpperCase();
