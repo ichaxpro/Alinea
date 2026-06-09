@@ -14,7 +14,6 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::with(['book', 'borrower'])
             ->where('owner_id', $request->user()->id)
-            ->whereIn('status', ['pending', 'accepted', 'rejected', 'pending_return'])
             ->orderBy('created_at', 'desc')
             ->get();
             

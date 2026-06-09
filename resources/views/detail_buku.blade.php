@@ -193,7 +193,7 @@
 
     {{-- ========== OWNERS MODAL ========== --}}
     <div class="owners-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="ownersModalOverlay">
-      <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
+      <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] max-h-[90vh] overflow-visible relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="ownersModalClose" aria-label="Tutup">&times;</button>
         
         <h3 class="text-2xl font-extrabold mb-2 text-text">Pilih Pemilik Buku</h3>
