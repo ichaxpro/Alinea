@@ -191,7 +191,29 @@
                                     <span class="whitespace-nowrap" title="{{ $post['absolute_time'] }}">{{ $post['time'] }}</span>
                                 </div>
                             </div>
-                            <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
+                            <div class="flex items-center gap-2">
+                                <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
+
+                                {{-- Post Actions Dropdown --}}
+                                <div class="relative">
+                                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors" data-post-menu-trigger>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="12" cy="5" r="1"/></svg>
+                                    </button>
+                                    <div class="absolute right-0 top-full mt-1 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-post-menu-dropdown>
+                                        @if(auth()->check() && auth()->id() !== $post['user_id'])
+                                            <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2" data-report-post-btn data-post-id="{{ $post['id'] }}">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                                Laporkan unggahan
+                                            </button>
+                                        @elseif(auth()->check() && auth()->id() === $post['user_id'])
+                                            <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                Hapus Unggahan
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Tags: Book and Club --}}
@@ -348,6 +370,63 @@
             <polyline points="18 15 12 9 6 15"/>
         </svg>
     </button>
+
+    {{-- ========== REPORT POST MODAL ========== --}}
+    <div id="report-post-modal" class="fixed inset-0 z-[100] hidden">
+        {{-- Backdrop --}}
+        <div id="report-post-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+        {{-- Modal panel --}}
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div id="report-post-panel"
+                 class="relative bg-white border-2 border-[#444] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto
+                        transform scale-95 opacity-0 transition-all duration-300">
+
+                {{-- Close button --}}
+                <button id="report-post-close" aria-label="Tutup"
+                        class="absolute top-2 right-2 z-10 w-9 h-9 rounded-full flex items-center justify-center
+                               text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors cursor-pointer bg-white">
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M4 4l12 12M16 4L4 16"/>
+                    </svg>
+                </button>
+
+                {{-- Form Content --}}
+                <div class="px-6 pb-6 pt-5">
+                    <h2 class="font-bold text-xl mb-1 flex items-center gap-2 text-[#222]">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        Laporkan Unggahan
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-6">Mohon beritahu kami mengapa unggahan ini melanggar pedoman komunitas Alinea.</p>
+
+                    <form id="report-post-form">
+                        <input type="hidden" id="report-post-id" name="post_id" value="">
+                        
+                        <div class="mb-5">
+                            <label for="report-reason" class="block text-xs font-bold text-[#444] mb-1.5 uppercase tracking-wider">
+                                Alasan <span class="text-red-400">*</span>
+                            </label>
+                            <textarea id="report-reason" name="reason" required rows="4" minlength="8"
+                                      placeholder="Tuliskan alasan minimal 8 karakter..."
+                                      class="w-full border-[1.5px] border-gray-200 rounded-xl px-4 py-2.5 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors bg-[#FBFBFB] resize-y min-h-[80px]"></textarea>
+                            <span id="report-reason-counter" class="block text-right text-[10px] text-gray-400 mt-1">0 karakter (min. 8)</span>
+                        </div>
+
+                        <div class="flex gap-3 mt-6">
+                            <button type="button" id="report-post-cancel" class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-white rounded-full border-[1.5px] border-gray-200 hover:border-[#444] hover:bg-gray-50 transition-all cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit" id="btn-submit-report" disabled
+                                    class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full border-[1.5px] border-[#444]
+                                           hover:-translate-y-[1px] hover:bg-[#ffcf90] transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-[#FFDDAF]">
+                                Kirim
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
