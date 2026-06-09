@@ -17,7 +17,8 @@ export default defineConfig({
                 'resources/js/avatar-upload.js', 
                 'resources/js/profile-edit.js',
                 'resources/js/katalog.js',
-                'resources/js/detail_buku.js'
+                'resources/js/detail_buku.js',
+                'resources/js/chat.js',
             ],
             refresh: true,
         }),
