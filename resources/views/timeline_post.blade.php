@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unggahan | Alinea</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
+    <meta name="user-name" content="{{ Auth::user()?->name ?? '' }}">
+    <meta name="user-avatar-url" content="{{ Auth::user()?->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : (Auth::user()?->avatar_url ?? '') }}" />
     <meta name="user-id" content="{{ auth()->id() }}">
     @vite(['resources/css/app.css', 'resources/js/timeline.js'])
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -62,8 +65,8 @@
                                 </button>
                                 <div class="absolute right-0 top-full mt-1 w-48 bg-white border-[1.5px] border-[#444] rounded-xl overflow-hidden hidden z-[60]" data-post-menu-dropdown>
                                     @if(auth()->check() && auth()->id() === $post['user_id'])
-                                        <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 font-semibold hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                             Hapus Unggahan
                                         </button>
                                     @elseif(auth()->check() && auth()->id() !== $post['user_id'])

@@ -154,7 +154,7 @@
                     {{-- Tab: Unggahan --}}
                     <div id="profile-feed-panel" data-profile-panel="unggahan" class="mt-5 flex flex-col gap-5" role="tabpanel" aria-labelledby="tab-for-you">
                         @forelse ($posts as $post)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $post['id'] }}">
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0 cursor-pointer" data-post-id="{{ $post['id'] }}" data-href="{{ route('timeline.post', $post['id']) }}">
                             <div class="flex items-start gap-3 mb-3">
                                 <a href="{{ $post['profile_url'] ?? '#' }}" class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                                     @if($post['avatar_url'])
@@ -272,11 +272,12 @@
                             </div>
 
                             {{-- Comments Section (Hidden by default) --}}
-                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
-                                 id="comments-section-{{ $post['id'] }}"
-                                 data-comments-loaded="false"
-                                 data-comments-url="{{ route('timeline_home.comments', $post['id']) }}"
-                                 data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                             <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                  id="comments-section-{{ $post['id'] }}"
+                                  data-comments-loaded="false"
+                                  data-comments-limit="5"
+                                  data-comments-url="{{ route('timeline_home.comments', $post['id']) }}"
+                                  data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
                                 <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
                                     {{-- Loaded via AJAX --}}
                                 </div>
@@ -434,7 +435,7 @@
                     {{-- Tab: Media --}}
                     <div data-profile-panel="media" class="hidden mt-5 flex flex-col gap-5">
                         @forelse ($mediaPosts as $media)
-                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0" data-post-id="{{ $media['id'] }}">
+                        <article class="pb-5 border-b border-gray-200 last:border-b-0 last:pb-0 cursor-pointer" data-post-id="{{ $media['id'] }}" data-href="{{ route('timeline.post', $media['id']) }}">
                             <div class="flex items-start gap-3 mb-3">
                                 <a href="{{ $media['profile_url'] ?? '#' }}" class="w-11 h-11 rounded-full border-2 border-[#444] flex-shrink-0 overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity">
                                     @if($media['avatar_url'])
@@ -543,11 +544,12 @@
                             </div>
 
                             {{-- Comments Section (Hidden by default) --}}
-                            <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
-                                 id="comments-section-{{ $media['id'] }}"
-                                 data-comments-loaded="false"
-                                 data-comments-url="{{ route('timeline_home.comments', $media['id']) }}"
-                                 data-comments-store-url="{{ route('timeline_home.comments.store', $media['id']) }}">
+                             <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4"
+                                  id="comments-section-{{ $media['id'] }}"
+                                  data-comments-loaded="false"
+                                  data-comments-limit="5"
+                                  data-comments-url="{{ route('timeline_home.comments', $media['id']) }}"
+                                  data-comments-store-url="{{ route('timeline_home.comments.store', $media['id']) }}">
                                 <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $media['id'] }}">
                                     {{-- Loaded via AJAX --}}
                                 </div>

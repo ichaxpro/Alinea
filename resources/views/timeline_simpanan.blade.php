@@ -7,6 +7,9 @@
     <title>Alinea — Simpanan</title>
     <meta name="description" content="Kumpulan postingan yang Anda simpan di Alinea." />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
+    <meta name="user-name" content="{{ Auth::user()?->name ?? '' }}">
+    <meta name="user-avatar-url" content="{{ Auth::user()?->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : (Auth::user()?->avatar_url ?? '') }}" />
     <meta name="user-id" content="{{ auth()->id() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,7 +42,7 @@
                 {{-- Post feed --}}
                 <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you" data-post-store-url="{{ route('timeline_home.store') }}">
                     @forelse ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 max-sm:p-3 hover:bg-gray-50 transition-colors post-item" data-post-id="{{ $post['id'] }}">
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 max-sm:p-3 hover:bg-gray-50 transition-colors post-item cursor-pointer" data-post-id="{{ $post['id'] }}" data-href="{{ route('timeline.post', $post['id']) }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
@@ -134,7 +137,7 @@
                         </div>
 
                         {{-- Comments Section (Hidden by default) --}}
-                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-limit="5" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
                             <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
                                 {{-- Loaded via AJAX --}}
                             </div>

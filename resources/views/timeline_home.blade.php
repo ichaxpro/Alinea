@@ -7,6 +7,9 @@
     <title>Alinea — Timeline</title>
     <meta name="description" content="Ikuti timeline buku Alinea — bagikan progres bacaan, ulasan, dan kutipan favoritmu." />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
+    <meta name="user-name" content="{{ Auth::user()?->name ?? '' }}">
+    <meta name="user-avatar-url" content="{{ Auth::user()?->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : (Auth::user()?->avatar_url ?? '') }}" />
     <meta name="user-id" content="{{ auth()->id() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -166,7 +169,7 @@
                 {{-- Post feed --}}
                 <div id="feed-panel" class="flex flex-col gap-4" role="tabpanel" aria-labelledby="tab-for-you" data-post-store-url="{{ route('timeline_home.store') }}">
                     @forelse ($posts as $post)
-                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 max-sm:p-3 hover:bg-gray-50 transition-colors post-item" data-post-id="{{ $post['id'] }}">
+                    <article class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 max-sm:p-3 hover:bg-gray-50 transition-colors post-item cursor-pointer" data-post-id="{{ $post['id'] }}" data-href="{{ route('timeline.post', $post['id']) }}">
 
                         {{-- Header --}}
                         <div class="flex items-center gap-3 mb-3 justify-between">
@@ -212,8 +215,8 @@
                                                 Berhenti mengikuti
                                             </button>
                                         @elseif(auth()->check() && auth()->id() === $post['user_id'])
-                                            <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 font-semibold hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                                 Hapus Unggahan
                                             </button>
                                         @endif
@@ -287,7 +290,7 @@
                         </div>
 
                         {{-- Comments Section (Hidden by default) --}}
-                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
+                        <div data-comments-panel class="comments-section hidden mt-4 border-t border-gray-100 pt-4" id="comments-section-{{ $post['id'] }}" data-comments-loaded="false" data-comments-limit="5" data-comments-url="{{ route('timeline_home.comments', $post['id']) }}" data-comments-store-url="{{ route('timeline_home.comments.store', $post['id']) }}">
                             <div class="flex flex-col gap-3 comments-list" data-comment-list id="comments-list-{{ $post['id'] }}">
                                 {{-- Loaded via AJAX --}}
                             </div>
