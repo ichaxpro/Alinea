@@ -519,6 +519,13 @@ window.authUser = {
         </div>{{-- end buttons+textarea row --}}
     </div>
 
+    {{-- Blocked Notice --}}
+    <div id="blockedNoticeArea" class="hidden border-t bg-gray-50 flex items-center justify-center p-4">
+        <p class="text-sm font-medium text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm">
+            Anda telah memblokir pengguna ini
+        </p>
+    </div>
+
 </section>
 
 </main>
@@ -670,8 +677,8 @@ window.authUser = {
                     </svg>
                 </span>
                 <div>
-                    <p class="text-sm font-medium text-red-500">Blokir Pengguna</p>
-                    <p class="text-xs text-gray-400">Pengguna tidak bisa mengirim pesan</p>
+                    <p id="udBlockText" class="text-sm font-medium text-red-500">Blokir Pengguna</p>
+                    <p id="udBlockDesc" class="text-xs text-gray-400">Pengguna tidak bisa mengirim pesan</p>
                 </div>
             </button>
 
