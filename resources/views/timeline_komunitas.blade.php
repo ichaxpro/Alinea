@@ -47,7 +47,7 @@
                             </svg>
                         </button>
                         
-                        <div id="filter-dropdown-menu-komunitas" class="hidden absolute right-0 mt-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 overflow-hidden">
+                        <div id="filter-dropdown-menu-komunitas" class="hidden absolute right-0 mt-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl z-50 overflow-hidden">
                             <div class="px-4 py-2 border-b border-gray-100 font-bold text-[10px] text-gray-400 uppercase tracking-wider bg-gray-50">
                                 Filter Status
                             </div>
@@ -98,7 +98,7 @@
                                        class="w-full border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] transition-colors" autocomplete="off" />
                                 
                                 {{-- Autocomplete Dropdown --}}
-                                <div id="composer-autocomplete-dropdown" class="hidden absolute top-full mt-1 w-full bg-white border-[1.5px] border-[#444] rounded-xl shadow-lg z-50 max-h-60 overflow-y-auto">
+                                <div id="composer-autocomplete-dropdown" class="hidden absolute top-full mt-1 w-full bg-white border-[1.5px] border-[#444] rounded-xl z-50 max-h-60 overflow-y-auto">
                                     <ul id="composer-autocomplete-list" class="flex flex-col">
                                         {{-- Populated by JS --}}
                                     </ul>
@@ -199,7 +199,7 @@
                                     <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors" data-post-menu-trigger>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="12" cy="5" r="1"/></svg>
                                     </button>
-                                    <div class="absolute right-0 top-full mt-1 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-post-menu-dropdown>
+                                    <div class="absolute right-0 top-full mt-1 w-48 bg-white border-[1.5px] border-[#444] rounded-xl overflow-hidden hidden z-[60]" data-post-menu-dropdown>
                                         @if(auth()->check() && auth()->id() !== $post['user_id'])
                                             <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2" data-report-post-btn data-post-id="{{ $post['id'] }}">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
@@ -220,12 +220,12 @@
                         <div class="flex flex-wrap gap-2 mb-3">
                             @if(!empty($post['book']))
                             <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold">
-                                📖 {{ $post['book'] }}
+                                {{ $post['book'] }}
                             </div>
                             @endif
                             @if(!empty($post['klub']))
                             <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
-                                👥 {{ $post['klub'] }}
+                                {{ $post['klub'] }}
                             </div>
                             @endif
                         </div>
@@ -276,7 +276,7 @@
                                             class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-50 transition-colors cursor-pointer">
                                         <x-icon-share fill="none" />
                                     </button>
-                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-share-dropdown>
+                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl overflow-hidden hidden z-[60]" data-share-dropdown>
                                         <button class="w-full px-4 py-2.5 text-left text-sm font-bold text-[#222] hover:bg-[#FFDDAF] transition-colors" data-share-chat-btn>
                                             Bagikan ke-
                                         </button>

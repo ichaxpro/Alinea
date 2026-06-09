@@ -75,6 +75,18 @@ function applyFilters(resetPage = true) {
     const category = filterCategory.value;
     const sortKey  = sortSelect.value;
 
+    // Sync with mobile controls
+    const mobileCategory = document.getElementById('mobile-filter-category');
+    const mobileSort = document.getElementById('mobile-sort');
+    if (mobileCategory && mobileCategory.value !== category) {
+        mobileCategory.value = category;
+        mobileCategory.dispatchEvent(new Event('change'));
+    }
+    if (mobileSort && mobileSort.value !== sortKey) {
+        mobileSort.value = sortKey;
+        mobileSort.dispatchEvent(new Event('change'));
+    }
+
     let result = CLUBS.filter(c => {
         const matchSearch = !query
             || c.name.toLowerCase().includes(query)
@@ -1009,6 +1021,58 @@ document.addEventListener('keydown', (e) => {
         if (buatModal && !buatModal.classList.contains('hidden')) closeBuatKlub();
     }
 });
+
+// ── Mobile Filter Dialog Event Listeners ──
+const mobileFilterDialog = document.getElementById('mobile-filter-dialog');
+const mobileFilterBtn = document.getElementById('klub-mobile-filter-btn');
+const mobileFilterClose = document.getElementById('close-filter-dialog');
+const mobileFilterReset = document.getElementById('mobile-filter-reset');
+const mobileFilterCategory = document.getElementById('mobile-filter-category');
+const mobileSort = document.getElementById('mobile-sort');
+
+if (mobileFilterBtn && mobileFilterDialog) {
+    mobileFilterBtn.addEventListener('click', () => {
+        mobileFilterDialog.showModal();
+    });
+}
+
+if (mobileFilterClose && mobileFilterDialog) {
+    mobileFilterClose.addEventListener('click', () => {
+        mobileFilterDialog.close();
+    });
+}
+
+if (mobileFilterDialog) {
+    // Light dismiss on backdrop click
+    mobileFilterDialog.addEventListener('click', (e) => {
+        const rect = mobileFilterDialog.getBoundingClientRect();
+        const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+            rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+            mobileFilterDialog.close();
+        }
+    });
+
+    // Handle Form Submission within Dialog
+    const form = mobileFilterDialog.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            if (mobileFilterCategory) filterCategory.value = mobileFilterCategory.value;
+            if (mobileSort) sortSelect.value = mobileSort.value;
+            applyFilters();
+        });
+    }
+}
+
+if (mobileFilterReset && mobileFilterDialog) {
+    mobileFilterReset.addEventListener('click', () => {
+        searchInput.value = '';
+        filterCategory.value = '';
+        sortSelect.value = 'name-asc';
+        applyFilters();
+        mobileFilterDialog.close();
+    });
+}
 
 // ── Init ──
 populateCategories();

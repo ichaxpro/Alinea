@@ -568,6 +568,7 @@ class KlubController extends Controller
 
                 $posts = $postsQuery->select([
                         'timeline_posts.id',
+                        'timeline_posts.id_user as user_id',
                         'timeline_posts.media',
                         'timeline_posts.media_type',
                         'timeline_posts.media_original_name',
@@ -610,6 +611,7 @@ class KlubController extends Controller
 
                     return [
                         'id' => $post->id,
+                        'user_id' => $post->user_id,
                         'name' => $post->name ?? 'Pengguna',
                         'username' => $post->handle ? ltrim($post->handle, '@') : null,
                         'profile_url' => $post->handle ? route('profile.by_username', ['username' => ltrim($post->handle, '@')]) : '#',

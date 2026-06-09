@@ -320,7 +320,7 @@
                             Pinjam buku dari sesama pengguna, bagikan ulasanmu, dan jadilah bagian dari gerakan literasi kotamu. Gratis, lokal, dan mudah.                      
                         </p>
                         <div class="reveal flex items-center gap-4" style="transition-delay:0.45s">
-                            <a href="{{ route('login') }}" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
+                            <a href="{{ route('mulai') }}" id="hero-cta" class="relative inline-flex items-center gap-2 bg-accent hover:bg-amber-500 text-text shadow-pop2 font-bold text-sm px-6 py-3 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-2 border-text overflow-hidden group">
                                 <span class="relative z-10">Mulai</span>
                                 <svg class="relative z-10 transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M2 7h10M8 3l4 4-4 4"/>
@@ -333,23 +333,6 @@
                             </a>
                         </div>
 
-                        <!-- Animated Stats Row -->
-                        <div class="reveal flex items-center gap-8 mt-12 pt-8 border-t border-gray-100" style="transition-delay:0.55s">
-                            <div>
-                                <p class="stat-number text-3xl font-black" data-count="2400" data-suffix="+">0</p>
-                                <p class="text-xs text-gray-400 mt-0.5">Koleksi Buku</p>
-                            </div>
-                            <div class="w-px h-8 bg-gray-100"></div>
-                            <div>
-                                <p class="stat-number text-3xl font-black" data-count="1200" data-suffix="+">0</p>
-                                <p class="text-xs text-gray-400 mt-0.5">Pembaca Aktif</p>
-                            </div>
-                            <div class="w-px h-8 bg-gray-100"></div>
-                            <div>
-                                <p class="stat-number text-3xl font-black" data-count="98" data-suffix="%">0</p>
-                                <p class="text-xs text-gray-400 mt-0.5">Kepuasan</p>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Right: Bookshelf Illustration -->
@@ -442,7 +425,7 @@
                         </div>
 
                         <div class="reveal" style="transition-delay:0.6s">
-                            <a href="#" id="pinjam-cta" class="inline-flex items-center gap-2 bg-accent hover:bg-white text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-text shadow-pop2 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                            <a href="{{ route('mulai') }}" id="pinjam-cta" class="inline-flex items-center gap-2 bg-accent hover:bg-white text-gray-900 font-bold text-sm px-6 py-3 rounded-full border-2 border-text shadow-pop2 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
                                 <span>Mulai Meminjam</span>
                                 <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                             </a>
@@ -472,7 +455,7 @@
                         </h2>
 
                         <p class="text-text font-semibold opacity-50 text-sm leading-relaxed mb-8 max-w-md">
-                            Bagikan progres bacaan kamu, komentari kutipan favorit, ikuti pembaca lain yang punya selera senada. Alinea adalah timeline membacamu yang hidup dan interaktif.
+                            Bagikan progres bacaan kamu, komentari kutipan favorit, ikuti pembaca lain yang punya selera senada. Alinea adalah lini masa membacamu yang hidup dan interaktif.
                         </p>
 
                         <!-- Tag pills (interactive) -->
@@ -727,7 +710,7 @@
                 <!-- CTA -->
                 <div class="reveal text-center mt-16">
                     <a href="#" id="ulasan-cta" class="inline-flex items-center text-white gap-2 bg-gray-900 hover:bg-gradient-3 hover:text-text font-bold text-sm px-8 py-4 rounded-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
-                        <span>Tulis Ulasanmu Sekarang</span>
+                        <span>Tulis ulasanmu sekarang</span>
                         <svg class="transition-transform duration-300 group-hover:translate-x-1" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
                     </a>
                 </div>

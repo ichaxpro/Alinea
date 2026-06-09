@@ -2,8 +2,8 @@
 <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
 <meta name="google-books-key" content="{{ config('services.google_books.key') }}">
         <nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-transform duration-300 ease-in-out">
-            <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16">
+            <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-14 md:h-16">
                     <!-- Logo -->
                     <a href="{{ route('beranda') }}" class="flex items-center gap-2 group py-2">
                         <div class="flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -14,16 +14,17 @@
                     <!-- Nav Links (Desktop) -->
                     <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <a href="{{ route('beranda') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
+                        <a href="{{ route('explore') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Jelajah</a>
                         <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Lini Masa</a>
                         <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
                         <a href="{{ route('katalog') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
                     </div>
 
                     <!-- Right Actions Group (CTA + Mobile Menu) -->
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-3">
-                            <button id="navbar-search-btn" aria-label="Cari" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="flex items-center gap-2 md:gap-4">
+                        <div class="hidden md:flex items-center gap-3">
+                            <button id="navbar-search-btn" aria-label="Cari" class="cursor-pointer w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200">
+                                <svg width="14" height="14" class="md:w-[16px] md:h-[16px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                                 </svg>
                             </button>
@@ -34,8 +35,8 @@
                                 @endphp
                                 
                                 <div class="relative" id="notification-dropdown">
-                                    <button onclick="toggleNotificationDropdown()" class="cursor-pointer w-9 h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200 relative">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <button onclick="toggleNotificationDropdown()" class="cursor-pointer w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-text flex items-center justify-center text-text shadow-pop hover:shadow-none hover:translate-x-[4px] hover:translate-y-[2px] hover:bg-[#C7E7FF] transition-all duration-200 relative">
+                                        <svg width="16" height="16" class="md:w-[18px] md:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                         </svg>
@@ -106,16 +107,16 @@
                                 </div>
 
                                <div class="relative" id="profile-dropdown">
-                                <button onclick="toggleDropdown()" class="w-9 h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
+                                <button onclick="toggleDropdown()" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-xs md:text-sm font-black text-[#444] hover:shadow-md transition-shadow cursor-pointer overflow-hidden">
                                     <img id="navbar-avatar-img" src="{{ Auth::user()->foto_profil ? Storage::disk('public')->url(Auth::user()->foto_profil) : '' }}" alt="Avatar" class="w-full h-full object-cover {{ Auth::user()->foto_profil ? '' : 'hidden' }}">
                                     <span id="navbar-avatar-initial" class="{{ Auth::user()->foto_profil ? 'hidden' : '' }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </button>
 
                                 <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
-                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dashboard</a>
+                                    <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dasbor</a>
                                     <form method="POST" action="/logout">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Logout</button>
+                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Keluar</button>
                                     </form>
                                 </div>
                                </div>
@@ -125,7 +126,7 @@
                         </div>
 
                         <!-- Mobile menu button -->
-                        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
+                        <button class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                                 <path d="M3 6h14M3 10h14M3 14h14"/>
                             </svg>
@@ -183,40 +184,144 @@
             </div>
         </nav>
         @vite(['resources/js/global-search.js'])
-         <div id="mobile-menu" class="hidden-menu fixed inset-0 z-40 bg-white/95 backdrop-blur-lg flex flex-col items-center justify-center text-center">
-            <button id="close-mobile-menu" class="absolute top-5 right-5 p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Tutup Menu">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                    <path d="M4 4l12 12M16 4L4 16"/>
-                </svg>
-            </button>
-            <nav class="flex flex-col gap-8 text-3xl font-black text-gray-800">
-                <a href="{{ route('beranda') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Beranda</a>
-                <a href="{{ route('timeline_home') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Komunitas</a>
-                <a href="{{ route('klub') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Klub</a>
-                <a href="{{ route('katalog') }}" class="hover:text-amber-500 hover:translate-x-2 transition-all duration-300" onclick="closeMobileMenu()">Katalog</a>
-            </nav>
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out"></div>
+
+        <!-- Mobile Menu Sidebar -->
+        <div id="mobile-menu" class="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-500 ease-out flex flex-col">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    @auth
+                        <button class="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex items-center justify-center text-sm font-black text-[#444] overflow-hidden shadow-sm">
+                            <img src="{{ Auth::user()->foto_profil ? Storage::disk('public')->url(Auth::user()->foto_profil) : '' }}" alt="Avatar" class="w-full h-full object-cover {{ Auth::user()->foto_profil ? '' : 'hidden' }}">
+                            <span class="{{ Auth::user()->foto_profil ? 'hidden' : '' }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                        </button>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-800 text-sm leading-tight">{{ Auth::user()->name }}</span>
+                            <span class="text-xs text-gray-500">{{ '@' . Auth::user()->username }}</span>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="text-sm bg-accent px-5 py-2 outline-2 hover:bg-amber-500 outline-text shadow-pop2 rounded-full font-bold text-text hover:text-gray-900 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">Masuk</a>
+                    @endauth
+                </div>
+                <button id="close-mobile-menu" class="p-2 -mr-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors" aria-label="Tutup Menu">
+                    <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <path d="M4 4l12 12M16 4L4 16"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col gap-8">
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex gap-4">
+                        <button id="mobile-navbar-search-btn" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-[#444] shadow-pop text-[#444] font-bold text-sm bg-white hover:bg-[#C7E7FF] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            Cari
+                        </button>
+                        @auth
+                            @php
+                                $unreadCount = auth()->user()->unreadNotifications->count();
+                            @endphp
+                            <a href="{{ route('timeline_notifikasi') }}" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-[#444] shadow-pop text-[#444] font-bold text-sm bg-white hover:bg-[#C7E7FF] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all relative cursor-pointer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                Notif
+                                @if($unreadCount > 0)
+                                    <span class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[10px] text-white font-bold">{{ $unreadCount }}</span>
+                                @endif
+                            </a>
+                        @endauth
+                    </div>
+
+                </div>
+
+                <nav class="flex flex-col gap-5 text-sm font-medium text-gray-600">
+                    <a href="{{ route('beranda') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Beranda</a>
+                    <a href="{{ route('explore') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Jelajah</a>
+                    <a href="{{ route('timeline_home') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Komunitas</a>
+                    <a href="{{ route('klub') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Klub</a>
+                    <a href="{{ route('katalog') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Katalog</a>
+                </nav>
+
+                @auth
+                <div class="mt-auto pt-6 border-t border-gray-100 flex flex-col gap-4">
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 text-sm text-gray-600 hover:text-gray-900 font-medium" onclick="closeMobileMenu()">
+                        <div class="w-8 h-8 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        </div>
+                        Dasbor
+                    </a>
+                    <form method="POST" action="/logout" class="w-full">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-3 text-sm text-red-500 hover:text-red-600 font-medium w-full text-left">
+                            <div class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                            </div>
+                            Keluar
+                        </button>
+                    </form>
+                </div>
+                @endauth
+            </div>
         </div>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const mobileMenuBtn = document.getElementById('mobile-menu-btn');
                 const mobileMenu = document.getElementById('mobile-menu');
+                const overlay = document.getElementById('mobile-menu-overlay');
                 const closeBtn = document.getElementById('close-mobile-menu');
+                const mobileSearchBtn = document.getElementById('mobile-navbar-search-btn');
 
-                if (mobileMenuBtn && mobileMenu) {
-                    mobileMenuBtn.addEventListener('click', () => {
-                        mobileMenu.classList.remove('hidden-menu');
-                        mobileMenu.classList.add('visible-menu');
-                    });
-                }
-
-                window.closeMobileMenu = () => {
-                    if (mobileMenu) {
-                        mobileMenu.classList.remove('visible-menu');
-                        mobileMenu.classList.add('hidden-menu');
+                window.openMobileMenu = () => {
+                    if (mobileMenu && overlay) {
+                        mobileMenu.classList.remove('translate-x-full');
+                        mobileMenu.classList.add('translate-x-0');
+                        overlay.classList.remove('opacity-0', 'pointer-events-none');
+                        overlay.classList.add('opacity-100', 'pointer-events-auto');
+                        document.body.style.overflow = 'hidden';
                     }
                 };
 
+                window.closeMobileMenu = () => {
+                    if (mobileMenu && overlay) {
+                        mobileMenu.classList.remove('translate-x-0');
+                        mobileMenu.classList.add('translate-x-full');
+                        overlay.classList.remove('opacity-100', 'pointer-events-auto');
+                        overlay.classList.add('opacity-0', 'pointer-events-none');
+                        document.body.style.overflow = '';
+                    }
+                };
+
+                if (mobileMenuBtn) {
+                    mobileMenuBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (mobileMenu.classList.contains('translate-x-full')) {
+                            openMobileMenu();
+                        } else {
+                            closeMobileMenu();
+                        }
+                    });
+                }
+
+                if (mobileSearchBtn) {
+                    mobileSearchBtn.addEventListener('click', () => {
+                        closeMobileMenu();
+                        const desktopSearchBtn = document.getElementById('navbar-search-btn');
+                        if (desktopSearchBtn) {
+                            setTimeout(() => {
+                                desktopSearchBtn.click();
+                            }, 300); // Wait for menu to start closing
+                        }
+                    });
+                }
+
                 closeBtn?.addEventListener('click', window.closeMobileMenu);
+                overlay?.addEventListener('click', window.closeMobileMenu);
             });
         </script>
