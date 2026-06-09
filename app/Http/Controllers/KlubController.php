@@ -299,16 +299,26 @@ class KlubController extends Controller
         return response()->json($this->clubPayload($club->fresh(), $user->id));
     }
 
-    public function timelineComments(TimelinePost $post)
+    public function timelineComments(Request $request, TimelinePost $post)
     {
-        $comments = $post->comments()
+        $limit = $request->query('limit');
+
+        $query = $post->comments()
             ->with(['author:id,name,username,foto_profil', 'attachments'])
-            ->orderBy('created_at')
-            ->get()
+            ->orderBy('created_at');
+
+        $total = $query->count();
+
+        if ($limit) {
+            $query->limit((int) $limit);
+        }
+
+        $comments = $query->get()
             ->map(fn (TimelineComment $comment) => $this->timelineCommentPayload($comment));
 
         return response()->json([
             'comments' => $comments,
+            'total' => $total,
         ]);
     }
 
@@ -719,6 +729,7 @@ class KlubController extends Controller
             'message' => 'Postingan berhasil disimpan.',
             'post' => [
                 'id' => $post->id,
+                'user_id' => $currentUser->id,
                 'name' => $currentUser->name,
                 'username' => $currentUser->username,
                 'profile_url' => $currentUser->username ? route('profile.by_username', ['username' => ltrim($currentUser->username, '@')]) : '#',
