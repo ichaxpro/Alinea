@@ -193,6 +193,14 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-50/50 p-1.5 rounded-xl border-[1.5px] border-gray-100">
+                                <button data-pengajuan-filter="all" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#FFDDAF] text-[#444] border-[1.5px] border-[#444] shadow-sm">Semua <span class="ml-1 opacity-60">0</span></button>
+                                <button data-pengajuan-filter="incoming" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Menunggu <span class="ml-1 opacity-60">0</span></button>
+                                <button data-pengajuan-filter="ongoing" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Aktif <span class="ml-1 opacity-60">0</span></button>
+                                <button data-pengajuan-filter="history" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Riwayat <span class="ml-1 opacity-60">0</span></button>
+                            </div>
+
                             <div id="pengajuan-list" class="space-y-3"></div>
                         </div>
                     </div>
@@ -220,6 +228,7 @@
                                     ['key'=>'on_loan','label'=>'Dipinjam'],
                                     ['key'=>'overdue','label'=>'Terlambat'],
                                     ['key'=>'returned','label'=>'Dikembalikan'],
+                                    ['key'=>'rejected','label'=>'Ditolak'],
                                 ] as $i => $f)
                                 <button data-tx-filter="{{ $f['key'] }}"
                                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs border-[1.5px] transition-all duration-200 cursor-pointer
@@ -407,7 +416,7 @@
                     <button type="submit" class="flex-1 bg-[#FFDDAF] text-[#444] font-bold text-sm py-3 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">
                         Tambahkan
                     </button>
-                    <button type="button" onclick="closeAddBookModal()" class="px-6 py-3 text-sm font-medium text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
+                    <button type="button" data-action="close-add-book-modal" class="px-6 py-3 text-sm font-medium text-gray-400 hover:text-[#444] transition-colors cursor-pointer">
                         Batal
                     </button>
                 </div>

@@ -122,6 +122,19 @@
                 {{-- Filter + Sort (Desktop) --}}
                 <div class="hidden sm:flex relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
                     <x-custom-select 
+                        id="klub-filter-status" 
+                        title="Status"
+                        :placeholder="false" 
+                        :options="[
+                            'all' => 'Semua Klub',
+                            'joined' => 'Diikuti',
+                            'owned' => 'Dikelola Saya'
+                        ]" 
+                    />
+                </div>
+
+                <div class="hidden sm:flex relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
+                    <x-custom-select 
                         id="klub-filter-category" 
                         title="Filter Kategori"
                         placeholder="Semua Kategori" 
@@ -327,6 +340,21 @@
         </div>
         
         <form method="dialog" class="flex flex-col gap-4 w-full">
+            {{-- Status Filter --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-filter-status" class="text-xs font-bold uppercase tracking-wider text-gray-400">Status</label>
+                <x-custom-select 
+                    id="mobile-filter-status" 
+                    title="Status"
+                    :placeholder="false" 
+                    :options="[
+                        'all' => 'Semua Klub',
+                        'joined' => 'Diikuti',
+                        'owned' => 'Dikelola Saya'
+                    ]" 
+                />
+            </div>
+
             {{-- Category Filter --}}
             <div class="flex flex-col gap-1.5">
                 <label for="mobile-filter-category" class="text-xs font-bold uppercase tracking-wider text-gray-400">Kategori</label>
@@ -335,6 +363,7 @@
                     title="Filter Kategori"
                     placeholder="Semua Kategori" 
                     :options="$catOptions" 
+                    direction="up"
                 />
             </div>
             

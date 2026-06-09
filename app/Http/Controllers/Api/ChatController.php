@@ -34,18 +34,6 @@ class ChatController extends Controller
         $ids = $this->parseConversationId($conversationId);
         abort_if(!in_array(Auth::id(), $ids), 403, 'Unauthorized');
 
-        $authId = Auth::id();
-        $otherId = $ids[0] === $authId ? $ids[1] : $ids[0];
-
-        $isBlocked = \Illuminate\Support\Facades\DB::table('blocks')
-            ->where(function($q) use ($authId, $otherId) {
-                $q->where('user_id', $authId)->where('blocked_user_id', $otherId);
-            })->orWhere(function($q) use ($authId, $otherId) {
-                $q->where('user_id', $otherId)->where('blocked_user_id', $authId);
-            })->exists();
-
-        abort_if($isBlocked, 403, 'Percakapan tidak tersedia karena pengguna diblokir.');
-
         return $ids;
     }
 
@@ -96,10 +84,20 @@ class ChatController extends Controller
             ->values();
 
         $conversations = $partnerIds->map(function ($partnerId) use ($authId) {
-            $partner = User::excludeBlocked()->find($partnerId);
+            $partner = clone User::find($partnerId);
             if (!$partner) return null;
 
             $convId = $this->buildConversationId($authId, $partnerId);
+
+            $block = \Illuminate\Support\Facades\DB::table('blocks')
+                ->where(function($q) use ($authId, $partnerId) {
+                    $q->where('user_id', $authId)->where('blocked_user_id', $partnerId);
+                })->orWhere(function($q) use ($authId, $partnerId) {
+                    $q->where('user_id', $partnerId)->where('blocked_user_id', $authId);
+                })->first();
+
+            $isBlockedByMe = $block && $block->user_id === $authId;
+            $isBlockedByThem = $block && $block->user_id === $partnerId;
 
             $lastMsg = Message::withTrashed()->where(
                 fn($q) => $q->where('sender_id', $authId)->where('receiver_id', $partnerId)
@@ -128,13 +126,15 @@ class ChatController extends Controller
             }
 
             return [
-                'id'           => $convId,
-                'other_user'   => $this->formatUser($partner),
-                'last_message' => $lastMsg ? [
+                'id'                 => $convId,
+                'other_user'         => $this->formatUser($partner),
+                'is_blocked_by_me'   => $isBlockedByMe,
+                'is_blocked_by_them' => $isBlockedByThem,
+                'last_message'       => $lastMsg ? [
                     'content'    => $previewText,
                     'created_at' => $lastMsg->created_at,
                 ] : null,
-                'unread_count' => $unread,
+                'unread_count'       => $unread,
             ];
         })
         ->filter()
@@ -151,8 +151,18 @@ class ChatController extends Controller
         $partnerId = (int) $request->user_id;
         abort_if($partnerId === Auth::id(), 422, 'Cannot chat with yourself');
 
-        $partner = User::excludeBlocked()->findOrFail($partnerId);
+        $partner = clone User::findOrFail($partnerId);
         $convId  = $this->buildConversationId(Auth::id(), $partnerId);
+
+        $block = \Illuminate\Support\Facades\DB::table('blocks')
+            ->where(function($q) use ($partnerId) {
+                $q->where('user_id', Auth::id())->where('blocked_user_id', $partnerId);
+            })->orWhere(function($q) use ($partnerId) {
+                $q->where('user_id', $partnerId)->where('blocked_user_id', Auth::id());
+            })->first();
+
+        $isBlockedByMe = $block && $block->user_id === Auth::id();
+        $isBlockedByThem = $block && $block->user_id === $partnerId;
 
         $lastMsg = Message::withTrashed()->where(
             fn($q) => $q->where('sender_id', Auth::id())->where('receiver_id', $partnerId)
@@ -162,9 +172,11 @@ class ChatController extends Controller
 
         return response()->json([
             'data' => [
-                'id'           => $convId,
-                'other_user'   => $this->formatUser($partner),
-                'last_message' => $lastMsg ? [
+                'id'                 => $convId,
+                'other_user'         => $this->formatUser($partner),
+                'is_blocked_by_me'   => $isBlockedByMe,
+                'is_blocked_by_them' => $isBlockedByThem,
+                'last_message'       => $lastMsg ? [
                     'content'    => $lastMsg->message ?? '',
                     'created_at' => $lastMsg->created_at,
                 ] : null,
@@ -210,6 +222,15 @@ class ChatController extends Controller
         [$userA, $userB] = $this->authorize($id);
         $authId     = Auth::id();
         $receiverId = $authId === $userA ? $userB : $userA;
+
+        $isBlocked = \Illuminate\Support\Facades\DB::table('blocks')
+            ->where(function($q) use ($authId, $receiverId) {
+                $q->where('user_id', $authId)->where('blocked_user_id', $receiverId);
+            })->orWhere(function($q) use ($authId, $receiverId) {
+                $q->where('user_id', $receiverId)->where('blocked_user_id', $authId);
+            })->exists();
+        
+        abort_if($isBlocked, 403, 'Percakapan tidak tersedia karena pengguna diblokir.');
 
         $mediaUrl          = null;
         $mediaType         = null;
@@ -407,6 +428,9 @@ class ChatController extends Controller
             'actor' => $authId,
             'target' => $userId,
         ]);
+
+        $convId = $this->buildConversationId($authId, $userId);
+        broadcast(new \App\Events\ConversationBlockUpdated($convId, $authId, $action === 'blocked'))->toOthers();
 
         return response()->json(['ok' => true, 'action' => $action]);
     }

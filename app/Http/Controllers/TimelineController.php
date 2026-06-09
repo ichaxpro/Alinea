@@ -195,7 +195,7 @@ class TimelineController extends Controller
 
         $validated = $request->validate([
             'judul_buku_dibahas' => ['nullable', 'string', 'max:120'],
-            'pesan' => ['required', 'string', 'max:250'],
+            'pesan' => ['required', 'string', 'max:500'],
             'tag' => ['nullable', 'string', 'max:30'],
             'media' => ['nullable', 'array', 'max:4'],
             'media.*' => ['file', 'max:102400'], // max 100MB per file
@@ -334,13 +334,22 @@ class TimelineController extends Controller
         ]);
     }
 
-    public function comments(TimelinePost $post)
+    public function comments(Request $request, TimelinePost $post)
     {
         $currentUser = Auth::user();
-        $comments = $post->comments()
+        $limit = $request->query('limit');
+
+        $query = $post->comments()
             ->with(['author:id,name,username,foto_profil', 'attachments', 'likes'])
-            ->orderBy('created_at')
-            ->get()
+            ->orderBy('created_at');
+
+        $total = $query->count();
+
+        if ($limit) {
+            $query->limit((int) $limit);
+        }
+
+        $comments = $query->get()
             ->map(function ($comment) use ($currentUser) {
                 $attachments = collect($comment->attachments)->map(fn($att) => [
                     'url' => asset('storage/' . $att->path),
@@ -368,7 +377,10 @@ class TimelineController extends Controller
                 ];
             });
 
-        return response()->json(['comments' => $comments]);
+        return response()->json([
+            'comments' => $comments,
+            'total' => $total,
+        ]);
     }
 
     public function storeComment(Request $request, TimelinePost $post)
