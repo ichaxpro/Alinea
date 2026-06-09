@@ -95,7 +95,7 @@
                                                     <button type="button" class="w-10 h-10 flex items-center justify-center rounded-full border-2 border-[#444] text-[#444] hover:bg-gray-100 transition-colors cursor-pointer bg-white" data-post-menu-trigger title="Lainnya">
                                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                                                     </button>
-                                                    <div class="absolute right-0 mt-2 min-w-max bg-white rounded-xl shadow-lg border-2 border-[#444] py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
+                                                    <div class="absolute right-0 mt-2 min-w-max bg-white rounded-xl border-2 border-[#444] py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
                                                         <button type="button" onclick="handleReportUserProfile({{ $user->id }}, '{{ addslashes($user->name) }}')" class="w-full text-left px-4 py-2.5 text-sm text-red-500 font-bold hover:bg-red-50 transition-colors flex items-center gap-2 whitespace-nowrap">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                                                             Laporkan Pengguna
@@ -186,7 +186,7 @@
                                     <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors" data-post-menu-trigger>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                                     </button>
-                                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
+                                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-xl border border-gray-100 py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
                                         <button type="button" class="w-full text-left px-4 py-2.5 text-sm text-red-500 font-semibold hover:bg-red-50 transition-colors flex items-center gap-2" data-post-delete>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                             Hapus Unggahan
@@ -259,7 +259,7 @@
                                     <button id="bookmark-btn-{{ $post['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($post['bookmarked']) && $post['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
                                 <div class="relative">
                                     <button id="share-btn-{{ $post['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-50 transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
-                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-share-dropdown>
+                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl overflow-hidden hidden z-[60]" data-share-dropdown>
                                         <button class="w-full px-4 py-2.5 text-left text-sm font-bold text-[#222] hover:bg-[#FFDDAF] transition-colors" data-share-chat-btn>
                                             Bagikan ke-
                                         </button>
@@ -466,7 +466,7 @@
                                     <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-100 transition-colors" data-post-menu-trigger>
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                                     </button>
-                                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
+                                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-xl border border-gray-100 py-1 hidden z-50 transform origin-top-right transition-all" data-post-menu-dropdown>
                                         <button type="button" class="w-full text-left px-4 py-2.5 text-sm text-red-500 font-semibold hover:bg-red-50 transition-colors flex items-center gap-2" data-post-delete>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                                             Hapus Unggahan
@@ -530,7 +530,7 @@
                                     <button id="bookmark-media-btn-{{ $media['id'] }}" data-bookmark-btn aria-pressed="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'true' : 'false' }}" aria-label="Simpan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer {{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'text-yellow-500' : '' }}"><x-icon-bookmark fill="{{ !empty($media['bookmarked']) && $media['bookmarked'] ? 'currentColor' : 'none' }}" /></button>
                                 <div class="relative">
                                     <button id="share-media-btn-{{ $media['id'] }}" data-share-btn aria-label="Bagikan" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-[#444] hover:bg-gray-50 transition-colors cursor-pointer"><x-icon-share fill="none" /></button>
-                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl shadow-[4px_4px_0_0_rgba(68,68,68,1)] overflow-hidden hidden z-[60]" data-share-dropdown>
+                                    <div class="absolute right-0 bottom-full mb-2 w-48 bg-white border-[1.5px] border-[#444] rounded-xl overflow-hidden hidden z-[60]" data-share-dropdown>
                                         <button class="w-full px-4 py-2.5 text-left text-sm font-bold text-[#222] hover:bg-[#FFDDAF] transition-colors" data-share-chat-btn>
                                             Bagikan ke-
                                         </button>

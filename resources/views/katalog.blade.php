@@ -160,6 +160,8 @@
                         placeholder="Semua Genre" 
                         :multiple="true" 
                         :options="[]" 
+                        columns="3"
+                        align="right"
                     />
                 </div>
 
@@ -242,7 +244,7 @@
     <div class="fixed bottom-6 left-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
 
     {{-- ═══════ MOBILE FILTER BOTTOM SHEET ═══════ --}}
-    <dialog id="mobile-filter-dialog" class="fixed inset-0 m-auto z-[250] w-[calc(100%-2.5rem)] max-w-sm bg-white border-[1.5px] border-text rounded-[24px] shadow-2xl p-6 outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+    <dialog id="mobile-filter-dialog" class="fixed inset-0 m-auto z-[250] w-[calc(100%-2.5rem)] max-w-sm bg-white border-[1.5px] border-text rounded-[24px] shadow-2xl p-6 outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm overflow-visible">
         <div class="relative flex items-center justify-center border-b border-gray-100 pb-4 mb-5">
             <h3 class="font-extrabold text-lg text-text">Filter & Urutkan</h3>
             <button id="close-filter-dialog" class="absolute right-0 text-text/40 hover:text-text text-2xl font-bold leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" aria-label="Tutup">&times;</button>
@@ -258,6 +260,7 @@
                     placeholder="Semua Genre" 
                     :multiple="true" 
                     :options="[]" 
+                    columns="2"
                 />
             </div>
             
@@ -274,6 +277,7 @@
                         '3' => '★★★☆☆ (3+)',
                         '2' => '★★☆☆☆ (2+)',
                     ]" 
+                    direction="up"
                 />
             </div>
             
@@ -292,6 +296,7 @@
                         'title-desc' => 'Judul Z–A',
                         'newest' => 'Terbaru'
                     ]" 
+                    direction="up"
                 />
             </div>
             

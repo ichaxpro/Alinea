@@ -18,14 +18,18 @@ function initCustomSelects() {
         // Toggle dropdown on click
         trigger.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isOpen = !dropdown.classList.contains('hidden');
+            const isOpen = dropdown.classList.contains('opacity-100');
             
             // Close all others first
-            document.querySelectorAll('.custom-select-dropdown').forEach(d => d.classList.add('hidden'));
+            document.querySelectorAll('.custom-select-dropdown').forEach(d => {
+                d.classList.add('opacity-0', 'invisible', '-translate-y-2', 'pointer-events-none');
+                d.classList.remove('opacity-100', 'visible', 'translate-y-0', 'pointer-events-auto');
+            });
             document.querySelectorAll('.custom-select-icon').forEach(i => i.style.transform = 'rotate(0deg)');
 
             if (!isOpen) {
-                dropdown.classList.remove('hidden');
+                dropdown.classList.remove('opacity-0', 'invisible', '-translate-y-2', 'pointer-events-none');
+                dropdown.classList.add('opacity-100', 'visible', 'translate-y-0', 'pointer-events-auto');
                 icon.style.transform = 'rotate(180deg)';
             }
         });
@@ -33,7 +37,8 @@ function initCustomSelects() {
         // Close on click outside
         document.addEventListener('click', (e) => {
             if (!container.contains(e.target)) {
-                dropdown.classList.add('hidden');
+                dropdown.classList.add('opacity-0', 'invisible', '-translate-y-2', 'pointer-events-none');
+                dropdown.classList.remove('opacity-100', 'visible', 'translate-y-0', 'pointer-events-auto');
                 icon.style.transform = 'rotate(0deg)';
             }
         });
@@ -100,7 +105,8 @@ function initCustomSelects() {
                     }
 
                     // Close dropdown
-                    dropdown.classList.add('hidden');
+                    dropdown.classList.add('opacity-0', 'invisible', '-translate-y-2', 'pointer-events-none');
+                    dropdown.classList.remove('opacity-100', 'visible', 'translate-y-0', 'pointer-events-auto');
                     icon.style.transform = 'rotate(0deg)';
 
                     // Update hidden select

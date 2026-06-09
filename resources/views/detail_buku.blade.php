@@ -161,7 +161,7 @@
 
     {{-- ========== REVIEW MODAL ========== --}}
     <div class="review-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="reviewModalOverlay">
-      <div class="review-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[520px] relative translate-y-5 transition-transform duration-300 mx-4" id="reviewModal">
+      <div class="review-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[520px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="reviewModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="reviewModalClose" aria-label="Tutup">&times;</button>
         <h3 class="text-xl font-extrabold mb-1">Tulis Ulasan</h3>
         <p class="text-[0.85rem] text-[#444444]/50 mb-7">Bagikan pendapatmu tentang <strong class="text-[#444444]" id="modalBookTitle"></strong></p>
@@ -193,7 +193,7 @@
 
     {{-- ========== OWNERS MODAL ========== --}}
     <div class="owners-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="ownersModalOverlay">
-      <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
+      <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="ownersModalClose" aria-label="Tutup">&times;</button>
         
         <h3 class="text-2xl font-extrabold mb-2 text-text">Pilih Pemilik Buku</h3>
@@ -270,7 +270,7 @@
 
     {{-- ========== PINJAM MODAL ========== --}}
     <div class="pinjam-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="pinjamModalOverlay">
-      <div class="pinjam-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[800px] relative translate-y-5 transition-transform duration-300 mx-4" id="pinjamModal">
+      <div class="pinjam-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[800px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="pinjamModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="pinjamModalClose" aria-label="Tutup">&times;</button>
         
         <div class="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-14">

@@ -31,7 +31,12 @@ if (!categories || !categories.length) return 'Fiksi';
     { keys: ['business','economics','finance'], val: 'Bisnis' },
     { keys: ['poetry','poem'], val: 'Puisi' },
     { keys: ['comics','comic','graphic novel','manga'], val: 'Komik' },
-    { keys: ['nonfiction','non-fiction','science','education','reference','philosophy','religion','politics','social'], val: 'Non-Fiksi' },
+    { keys: ['adventure','action'], val: 'Petualangan' },
+    { keys: ['dystopia','dystopian'], val: 'Distopia' },
+    { keys: ['religion','spirituality','islam'], val: 'Religi' },
+    { keys: ['science','technology'], val: 'Sains & Teknologi' },
+    { keys: ['education','academic','textbook'], val: 'Edukasi' },
+    { keys: ['nonfiction','non-fiction','reference','philosophy','politics','social'], val: 'Non-Fiksi' },
     { keys: ['fiction','novel','literary'], val: 'Fiksi' },
   ];
   for (const m of mapping) {
@@ -199,7 +204,12 @@ async function fetchRatingStats(ids) {
 
 function populateGenres() {
   const allBooks = window.__BOOKS_DATA__ || [];
-  const genres = [...new Set(allBooks.flatMap(b => b.genres))].sort();
+  const predefinedGenres = [
+    'Biografi', 'Bisnis', 'Distopia', 'Edukasi', 'Fantasi', 'Fiksi', 'Horror', 'Komik',
+    'Misteri', 'Non-Fiksi', 'Pengembangan Diri', 'Petualangan', 'Puisi', 'Religi',
+    'Romansa', 'Sains & Teknologi', 'Sci-Fi', 'Sejarah', 'Thriller', 'Teenlit'
+  ];
+  const genres = [...new Set([...predefinedGenres, ...(allBooks.flatMap(b => b.genres))])].sort();
   
   // Desktop genre select container
   const desktopGenreContainer = document.getElementById('ulasan-filter-genre-container');

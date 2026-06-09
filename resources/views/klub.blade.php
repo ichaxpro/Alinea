@@ -13,6 +13,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/klub.js'])
+
+    <style>
+        /* ── Mobile Filter Bottom Sheet ── */
+        #mobile-filter-dialog {
+            display: none !important;
+            transform: translateY(100%) !important;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), display 0.3s allow-discrete, overlay 0.3s allow-discrete;
+            border: none !important;
+            margin: auto auto 0 auto !important;
+        }
+        #mobile-filter-dialog[open] {
+            display: flex !important;
+            flex-direction: column !important;
+            transform: translateY(0) !important;
+        }
+        #mobile-filter-dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0);
+            backdrop-filter: blur(0px);
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease, display 0.3s allow-discrete, overlay 0.3s allow-discrete;
+        }
+        #mobile-filter-dialog[open]::backdrop {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+        }
+        @starting-style {
+            #mobile-filter-dialog[open] {
+                transform: translateY(100%);
+            }
+            #mobile-filter-dialog[open]::backdrop {
+                background-color: rgba(0, 0, 0, 0);
+                backdrop-filter: blur(0px);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased flex flex-col">
@@ -21,78 +55,6 @@
     <x-navbar></x-navbar>
 
     {{-- ========== MAIN CONTENT ========== --}}
-    <main class="pt-14 flex-1">
-        <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
-
-            <div class="mb-8">
-                <h1 class="text-2xl md:text-3xl font-black text-text tracking-[-0.02em] mb-2">
-                    Klub
-                </h1>
-            </div>
-
-            {{-- Toolbar: Search + Filters + Create --}}
-            <div class="flex flex-wrap items-center gap-3 mb-8 w-full">
-                {{-- Search --}}
-                <div class="flex items-center gap-2 bg-white border-[1.5px] border-[#444] rounded-lg px-4 py-2.5 w-full sm:flex-1 min-w-[200px] focus-within:border-[#FFDDAF] transition-all duration-200">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    <input type="search" id="klub-search-input" placeholder="Cari klub buku..."
-                           class="border-none outline-none bg-transparent text-sm placeholder-gray-400 text-[#444] w-full" />
-                </div>
-
-                {{-- Filter + Sort + Create container --}}
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
-                    <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
-                        @php
-                            $catOptions = [];
-                            foreach($categories as $cat) {
-                                $catOptions[$cat] = $cat;
-                            }
-                        @endphp
-                        <x-custom-select 
-                            id="klub-filter-category" 
-                            title="Filter Kategori"
-                            placeholder="Semua Kategori" 
-                            :options="$catOptions" 
-                        />
-                    </div>
-
-                    <div class="relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
-                        <x-custom-select 
-                            id="klub-sort" 
-                            title="Urutkan"
-                            :placeholder="false" 
-                            :options="[
-                                'name-asc' => 'Nama A–Z',
-                                'name-desc' => 'Nama Z–A',
-                                'members-desc' => 'Anggota Terbanyak',
-                                'members-asc' => 'Anggota Tersedikit',
-                                'newest' => 'Terbaru'
-                            ]" 
-                        />
-                    </div>
-
-                    {{-- Create button --}}
-                    <button id="buat-klub-btn"
-                            class="bg-[#FFDDAF] text-[#444] font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0px_#444] active:translate-y-0 active:translate-x-0 active:shadow-none transition-all whitespace-nowrap w-full sm:w-auto text-center flex-shrink-0">
-                        + Buat Klub
-                    </button>
-                </div>
-            </div>
-
-            {{-- Club cards grid — max ~336px per card to match Figma --}}
-            <div id="klub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
-            </div>
-
-            {{-- Pagination --}}
-            <nav id="klub-pagination" class="flex items-center justify-center gap-2 mt-8 overflow-x-auto px-2" aria-label="Navigasi halaman">
-            </nav>
-        </div>
-    </main>
-
-<x-footer/>
-
     @php
         // ── Fallback dummy data — HAPUS blok ini setelah controller siap ──
         $clubs = $clubs ?? collect([
@@ -110,6 +72,11 @@
         // Kategori — nanti ambil dari DB: Genre::pluck('nama_genre') atau BookClub::distinct('kategori')
         $categories = $categories ?? collect($clubs)->pluck('category')->unique()->sort()->values();
 
+        $catOptions = [];
+        foreach($categories as $cat) {
+            $catOptions[$cat] = $cat;
+        }
+
         // User saat ini — nanti dari Auth::user()
         $currentUser = $currentUser ?? null;
     @endphp
@@ -120,6 +87,81 @@
         window.__KLUB_CATEGORIES__ = @json($categories);
         window.__CURRENT_USER__    = @json($currentUser);
     </script>
+    <main class="pt-14 flex-1">
+        <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
+
+            <div class="mb-8">
+                <h1 class="text-2xl md:text-3xl font-black text-text tracking-[-0.02em] mb-2">
+                    Klub
+                </h1>
+            </div>
+
+            {{-- Toolbar: Search + Filters + Create --}}
+            <div class="flex flex-col sm:flex-row items-center gap-3 mb-8 w-full">
+                {{-- Search + Mobile Filter Button --}}
+                <div class="flex items-center gap-2 w-full sm:flex-1 sm:max-w-xl">
+                    <div class="flex-1 flex items-center gap-2 bg-white border-[1.5px] border-[#444] rounded-lg px-4 py-2.5 focus-within:border-[#FFDDAF] transition-all duration-200">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="search" id="klub-search-input" placeholder="Cari klub buku..."
+                               class="border-none outline-none bg-transparent text-sm placeholder-gray-400 text-[#444] w-full" />
+                    </div>
+
+                    {{-- Mobile Filter Button --}}
+                    <button id="klub-mobile-filter-btn" class="sm:hidden flex items-center justify-center p-3 bg-white border-[1.5px] border-[#444] rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors" aria-label="Buka filter">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="2" y1="14" x2="6" y2="14" /><line x1="10" y1="8" x2="14" y2="8" /><line x1="18" y1="16" x2="22" y2="16" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Filter + Sort (Desktop) --}}
+                <div class="hidden sm:flex relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
+                    <x-custom-select 
+                        id="klub-filter-category" 
+                        title="Filter Kategori"
+                        placeholder="Semua Kategori" 
+                        :options="$catOptions" 
+                    />
+                </div>
+
+                <div class="hidden sm:flex relative flex-1 sm:flex-initial sm:grow-0 min-w-[120px]">
+                    <x-custom-select 
+                        id="klub-sort" 
+                        title="Urutkan"
+                        :placeholder="false" 
+                        :options="[
+                            'name-asc' => 'Nama A–Z',
+                            'name-desc' => 'Nama Z–A',
+                            'members-desc' => 'Anggota Terbanyak',
+                            'members-asc' => 'Anggota Tersedikit',
+                            'newest' => 'Terbaru'
+                        ]" 
+                    />
+                </div>
+
+                {{-- Create button --}}
+                <button id="buat-klub-btn"
+                        class="bg-[#FFDDAF] text-[#444] font-bold text-xs sm:text-sm px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0px_#444] active:translate-y-0 active:translate-x-0 active:shadow-none transition-all whitespace-nowrap w-full sm:w-auto text-center flex-shrink-0">
+                    + Buat Klub
+                </button>
+            </div>
+
+            {{-- Club cards grid — max ~336px per card to match Figma --}}
+            <div id="klub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
+            </div>
+
+            {{-- Pagination --}}
+            <nav id="klub-pagination" class="flex items-center justify-center gap-2 mt-8 overflow-x-auto px-2" aria-label="Navigasi halaman">
+            </nav>
+        </div>
+    </main>
+
+<x-footer/>
 
     {{-- ========== CLUB DETAIL MODAL ========== --}}
     <div id="klub-modal" class="fixed inset-0 z-[100] hidden">
@@ -276,6 +318,51 @@
             </div>
         </div>
     </div>
+
+    {{-- ========== MOBILE FILTER BOTTOM SHEET ========== --}}
+    <dialog id="mobile-filter-dialog" class="fixed inset-0 m-auto z-[250] w-[calc(100%-2.5rem)] max-w-sm bg-white border-[1.5px] border-[#444] rounded-[24px] shadow-2xl p-6 outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm overflow-visible">
+        <div class="relative flex items-center justify-center border-b border-gray-100 pb-4 mb-5">
+            <h3 class="font-extrabold text-lg text-[#444]">Filter & Urutkan</h3>
+            <button id="close-filter-dialog" class="absolute right-0 text-gray-400 hover:text-[#444] text-2xl font-bold leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" aria-label="Tutup">&times;</button>
+        </div>
+        
+        <form method="dialog" class="flex flex-col gap-4 w-full">
+            {{-- Category Filter --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-filter-category" class="text-xs font-bold uppercase tracking-wider text-gray-400">Kategori</label>
+                <x-custom-select 
+                    id="mobile-filter-category" 
+                    title="Filter Kategori"
+                    placeholder="Semua Kategori" 
+                    :options="$catOptions" 
+                />
+            </div>
+            
+            {{-- Sort Select --}}
+            <div class="flex flex-col gap-1.5">
+                <label for="mobile-sort" class="text-xs font-bold uppercase tracking-wider text-gray-400">Urutkan</label>
+                <x-custom-select 
+                    id="mobile-sort" 
+                    title="Urutkan"
+                    :placeholder="false" 
+                    :options="[
+                        'name-asc' => 'Nama A–Z',
+                        'name-desc' => 'Nama Z–A',
+                        'members-desc' => 'Anggota Terbanyak',
+                        'members-asc' => 'Anggota Tersedikit',
+                        'newest' => 'Terbaru'
+                    ]" 
+                    direction="up"
+                />
+            </div>
+            
+            {{-- Action Buttons --}}
+            <div class="flex gap-3 mt-6 pb-2">
+                <button type="button" id="mobile-filter-reset" class="flex-1 py-3 text-sm font-bold text-[#444] bg-white border-[1.5px] border-[#444] rounded-full hover:bg-gray-50 transition-colors">Reset</button>
+                <button type="submit" id="mobile-filter-submit" class="flex-1 py-3 text-sm font-bold text-[#444] bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full hover:bg-amber-300 transition-colors">Terapkan</button>
+            </div>
+        </form>
+    </dialog>
 
 </body>
 </html>

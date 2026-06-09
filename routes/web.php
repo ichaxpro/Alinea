@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\AvatarController;
 use App\Http\Controllers\ProfileController;
 use App\Models\User;
 use App\Models\PersonalBook;
+use App\Http\Controllers\ExploreController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +26,13 @@ Route::get('/login', function () {
 Route::get('/daftar_akun', function () {
     return view('daftar_akun');
 })->name('daftar');
+
+Route::get('/mulai', function () {
+    if (Auth::check()) {
+        return redirect()->route('explore');
+    }
+    return redirect()->route('login');
+})->name('mulai');
 
 // Route::get('/pinjam', function () {
 //     return view('pinjam');
@@ -132,6 +140,7 @@ Route::post('/logout', [AuthController::class, 'logoutWeb'])->middleware('auth')
 use App\Http\Controllers\Api\TransactionController;
 
 Route::middleware('auth')->group(function () {
+    Route::get('/explore', [ExploreController::class, 'index'])->name('explore');
     Route::get('/personal-books', [PersonalBookController::class, 'index']);
     Route::post('/personal-books', [PersonalBookController::class, 'store']);
     Route::patch('/personal-books/{book}', [PersonalBookController::class, 'update']);
