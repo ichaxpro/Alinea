@@ -56,6 +56,13 @@
             function typeWriter() {
                 if (!typeEl) return;
                 const current = phrases[phraseIndex];
+                
+                if (current === 'Explore. Review. Repeat.') {
+                    typeEl.classList.add('italic');
+                } else {
+                    typeEl.classList.remove('italic');
+                }
+
                 if (isDeleting) {
                     typeEl.textContent = current.substring(0, charIndex--);
                     if (charIndex < 0) {

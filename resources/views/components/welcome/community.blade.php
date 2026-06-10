@@ -144,7 +144,7 @@
                         <div class="text-2xl mb-2 transition-transform duration-300 hover:scale-125 inline-block">
                             <img src="images/quotes.svg" class="h-8 w-auto"/>
                         </div>
-                        <p class="font-bold text-sm text-text mb-1">Catat Highlight</p>
+                        <p class="font-bold text-sm text-text mb-1">Catat Sorotan</p>
                         <p class="text-xs text-text opacity-70 leading-relaxed">Simpan kutipan favorit dan bagikan inspirasi</p>
                     </div>
                     <div class="reveal feature-grid-card bg-white rounded-2xl p-5 shadow-pop2 border-2 border-text" style="transition-delay:0.3s">
