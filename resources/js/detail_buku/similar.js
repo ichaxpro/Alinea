@@ -23,7 +23,9 @@ export async function loadSimilarBooks() {
   `).join('');
 
   try {
-    const res = await fetch(`/api/books/${bookId}/similar?kategori=${kategori}`);
+    const res = await fetch(`/api/books/${bookId}/similar?kategori=${kategori}`, {
+      headers: { 'Accept': 'application/json' }
+    });
     const data = await res.json();
     const books = data.books ?? [];
 

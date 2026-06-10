@@ -76,7 +76,12 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email atau password salah']);
         }
 
-        return redirect()->intended('/dashboard');
+        $intended = session()->pull('url.intended', '/dashboard');
+        if (str_starts_with(parse_url($intended, PHP_URL_PATH) ?? '', '/api/')) {
+            $intended = '/dashboard';
+        }
+
+        return redirect()->to($intended);
     }
 
     public function registerWeb(Request $request) {
