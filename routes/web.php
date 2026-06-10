@@ -50,18 +50,21 @@ Route::get('/pinjam', function () {
 })->name('pinjam');
 
 use App\Http\Controllers\TimelineController;
+use App\Http\Controllers\TimelinePostController;
+use App\Http\Controllers\TimelineCommentController;
+use App\Http\Controllers\TimelineInteractionController;
 
 Route::get('/timeline_home', [TimelineController::class, 'index'])->name('timeline_home');
 Route::get('/timeline_simpanan', [TimelineController::class, 'simpanan'])->name('timeline_simpanan');
 Route::get('/timeline/posts/{post}', [TimelineController::class, 'show'])->name('timeline.post');
-Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
-Route::delete('/timeline/posts/{post}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
-Route::post('/timeline/posts/{post}/bookmark', [TimelineController::class, 'toggleBookmark'])->name('timeline.bookmark');
-Route::post('/timeline/posts/{post}/report', [TimelineController::class, 'reportPost'])->name('timeline.report');
-Route::post('/timeline_home/posts/{post}/like', [TimelineController::class, 'toggleLike'])->name('timeline_home.like');
-Route::get('/timeline_home/posts/{post}/comments', [TimelineController::class, 'comments'])->name('timeline_home.comments');
-Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 'storeComment'])->name('timeline_home.comments.store');
-Route::post('/timeline_home/comments/{comment}/like', [TimelineController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
+Route::post('/timeline_home/posts', [TimelinePostController::class, 'store'])->name('timeline_home.store');
+Route::delete('/timeline/posts/{post}', [TimelinePostController::class, 'destroy'])->name('timeline.destroy');
+Route::post('/timeline/posts/{post}/bookmark', [TimelineInteractionController::class, 'toggleBookmark'])->name('timeline.bookmark');
+Route::post('/timeline/posts/{post}/report', [TimelinePostController::class, 'reportPost'])->name('timeline.report');
+Route::post('/timeline_home/posts/{post}/like', [TimelineInteractionController::class, 'toggleLike'])->name('timeline_home.like');
+Route::get('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'index'])->name('timeline_home.comments');
+Route::post('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'store'])->name('timeline_home.comments.store');
+Route::post('/timeline_home/comments/{comment}/like', [TimelineInteractionController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
 
 
 Route::get('/timeline_komunitas', [TimelineKomunitasController::class, 'timelineKomunitas'])->name('timeline_komunitas');

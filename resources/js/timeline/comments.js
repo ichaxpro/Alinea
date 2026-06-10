@@ -181,7 +181,7 @@ export async function submitComment(form, csrfToken) {
         if (mediaLabel) {
             mediaLabel.textContent = '';
         }
-        showToast(result.message || 'Komentar berhasil dikirim.');
+        // showToast(result.message || 'Komentar berhasil dikirim.');
     } catch (error) {
         showToast(error.message || 'Gagal mengirim komentar.');
     } finally {

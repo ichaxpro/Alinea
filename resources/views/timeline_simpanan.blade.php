@@ -74,7 +74,7 @@
 
                         @if(!empty($post['book']))
                         <div class="inline-flex items-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold mb-3">
-                            📖 {{ $post['book'] }}
+                            {{ $post['book'] }}
                         </div>
                         @endif
                         
