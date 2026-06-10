@@ -48,6 +48,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             $query->where('name', 'like', "%{$q}%")
                 ->orWhere('username', 'like', "%{$q}%");
         })
+        ->where('is_banned', false)
         ->where('id', '!=', Auth::id())
         ->select('id', 'name', 'username', 'foto_profil')
         ->limit(5)
@@ -132,6 +133,7 @@ Route::middleware(['web', 'auth'])->group(function () {
                 $query->where('name', 'like', "%{$q}%")
                       ->orWhere('username', 'like', "%{$q}%");
             })
+            ->where('is_banned', false)
             ->excludeBlocked()
             ->where('id', '!=', Auth::id())
             ->select('id', 'name', 'username', 'foto_profil')

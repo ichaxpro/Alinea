@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -19,7 +20,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Actions\Action;
-use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -40,6 +41,16 @@ class UserResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['name', 'username', 'email'];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
     }
 
     public static function form(Schema $schema): Schema
@@ -177,7 +188,7 @@ class UserResource extends Resource
                             ->send();
                     })
                     ->visible(fn (User $record) => !$record->is_banned && $record->id !== auth()->id()),
-                EditAction::make(),
+                ViewAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([

@@ -195,7 +195,13 @@ class TimelinePostResource extends Resource
                         $record->author->notify(new PostHidden());
                     }),
                 ForceDeleteAction::make(),
-                RestoreAction::make(),
+                RestoreAction::make()
+                    ->successNotificationTitle('Post berhasil dipulihkan')
+                    ->after(function (\App\Models\TimelinePost $record) {
+                        if ($record->author) {
+                            $record->author->notify(new \App\Notifications\ContentRestored('Post timeline Anda telah dipulihkan oleh admin.'));
+                        }
+                    }),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

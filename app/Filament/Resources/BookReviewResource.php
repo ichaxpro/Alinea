@@ -18,6 +18,15 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Notifications\ContentHidden;
+
 class BookReviewResource extends Resource
 {
     /**
@@ -34,6 +43,16 @@ class BookReviewResource extends Resource
     protected static ?string $modelLabel = 'Review';
 
     protected static ?int $navigationSort = 4;
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema {
         return $schema
@@ -108,14 +127,35 @@ class BookReviewResource extends Resource
                         'db' => 'Database',
                         'google' => 'Google Books',
                     ]),
+                TrashedFilter::make(),
             ])
             ->actions([
                 ViewAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->label('Sembunyikan')
+                    ->icon('heroicon-o-eye-slash')
+                    ->modalHeading('Sembunyikan Review Ini?')
+                    ->modalDescription('Review ini akan disembunyikan dari aplikasi pengguna (Soft Delete).')
+                    ->successNotificationTitle('Review berhasil disembunyikan')
+                    ->after(function (BookReview $record) {
+                        if ($record->user) {
+                            $record->user->notify(new ContentHidden('Ulasan Anda untuk buku "' . $record->book_title . '" telah disembunyikan oleh admin karena melanggar panduan komunitas.', 'review_hidden'));
+                        }
+                    }),
+                ForceDeleteAction::make(),
+                RestoreAction::make()
+                    ->successNotificationTitle('Review berhasil dipulihkan')
+                    ->after(function (\App\Models\BookReview $record) {
+                        if ($record->user) {
+                            $record->user->notify(new \App\Notifications\ContentRestored('Ulasan Anda untuk buku "' . $record->book_title . '" telah dipulihkan oleh admin.'));
+                        }
+                    }),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -127,8 +167,14 @@ class BookReviewResource extends Resource
     public static function getPages(): array {
         return [
             'index' => Pages\ListBookReviews::route('/'),
-            'create' => Pages\CreateBookReview::route('/create'),
-            'edit' => Pages\EditBookReview::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }
