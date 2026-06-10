@@ -75,7 +75,7 @@ export function renderCommentPanel(post, currentUserAvatar, currentUserName) {
                 '<div class="w-9 h-9 rounded-full border border-[#444] overflow-hidden bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] flex items-center justify-center flex-shrink-0">' +
                     renderAvatarHtml({ avatar_url: currentUserAvatar, name: currentUserName || 'U' }) +
                 '</div>' +
-                '<div class="flex-1">' +
+                '<div class="flex-1 min-w-0">' +
                     '<textarea data-comment-input rows="1" maxlength="500" placeholder="Tulis komentar..." class="w-full border-[1.5px] border-gray-200 rounded-xl px-3 py-2 text-sm placeholder-gray-300 outline-none focus:border-[#444] resize-none transition-colors overflow-hidden"></textarea>' +
                     '<input type="file" data-comment-media-input class="hidden" accept="image/*,video/*,*/*" multiple />' +
                     '<div class="flex flex-wrap items-center justify-between gap-2 mt-2">' +
@@ -91,7 +91,9 @@ export function renderCommentPanel(post, currentUserAvatar, currentUserName) {
                             '</button>' +
                             '<span data-comment-media-label class="text-xs text-gray-400"></span>' +
                         '</div>' +
-                        '<button type="submit" data-comment-submit class="bg-[#FFDDAF] text-[#444] font-bold text-sm px-4 py-2 rounded-full border-[1.5px] border-[#444] hover:bg-[#ffcf90] transition-colors cursor-pointer">Kirim</button>' +
+                        '<button type="submit" data-comment-submit class="w-9 h-9 bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full flex items-center justify-center hover:bg-[#ffcf90] transition-colors cursor-pointer shrink-0" title="Kirim">' +
+                            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12L2 22l3-10L2 2z"></path><line x1="5" y1="12" x2="14" y2="12"></line></svg>' +
+                        '</button>' +
                     '</div>' +
                 '</div>' +
             '</form>'
@@ -195,7 +197,7 @@ export function bindPostActions(scope, csrfToken) {
     scope.querySelectorAll('[data-comment-toggle]').forEach(btn => {
         if (btn.dataset.bound === 'true') return;
         btn.dataset.bound = 'true';
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
             const article = btn.closest('article[data-post-id]');
             const panel = article?.querySelector('[data-comments-panel]');
             if (!panel) return;
@@ -206,7 +208,10 @@ export function bindPostActions(scope, csrfToken) {
             if (willOpen) {
                 const { loadComments } = await import('./comments.js');
                 await loadComments(panel);
-                panel.querySelector('[data-comment-input]')?.focus();
+                // Only focus if it's a real user click, not a simulated one on page load
+                if (e.isTrusted) {
+                    panel.querySelector('[data-comment-input]')?.focus({ preventScroll: true });
+                }
             }
         });
     });
@@ -321,7 +326,8 @@ export function bindPostActions(scope, csrfToken) {
         input.dataset.bound = 'true';
         input.addEventListener('input', () => {
             input.style.height = 'auto';
-            input.style.height = input.scrollHeight + 'px';
+            const borderHeight = input.offsetHeight - input.clientHeight;
+            input.style.height = (input.scrollHeight + borderHeight) + 'px';
         });
     });
 

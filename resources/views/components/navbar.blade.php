@@ -125,6 +125,13 @@
                            @endauth
                         </div>
 
+                        <!-- Mobile search button -->
+                        <button id="mobile-top-search-btn" class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600 cursor-pointer" aria-label="Cari">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        </button>
+
                         <!-- Mobile menu button -->
                         <button class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors" id="mobile-menu-btn" aria-label="Menu">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -318,6 +325,19 @@
                                 desktopSearchBtn.click();
                             }, 300); // Wait for menu to start closing
                         }
+                    });
+                }
+                
+                const mobileTopSearchBtn = document.getElementById('mobile-top-search-btn');
+                if (mobileTopSearchBtn) {
+                    mobileTopSearchBtn.addEventListener('click', (e) => {
+                        if (document.getElementById('mobile-search-overlay')) {
+                            // Timeline page: search.js will handle showing the overlay, so we do nothing here
+                            return;
+                        }
+                        // Non-timeline page: fallback to global search
+                        const desktopSearchBtn = document.getElementById('navbar-search-btn');
+                        if (desktopSearchBtn) desktopSearchBtn.click();
                     });
                 }
 

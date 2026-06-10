@@ -1,5 +1,4 @@
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg fill="#000000" width="800px" height="800px" viewBox="0 0 128 128" id="Layer_1" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg {{ $attributes->merge(['viewBox' => '0 0 128 128', 'fill' => 'currentColor', 'xmlns' => 'http://www.w3.org/2000/svg']) }}>
 
 <g>
 

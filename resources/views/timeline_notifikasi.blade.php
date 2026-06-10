@@ -128,7 +128,7 @@
         <div class="flex-1 overflow-y-auto px-4 py-4">
             <div id="mobile-search-dropdown" class="hidden"></div>
             <div id="mobile-search-trending">
-                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">What's Trending</h3>
+                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">Populer Minggu ini</h3>
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity" tabindex="0">
                         <span class="text-[13px] font-bold text-gray-300 w-4 text-center flex-shrink-0">1</span>

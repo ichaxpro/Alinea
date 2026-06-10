@@ -54,19 +54,19 @@
                                      style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
                                 @endif
                             </a>
-                            <div class="flex-1">
-                                <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">{{ $post['name'] }}</a>
-                                <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
-                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="whitespace-nowrap hover:underline cursor-pointer">{{ $post['handle'] }}</a>
-                                    <span class="text-gray-200">•</span>
-                                    <span class="flex items-center gap-1 whitespace-nowrap">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer block truncate">{{ $post['name'] }}</a>
+                                <div class="flex items-center text-xs text-gray-400 mt-0.5 min-w-0">
+                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="hover:underline cursor-pointer shrink truncate">{{ $post['handle'] }}</a>
+                                    <span class="text-gray-200 mx-1 shrink-0 max-sm:hidden">•</span>
+                                    <span class="inline-flex items-center gap-0.5 shrink truncate max-sm:hidden">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
                                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                                         </svg>
-                                        {{ $post['location'] }}
+                                        <span class="truncate">{{ $post['location'] }}</span>
                                     </span>
-                                    <span class="text-gray-200">•</span>
-                                    <span class="whitespace-nowrap" title="{{ $post['absolute_time'] }}">{{ $post['time'] }}</span>
+                                    <span class="text-gray-200 mx-1 shrink-0">•</span>
+                                    <span title="{{ $post['absolute_time'] }}" class="whitespace-nowrap shrink-0">{{ $post['time'] }}</span>
                                 </div>
                             </div>
                             <div class="bg-[#fff176] border-2 inline-flex items-center rounded-full border-text px-3.5 py-0.5 text-xs font-bold">{{ $post['tag'] }}</div>
@@ -143,8 +143,10 @@
                             </div>
                             <div class="mt-3 flex gap-2">
                                 <form data-comment-form class="flex gap-3 max-sm:gap-1.5 items-start w-full">
-                                    <input type="text" data-comment-input class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
-                                    <button type="submit" data-comment-submit class="bg-[#FFDDAF] text-[#444] px-4 max-sm:px-2.5 py-2 rounded-lg font-bold text-sm max-sm:text-xs border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn whitespace-nowrap" data-post-id="{{ $post['id'] }}">Kirim</button>
+                                    <input type="text" data-comment-input class="flex-1 min-w-0 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
+                                    <button type="submit" data-comment-submit class="w-9 h-9 flex items-center justify-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full hover:bg-[#ffcf90] transition-colors shrink-0 submit-comment-btn" data-post-id="{{ $post['id'] }}" aria-label="Kirim">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12L2 22l3-10L2 2z"></path><line x1="5" y1="12" x2="14" y2="12"></line></svg>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -186,7 +188,7 @@
         <div class="flex-1 overflow-y-auto px-4 py-4">
             <div id="mobile-search-dropdown" class="hidden"></div>
             <div id="mobile-search-trending">
-                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">What's Trending</h3>
+                <h3 class="font-bold text-[13px] text-gray-400 uppercase tracking-wider mb-3">Populer Minggu ini</h3>
                 <div class="flex flex-col gap-3">
                     @forelse ($trendingItems as $rank => $item)
                     <a href="{{ $item[2] ?? route('timeline_home', ['book' => $item[0]]) }}"

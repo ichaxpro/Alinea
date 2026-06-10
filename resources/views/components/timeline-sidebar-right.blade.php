@@ -1,6 +1,6 @@
 @props([
-    'searchPlaceholder' => 'Cari buku atau pengguna...',
-    'trendingTitle'     => "What's Trending",
+    'searchPlaceholder' => 'Cari postingan atau pengguna...',
+    'trendingTitle'     => "Populer Minggu ini",
     'trendingItems'     => [],
 ])
 

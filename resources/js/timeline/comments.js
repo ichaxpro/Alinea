@@ -79,7 +79,7 @@ export async function loadComments(panel) {
                 const detailUrl = window.location.origin + '/timeline/posts/' + postId;
                 html += '<div class="mt-3 text-center">' +
                     '<a href="' + detailUrl + '" class="text-sm font-bold text-[#444] hover:underline transition-colors">' +
-                        'Tunjukkan semua komentar (' + total + ')' +
+                        'Tampilkan semua komentar (' + total + ')' +
                     '</a>' +
                 '</div>';
             }

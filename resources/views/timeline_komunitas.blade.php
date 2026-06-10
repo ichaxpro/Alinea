@@ -36,10 +36,8 @@
 
                 {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
                 <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex items-center gap-2">
-                    <div class="flex-1 flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden">
-                        <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">
-                            Timeline Komunitas
-                        </div>
+                    <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full text-center">
+                        Timeline Komunitas
                     </div>
 
                     {{-- Filter Dropdown --}}
@@ -82,7 +80,7 @@
                             <div class="w-11 h-11 max-sm:w-9 max-sm:h-9 rounded-full bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-2 border-[#444] flex-shrink-0"></div>
                         @endauth
 
-                        <div class="flex-1 flex flex-col gap-3">
+                        <div class="flex-1 min-w-0 flex flex-col gap-3">
                             {{-- Category pills --}}
                             <div class="flex flex-nowrap max-sm:overflow-x-auto max-sm:gap-1.5 gap-2 max-sm:pb-1">
                                 @foreach (['Diskusi', 'Tanya Jawab', 'Rekomendasi', 'Pengumuman'] as $i => $tag)
@@ -158,7 +156,7 @@
                 <div class="flex flex-wrap gap-2 pb-1" id="club-filters">
                     @foreach ($joinedClubs as $c)
                     <button data-klub-filter="{{ $c->nama_klub }}"
-                            class="text-medium font-medium px-4 py-1.5 rounded-full border-[1.5px] border-black text-black hover:border-[#444] hover:text-[#444] transition-colors cursor-pointer bg-white">
+                            class="text-sm font-bold px-4 py-1.5 rounded-full border-[1.5px] border-[#444] text-[#444] hover:bg-gray-50 transition-colors cursor-pointer bg-white">
                         {{ $c->nama_klub }}
                     </button>
                     @endforeach
@@ -179,19 +177,19 @@
                                      style="background: linear-gradient(135deg, {{ $post['avatar_from'] }}, {{ $post['avatar_to'] }})"></div>
                                 @endif
                             </a>
-                            <div class="flex-1">
-                                <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer">{{ $post['name'] }}</a>
-                                <div class="flex flex-wrap items-center gap-1.5 max-sm:gap-1 text-xs text-gray-400">
-                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="whitespace-nowrap hover:underline cursor-pointer">{{ $post['handle'] }}</a>
-                                    <span class="text-gray-200">•</span>
-                                    <span class="flex items-center gap-1 whitespace-nowrap">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ $post['profile_url'] ?? '#' }}" class="font-bold text-[15px] leading-tight hover:underline cursor-pointer block truncate">{{ $post['name'] }}</a>
+                                <div class="flex items-center text-xs text-gray-400 mt-0.5 min-w-0">
+                                    <a href="{{ $post['profile_url'] ?? '#' }}" class="hover:underline cursor-pointer shrink truncate">{{ $post['handle'] }}</a>
+                                    <span class="text-gray-200 mx-1 shrink-0 max-sm:hidden">•</span>
+                                    <span class="inline-flex items-center gap-0.5 shrink truncate max-sm:hidden">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="shrink-0">
                                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                                         </svg>
-                                        {{ $post['location'] }}
+                                        <span class="truncate">{{ $post['location'] }}</span>
                                     </span>
-                                    <span class="text-gray-200">•</span>
-                                    <span class="whitespace-nowrap" title="{{ $post['absolute_time'] }}">{{ $post['time'] }}</span>
+                                    <span class="text-gray-200 mx-1 shrink-0">•</span>
+                                    <span title="{{ $post['absolute_time'] }}" class="whitespace-nowrap shrink-0">{{ $post['time'] }}</span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -227,8 +225,8 @@
                             </div>
                             @endif
                             @if(!empty($post['klub']))
-                            <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444]">
-                                {{ $post['klub'] }}
+                            <div class="inline-flex items-center bg-[#C7E7FF] border-[1.5px] border-[#444] rounded-full px-3.5 py-0.5 text-xs font-bold text-[#444] max-w-full">
+                                <span class="truncate">{{ $post['klub'] }}</span>
                             </div>
                             @endif
                         </div>
@@ -298,8 +296,10 @@
                             </div>
                             <div class="mt-3 flex gap-2">
                                 <form data-comment-form class="flex gap-3 max-sm:gap-1.5 items-start w-full">
-                                    <input type="text" data-comment-input class="flex-1 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
-                                    <button type="submit" data-comment-submit class="bg-[#FFDDAF] text-[#444] px-4 max-sm:px-2.5 py-2 rounded-lg font-bold text-sm max-sm:text-xs border-[1.5px] border-[#444] hover:bg-[#ffcf90] submit-comment-btn whitespace-nowrap" data-post-id="{{ $post['id'] }}">Kirim</button>
+                                    <input type="text" data-comment-input class="flex-1 min-w-0 border-[1.5px] border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#444] comment-input" placeholder="Tulis komentar..." data-post-id="{{ $post['id'] }}">
+                                    <button type="submit" data-comment-submit class="w-9 h-9 flex items-center justify-center bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full hover:bg-[#ffcf90] transition-colors shrink-0 submit-comment-btn" data-post-id="{{ $post['id'] }}" aria-label="Kirim">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12L2 22l3-10L2 2z"></path><line x1="5" y1="12" x2="14" y2="12"></line></svg>
+                                    </button>
                                 </form>
                             </div>
                         </div>
