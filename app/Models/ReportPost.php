@@ -20,6 +20,6 @@ class ReportPost extends Model
 
     public function post()
     {
-        return $this->belongsTo(TimelinePost::class, 'post_id');
+        return $this->belongsTo(TimelinePost::class, 'post_id')->withTrashed();
     }
 }

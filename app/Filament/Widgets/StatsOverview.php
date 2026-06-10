@@ -7,6 +7,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 use App\Models\User;
 use App\Models\Report;
+use App\Models\ReportPost;
 use App\Models\TimelinePost;
 
 class StatsOverview extends StatsOverviewWidget
@@ -20,10 +21,14 @@ class StatsOverview extends StatsOverviewWidget
                 ->description('Registered accounts')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
-            Stat::make('Pending Reports', Report::where('status', 'pending')->count())
+            Stat::make('Pending User Reports', Report::where('status', 'pending')->count())
                 ->description('Action required')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),
+            Stat::make('Pending Post Reports', ReportPost::where('status', 'pending')->count())
+                ->description('Action required')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('warning'),
             Stat::make('Timeline Posts', TimelinePost::count())
                 ->description('Total posts across the platform')
                 ->descriptionIcon('heroicon-m-chat-bubble-bottom-center-text')
