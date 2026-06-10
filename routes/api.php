@@ -93,7 +93,7 @@ Route::middleware(['web', 'auth'])->group(function () {
             'id'            => $b->id,
             'judul'         => $b->judul,
             'penulis'       => $b->penulis,
-            'cover_url'     => $b->cover_url,
+            'cover_url'     => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : asset('storage/' . $b->cover_url)) : null,
             'isbn'          => $b->isbn ?? '',
             'gradient_from' => $b->gradient_from ?? '#C7E7FF',
             'gradient_to'   => $b->gradient_to ?? '#FFDDAF',
