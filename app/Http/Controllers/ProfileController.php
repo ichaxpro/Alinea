@@ -77,6 +77,7 @@ class ProfileController extends Controller
             });
 
         $achievements = $user->achievements()->get();
+        $inProgressAchievements = $isOwnProfile ? $this->achievementService->getInProgressAchievements($user) : collect();
 
         $readingBooks = PersonalBook::where('user_id', $user->id)
             ->whereNotNull('reading_status')
@@ -158,7 +159,7 @@ class ProfileController extends Controller
         }
 
         return view('timeline_profile', compact(
-            'user', 'posts', 'achievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser', 'trendingItems', 'isBlockedByMe', 'hasBlockedMe'
+            'user', 'posts', 'achievements', 'inProgressAchievements', 'readingNow', 'finishedBooks', 'wantToRead', 'mediaPosts', 'followersCount', 'followingCount', 'isOwnProfile', 'isFollowing', 'currentUser', 'trendingItems', 'isBlockedByMe', 'hasBlockedMe'
         ));
     }
 
