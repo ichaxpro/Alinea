@@ -99,6 +99,11 @@ class TimelineFormatterService
 
         $author = clone ($post->relationLoaded('author') ? $post->author : ($post->author()->first() ?? new \App\Models\User));
 
+        $is_following = false;
+        if ($currentUser && $currentUser->id !== $post->id_user) {
+            $is_following = \App\Models\Follow::where('follower_id', $currentUser->id)->where('following_id', $post->id_user)->exists();
+        }
+
         return [
             'id' => $post->id,
             'user_id' => $post->id_user,
@@ -116,6 +121,7 @@ class TimelineFormatterService
             'likes_label' => $likes_label,
             'liked' => $liked,
             'bookmarked' => $bookmarked,
+            'is_following' => $is_following,
             'avatar_url' => !empty($author->foto_profil) ? asset('storage/' . $author->foto_profil) : ($author->avatar_url ?? null),
             'avatar_from' => '#FFDDAF',
             'avatar_to' => '#C7E7FF',

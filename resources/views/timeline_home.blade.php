@@ -211,8 +211,14 @@
                                                 Laporkan unggahan
                                             </button>
                                             <button class="w-full px-4 py-2.5 text-left text-sm text-[#222] hover:bg-gray-100 transition-colors flex items-center gap-2 border-t border-gray-100" data-unfollow-btn data-user-id="{{ $post['user_id'] }}">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
-                                                Berhenti mengikuti
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    @if(isset($post['is_following']) && $post['is_following'])
+                                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line>
+                                                    @else
+                                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>
+                                                    @endif
+                                                </svg>
+                                                <span class="btn-text">{{ (isset($post['is_following']) && $post['is_following']) ? 'Berhenti mengikuti' : 'Ikuti' }}</span>
                                             </button>
                                         @elseif(auth()->check() && auth()->id() === $post['user_id'])
                                             <button class="w-full px-4 py-2.5 text-left text-sm text-red-500 font-semibold hover:bg-red-50 flex items-center gap-2 transition-colors" data-post-delete>
@@ -241,7 +247,7 @@
                                 @if($attachment['type'] === 'image')
                                 <img src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="image" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
                                 @elseif($attachment['type'] === 'video')
-                                <video src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>
+                                <video src="{{ $attachment['url'] }}#t=0.1" preload="metadata" data-media-url="{{ $attachment['url'] }}" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity bg-black" controls playsinline></video>
                                 @endif
                             @endforeach
                         </div>

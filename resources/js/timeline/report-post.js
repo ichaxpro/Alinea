@@ -116,18 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || 'Gagal berhenti mengikuti');
+                if (!res.ok) throw new Error(data.message || 'Gagal mengubah status mengikuti');
 
-                showToast('Berhasil berhenti mengikuti.');
+                showToast(data.following ? 'Berhasil mengikuti.' : 'Berhasil berhenti mengikuti.');
 
-                const posts = document.querySelectorAll(`[data-unfollow-btn][data-user-id="${userId}"]`);
-                posts.forEach(btn => {
-                    const article = btn.closest('article');
-                    if (article) {
-                        article.style.transition = 'all 0.3s ease';
-                        article.style.opacity = '0';
-                        article.style.transform = 'scale(0.95)';
-                        setTimeout(() => article.remove(), 300);
+                // Update all buttons for this user
+                const btns = document.querySelectorAll(`[data-unfollow-btn][data-user-id="${userId}"]`);
+                btns.forEach(btn => {
+                    const svg = btn.querySelector('svg');
+                    const textSpan = btn.querySelector('.btn-text');
+                    
+                    if (data.following) {
+                        if (svg) svg.innerHTML = '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line>';
+                        if (textSpan) textSpan.textContent = 'Berhenti mengikuti';
+                    } else {
+                        if (svg) svg.innerHTML = '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>';
+                        if (textSpan) textSpan.textContent = 'Ikuti';
                     }
                 });
 

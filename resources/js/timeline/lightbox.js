@@ -4,7 +4,7 @@ let timelineGalleryIndex = 0;
 const lightboxHtml = `
 <div id="timelineLightbox" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200" style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px)">
     <button id="timelineLightboxClose" class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white" title="Tutup">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="18" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
     <button id="timelineLightboxPrev" class="absolute top-1/2 left-4 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-white hidden">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -42,6 +42,11 @@ function openLightbox(gallery, startIndex) {
 }
 
 function closeLightbox() {
+    const activeVideo = lightboxContent.querySelector('video');
+    if (activeVideo) {
+        activeVideo.pause();
+    }
+
     lightbox.classList.add('opacity-0');
     lightboxContent.classList.remove('scale-100');
     lightboxContent.classList.add('scale-95');
@@ -98,15 +103,77 @@ lightbox?.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('hidden')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') lightboxPrev.click();
-    if (e.key === 'ArrowRight') lightboxNext.click();
+    
+    // Ignore keydown if user is typing in an input/textarea (though unlikely in lightbox)
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    if (e.key === 'Escape') {
+        closeLightbox();
+        return;
+    }
+
+    const activeVideo = lightboxContent.querySelector('video');
+
+    if (activeVideo) {
+        // Video Controls
+        if (e.key === ' ' || e.code === 'Space') {
+            e.preventDefault();
+            activeVideo.paused ? activeVideo.play() : activeVideo.pause();
+            return;
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            activeVideo.currentTime = Math.max(0, activeVideo.currentTime - 5);
+            return;
+        }
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            activeVideo.currentTime = Math.min(activeVideo.duration, activeVideo.currentTime + 5);
+            return;
+        }
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeVideo.volume = Math.min(1, activeVideo.volume + 0.1);
+            return;
+        }
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeVideo.volume = Math.max(0, activeVideo.volume - 0.1);
+            return;
+        }
+        if (e.key.toLowerCase() === 'm') {
+            e.preventDefault();
+            activeVideo.muted = !activeVideo.muted;
+            return;
+        }
+        if (e.key.toLowerCase() === 'f') {
+            e.preventDefault();
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (activeVideo.requestFullscreen) {
+                activeVideo.requestFullscreen();
+            } else if (activeVideo.webkitRequestFullscreen) {
+                activeVideo.webkitRequestFullscreen();
+            }
+            return;
+        }
+    } else {
+        // Image Gallery Navigation
+        if (e.key === 'ArrowLeft') lightboxPrev.click();
+        if (e.key === 'ArrowRight') lightboxNext.click();
+    }
 });
 
 document.addEventListener('click', (e) => {
     const mediaEl = e.target.closest('[data-media-url]');
     if (mediaEl) {
         e.preventDefault();
+        
+        if (mediaEl.tagName === 'VIDEO') {
+            // Give browser a tiny delay to process native play event, then pause it
+            setTimeout(() => mediaEl.pause(), 10);
+        }
+
         const article = mediaEl.closest('article[data-post-id]') || mediaEl.closest('.grid') || mediaEl.closest('div');
         if (!article) return;
 
