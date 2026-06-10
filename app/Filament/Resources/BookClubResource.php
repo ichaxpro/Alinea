@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BookClubResource\Pages;
 use App\Models\BookClub;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -17,10 +18,19 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Notifications\ContentHidden;
 
 class BookClubResource extends Resource
 {
@@ -43,6 +53,16 @@ class BookClubResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['nama_klub', 'deskripsi'];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
     }
 
     public static function form(Schema $schema): Schema
@@ -136,14 +156,35 @@ class BookClubResource extends Resource
                 SelectFilter::make('kategori')
                     ->options(fn () => BookClub::query()->distinct()->pluck('kategori', 'kategori')->toArray())
                     ->label('Kategori'),
+                TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make()
+                    ->label('Sembunyikan')
+                    ->icon('heroicon-o-eye-slash')
+                    ->modalHeading('Sembunyikan Klub Ini?')
+                    ->modalDescription('Klub ini akan disembunyikan dari aplikasi pengguna (Soft Delete).')
+                    ->successNotificationTitle('Klub berhasil disembunyikan')
+                    ->after(function (BookClub $record) {
+                        if ($record->owner) {
+                            $record->owner->notify(new ContentHidden('Klub Anda (' . $record->nama_klub . ') telah disembunyikan oleh admin karena melanggar panduan komunitas.', 'klub_hidden'));
+                        }
+                    }),
+                ForceDeleteAction::make(),
+                RestoreAction::make()
+                    ->successNotificationTitle('Klub berhasil dipulihkan')
+                    ->after(function (\App\Models\BookClub $record) {
+                        if ($record->owner) {
+                            $record->owner->notify(new \App\Notifications\ContentRestored('Klub Anda (' . $record->nama_klub . ') telah dipulihkan oleh admin.'));
+                        }
+                    }),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -157,8 +198,14 @@ class BookClubResource extends Resource
     {
         return [
             'index' => Pages\ListBookClubs::route('/'),
-            'create' => Pages\CreateBookClub::route('/create'),
-            'edit' => Pages\EditBookClub::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\FeaturedBook;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class BookReview extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['book_identifier', 'book_identifier_type', 'user_id', 'rating', 'ulasan', 'helpful'];
     protected $casts = ['rating' => 'integer', 'helpful' => 'integer'];
     protected $attributes = ['helpful' => 0];

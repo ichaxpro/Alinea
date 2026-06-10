@@ -12,12 +12,12 @@
                     </a>
 
                     <!-- Nav Links (Desktop) -->
-                    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                        <a href="{{ route('beranda') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Beranda</a>
-                        <a href="{{ route('explore') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Jelajah</a>
-                        <a href="{{ route('timeline_home') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Lini Masa</a>
-                        <a href="{{ route('klub') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Klub</a>
-                        <a href="{{ route('katalog') }}" class="nav-link relative hover:text-gray-900 transition-colors duration-200">Katalog</a>
+                    <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                        <a href="{{ route('beranda') }}" class="relative transition-colors duration-200 {{ request()->routeIs('beranda*') ? 'text-[#444] font-bold after:absolute after:bottom-[-6px] after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full' : 'nav-link text-gray-600 hover:text-gray-900' }}">Beranda</a>
+                        <a href="{{ route('explore') }}" class="relative transition-colors duration-200 {{ request()->routeIs('explore*') ? 'text-[#444] font-bold after:absolute after:bottom-[-6px] after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full' : 'nav-link text-gray-600 hover:text-gray-900' }}">Jelajah</a>
+                        <a href="{{ route('timeline_home') }}" class="relative transition-colors duration-200 {{ request()->is('timeline*') ? 'text-[#444] font-bold after:absolute after:bottom-[-6px] after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full' : 'nav-link text-gray-600 hover:text-gray-900' }}">Lini Masa</a>
+                        <a href="{{ route('klub') }}" class="relative transition-colors duration-200 {{ request()->routeIs('klub*') ? 'text-[#444] font-bold after:absolute after:bottom-[-6px] after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full' : 'nav-link text-gray-600 hover:text-gray-900' }}">Klub</a>
+                        <a href="{{ route('katalog') }}" class="relative transition-colors duration-200 {{ request()->routeIs('katalog*') ? 'text-[#444] font-bold after:absolute after:bottom-[-6px] after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-amber-500 after:rounded-full' : 'nav-link text-gray-600 hover:text-gray-900' }}">Katalog</a>
                     </div>
 
                     <!-- Right Actions Group (CTA + Mobile Menu) -->
@@ -45,7 +45,7 @@
                                         @endif
                                     </button>
 
-                                    <div id="notif-dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-80 bg-white border-2 border-[#444] rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col">
+                                    <div id="notif-dropdown-menu" class="opacity-0 scale-95 pointer-events-none translate-y-[-10px] transition-all duration-200 origin-top-right absolute right-0 top-full mt-2 w-80 bg-white border-2 border-[#444] rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col">
                                         <div class="px-4 py-3 border-b-[1.5px] border-gray-100 flex justify-between items-center">
                                             <span class="font-bold text-[#444]">Notifikasi</span>
                                             @if($unreadCount > 0)
@@ -112,11 +112,11 @@
                                     <span id="navbar-avatar-initial" class="{{ Auth::user()->foto_profil ? 'hidden' : '' }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 </button>
 
-                                <div id="dropdown-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
+                                <div id="dropdown-menu" class="opacity-0 scale-95 pointer-events-none translate-y-[-10px] transition-all duration-200 origin-top-right absolute right-0 top-full mt-2 w-48 bg-white border-2 border-[#444] rounded-2xl shadow-xl py-2 z-50">
                                     <a href="{{ route('dashboard') }}" class="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors">Dasbor</a>
                                     <form method="POST" action="/logout">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-[#FFDDAF]/30 transition-colors cursor-pointer">Keluar</button>
+                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer">Keluar</button>
                                     </form>
                                 </div>
                                </div>
@@ -143,24 +143,58 @@
                     @auth
                        <script>
                         function toggleDropdown() {
-                            document.getElementById('dropdown-menu').classList.toggle('hidden');
-                            document.getElementById('notif-dropdown-menu')?.classList.add('hidden');
+                            const menu = document.getElementById('dropdown-menu');
+                            const notifMenu = document.getElementById('notif-dropdown-menu');
+                            
+                            menu.classList.toggle('opacity-0');
+                            menu.classList.toggle('scale-95');
+                            menu.classList.toggle('pointer-events-none');
+                            menu.classList.toggle('translate-y-[-10px]');
+                            
+                            menu.classList.toggle('opacity-100');
+                            menu.classList.toggle('scale-100');
+                            menu.classList.toggle('pointer-events-auto');
+                            menu.classList.toggle('translate-y-0');
+
+                            if (notifMenu && notifMenu.classList.contains('opacity-100')) {
+                                notifMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none', 'translate-y-[-10px]');
+                                notifMenu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
+                            }
                         }
                         
                         function toggleNotificationDropdown() {
-                            document.getElementById('notif-dropdown-menu').classList.toggle('hidden');
-                            document.getElementById('dropdown-menu')?.classList.add('hidden');
+                            const notifMenu = document.getElementById('notif-dropdown-menu');
+                            const menu = document.getElementById('dropdown-menu');
+                            
+                            notifMenu.classList.toggle('opacity-0');
+                            notifMenu.classList.toggle('scale-95');
+                            notifMenu.classList.toggle('pointer-events-none');
+                            notifMenu.classList.toggle('translate-y-[-10px]');
+                            
+                            notifMenu.classList.toggle('opacity-100');
+                            notifMenu.classList.toggle('scale-100');
+                            notifMenu.classList.toggle('pointer-events-auto');
+                            notifMenu.classList.toggle('translate-y-0');
+
+                            if (menu && menu.classList.contains('opacity-100')) {
+                                menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none', 'translate-y-[-10px]');
+                                menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
+                            }
                         }
 
                         document.addEventListener('click', function(e) {
                             const profileDd = document.getElementById('profile-dropdown');
                             const notifDd = document.getElementById('notification-dropdown');
+                            const menu = document.getElementById('dropdown-menu');
+                            const notifMenu = document.getElementById('notif-dropdown-menu');
                             
-                            if (profileDd && !profileDd.contains(e.target)) {
-                                document.getElementById('dropdown-menu')?.classList.add('hidden');
+                            if (profileDd && !profileDd.contains(e.target) && menu && menu.classList.contains('opacity-100')) {
+                                menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none', 'translate-y-[-10px]');
+                                menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
                             }
-                            if (notifDd && !notifDd.contains(e.target)) {
-                                document.getElementById('notif-dropdown-menu')?.classList.add('hidden');
+                            if (notifDd && !notifDd.contains(e.target) && notifMenu && notifMenu.classList.contains('opacity-100')) {
+                                notifMenu.classList.add('opacity-0', 'scale-95', 'pointer-events-none', 'translate-y-[-10px]');
+                                notifMenu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto', 'translate-y-0');
                             }
                         });
 
@@ -189,7 +223,35 @@
                     @endauth
                 </div>
             </div>
+            
+            @auth
+                @if(auth()->user()->is_banned)
+                    <div id="banned-banner" class="bg-red-600 text-white text-center py-2 px-4 text-[13px] md:text-sm font-medium shadow-sm w-full border-t border-red-700">
+                        Akun Anda telah ditangguhkan. Silakan hubungi admin di <strong>support@breeze-alinea.cloud</strong> untuk mengajukan banding.
+                    </div>
+                @endif
+            @endauth
         </nav>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const navbar = document.getElementById('main-navbar');
+                const banner = document.getElementById('banned-banner');
+                
+                if (navbar && banner) {
+                    const adjustPadding = () => {
+                        const height = navbar.offsetHeight;
+                        document.querySelectorAll('.pt-14, .pt-16, .min-h-screen.pt-16').forEach(el => {
+                            if (el.tagName === 'MAIN' || el.tagName === 'DIV') {
+                                el.style.paddingTop = height + 'px';
+                            }
+                        });
+                    };
+                    adjustPadding();
+                    window.addEventListener('resize', adjustPadding);
+                }
+            });
+        </script>
         @vite(['resources/js/global-search.js'])
         <!-- Mobile Menu Overlay -->
         <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-gray-900/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out"></div>
@@ -247,12 +309,12 @@
 
                 </div>
 
-                <nav class="flex flex-col gap-5 text-sm font-medium text-gray-600">
-                    <a href="{{ route('beranda') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Beranda</a>
-                    <a href="{{ route('explore') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Jelajah</a>
-                    <a href="{{ route('timeline_home') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Komunitas</a>
-                    <a href="{{ route('klub') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Klub</a>
-                    <a href="{{ route('katalog') }}" class="hover:text-amber-500 transition-colors" onclick="closeMobileMenu()">Katalog</a>
+                <nav class="flex flex-col gap-5 text-sm font-medium">
+                    <a href="{{ route('beranda') }}" class="transition-colors {{ request()->routeIs('beranda*') ? 'text-amber-500 font-bold' : 'text-gray-600 hover:text-amber-500' }}" onclick="closeMobileMenu()">Beranda</a>
+                    <a href="{{ route('explore') }}" class="transition-colors {{ request()->routeIs('explore*') ? 'text-amber-500 font-bold' : 'text-gray-600 hover:text-amber-500' }}" onclick="closeMobileMenu()">Jelajah</a>
+                    <a href="{{ route('timeline_home') }}" class="transition-colors {{ request()->is('timeline*') ? 'text-amber-500 font-bold' : 'text-gray-600 hover:text-amber-500' }}" onclick="closeMobileMenu()">Lini Masa</a>
+                    <a href="{{ route('klub') }}" class="transition-colors {{ request()->routeIs('klub*') ? 'text-amber-500 font-bold' : 'text-gray-600 hover:text-amber-500' }}" onclick="closeMobileMenu()">Klub</a>
+                    <a href="{{ route('katalog') }}" class="transition-colors {{ request()->routeIs('katalog*') ? 'text-amber-500 font-bold' : 'text-gray-600 hover:text-amber-500' }}" onclick="closeMobileMenu()">Katalog</a>
                 </nav>
 
                 @auth

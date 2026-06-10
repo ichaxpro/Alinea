@@ -23,6 +23,9 @@ class ProfileController extends Controller
     public function show(?string $username = null) {
         if ($username) {
             $user = User::where('username', $username)->firstOrFail();
+            if ($user->is_banned) {
+                abort(404);
+            }
         } else {
             $user = Auth::user();
             if (!$user) return redirect()->route('login');

@@ -16,6 +16,7 @@
                 <h3 class="text-white font-bold text-sm mb-6 uppercase tracking-wider">Tautan Cepat</h3>
                 <ul class="space-y-4 text-sm">
                     <li><a href="{{ route('beranda') }}" class="hover:text-white transition-colors duration-200">Beranda</a></li>
+                    <li><a href="{{ route('explore') }}" class="hover:text-white transition-colors duration-200">Jelajah</a></li>
                     <li><a href="{{ route('timeline_home') }}" class="hover:text-white transition-colors duration-200">Lini Masa</a></li>
                     <li><a href="{{ route('klub') }}" class="hover:text-white transition-colors duration-200">Klub</a></li>
                     <li><a href="{{ route('katalog') }}" class="hover:text-white transition-colors duration-200">Katalog Buku</a></li>
@@ -26,7 +27,7 @@
             <div class="pt-2 lg:pt-5">
                 <h3 class="text-white font-bold text-sm mb-6 uppercase tracking-wider">Hubungi Kami</h3>
                 <ul class="space-y-4 text-sm">
-                    <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">halo@alinea.id</a></li>
+                    <li><a href="mailto:halo@alinea.id" class="hover:text-white transition-colors duration-200">support@breeze-alinea.cloud</a></li>
                     <li><a href="tel:+62212345678" class="hover:text-white transition-colors duration-200">+62 21 2345 6789</a></li>
                     <li><span class="text-gray-500">Malang, Indonesia</span></li>
                 </ul>

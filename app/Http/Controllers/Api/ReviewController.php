@@ -53,12 +53,16 @@ class ReviewController extends Controller
             'ulasan'                => 'required|string|min:5|max:2000',
         ]);
 
-        $existing = BookReview::where('book_identifier', $validated['book_identifier'])
+        $existing = BookReview::withTrashed()
+                ->where('book_identifier', $validated['book_identifier'])
                 ->where('user_id', Auth::id())
                 ->first();
         
         if ($existing) {
-            return response()->json(['message' => 'Kamu sudah pernah menulis ulasa untuk buku ini.'], 422);
+            if ($existing->trashed()) {
+                return response()->json(['message' => 'Ulasan Anda sebelumnya telah disembunyikan oleh admin karena melanggar panduan komunitas.'], 422);
+            }
+            return response()->json(['message' => 'Kamu sudah pernah menulis ulasan untuk buku ini.'], 422);
         }
 
         $review = BookReview::create([
