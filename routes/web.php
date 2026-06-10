@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\KlubController;
+use App\Http\Controllers\TimelineKomunitasController;
 use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
@@ -63,8 +64,8 @@ Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 
 Route::post('/timeline_home/comments/{comment}/like', [TimelineController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
 
 
-Route::get('/timeline_komunitas', [KlubController::class, 'timelineKomunitas'])->name('timeline_komunitas');
-Route::post('/timeline_komunitas/posts', [KlubController::class, 'storeTimelinePost'])->name('timeline_posts.store');
+Route::get('/timeline_komunitas', [TimelineKomunitasController::class, 'timelineKomunitas'])->name('timeline_komunitas');
+Route::post('/timeline_komunitas/posts', [TimelineKomunitasController::class, 'storeTimelinePost'])->name('timeline_posts.store');
 
 Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
@@ -159,8 +160,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus']);
     Route::patch('/transactions/{transaction}/request-return', [TransactionController::class, 'requestReturn']);
     Route::patch('/transactions/{transaction}/accept-return', [TransactionController::class, 'acceptReturn']);
-    Route::get('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'timelineComments'])->name('timeline_posts.comments.index');
-    Route::post('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
+    Route::get('/timeline_komunitas/posts/{post}/comments', [TimelineKomunitasController::class, 'timelineComments'])->name('timeline_posts.comments.index');
+    Route::post('/timeline_komunitas/posts/{post}/comments', [TimelineKomunitasController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
 
     // Profile edit
     Route::get('/timeline_profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
