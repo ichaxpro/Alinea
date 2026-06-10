@@ -1,11 +1,21 @@
 @props(['book'])
 
 @php
-    $cover = $book->cover_url ?? null;
+    $isBookmark = isset($book->book_identifier);
+    
+    if ($isBookmark) {
+        $param = $book->identifier_type === 'google' ? 'g_' . $book->book_identifier : $book->book_identifier;
+        $url = route('detail_buku', $param);
+        $cover = $book->foto_sampul ?? null;
+    } else {
+        $url = route('detail_buku', $book->id ?? 1);
+        $cover = $book->cover_url ?? null;
+    }
+
     $coverUrl = $cover ? (str_starts_with($cover, 'http') ? $cover : (str_starts_with($cover, '/') ? asset(ltrim($cover, '/')) : asset('storage/' . $cover))) : '';
 @endphp
 
-<a href="{{ route('detail_buku', $book->id ?? 1) }}" class="book-card flex-none w-36 md:w-44 lg:w-48 group cursor-pointer flex flex-col snap-start bg-white rounded-2xl shadow-md border-[1.5px] border-transparent hover:border-[#444] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-gray-300">
+<a href="{{ $url }}" class="book-card flex-none w-36 md:w-44 lg:w-48 group cursor-pointer flex flex-col snap-start bg-white rounded-2xl shadow-md border-[1.5px] border-transparent hover:border-[#444] relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-gray-300">
     
     <div class="w-full aspect-[2/3] relative bg-gray-100">
         @if($coverUrl)

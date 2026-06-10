@@ -45,6 +45,12 @@ class ExploreController extends Controller
             ->take(15)
             ->get();
 
-        return view('explore', compact('popularBooks', 'genreRecommendations', 'newestBooks'));
+        // Buku Tersimpan (Bookmarks)
+        $savedBooks = collect();
+        if (Auth::check()) {
+            $savedBooks = Auth::user()->bookmarks()->orderBy('created_at', 'desc')->get();
+        }
+
+        return view('explore', compact('popularBooks', 'genreRecommendations', 'newestBooks', 'savedBooks'));
     }
 }

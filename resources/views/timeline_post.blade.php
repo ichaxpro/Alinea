@@ -10,10 +10,11 @@
     <meta name="user-avatar-url" content="{{ Auth::user()?->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : (Auth::user()?->avatar_url ?? '') }}" />
     <meta name="user-id" content="{{ auth()->id() }}">
     @vite(['resources/css/app.css', 'resources/js/timeline.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8F9FA; color: #333; margin: 0; padding: 0; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
