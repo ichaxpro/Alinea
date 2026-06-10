@@ -125,7 +125,10 @@ Route::get('/timeline_notifikasi', function () {
     $notifications = $user->notifications;
     $user->unreadNotifications->markAsRead();
 
-    return view('timeline_notifikasi', compact('notifications'));
+    $userIds = $notifications->map(fn($n) => $n->data['user_id'] ?? null)->filter()->unique();
+    $notificationUsers = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
+
+    return view('timeline_notifikasi', compact('notifications', 'notificationUsers'));
 })->name('timeline_notifikasi');
 
 Route::get('/lupa_akun', function () {

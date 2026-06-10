@@ -112,7 +112,7 @@
             'tahun' => $b->tahun,
             'sinopsis' => $b->sinopsis,
             'genres' => $b->genres ?? [],
-            'cover' => $b->cover_url,
+            'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : asset('storage/' . $b->cover_url)) : '',
             'isbn' => $b->isbn,
             'jumlah_halaman' => $b->jumlah_halaman,
             'kategori' => $b->kategori ?? 'Fiksi',

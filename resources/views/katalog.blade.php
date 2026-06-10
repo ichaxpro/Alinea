@@ -24,7 +24,7 @@
             'rating_count' => (int) ($b->rating_count ?? 0),
             'sinopsis' => $b->sinopsis,
             'genres' => $b->genres ?? [],
-            'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : (str_starts_with($b->cover_url, '/') ? asset(ltrim($b->cover_url, '/')) : asset('storage/' . $b->cover_url))) : '',
+            'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : asset('storage/' . $b->cover_url)) : '',
             'gradient_from' => $b->gradient_from,
             'gradient_to' => $b->gradient_to,
         ])->values()) !!};

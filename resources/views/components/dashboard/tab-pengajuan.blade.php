@@ -12,11 +12,20 @@
             </div>
         </div>
         
-        <div class="flex flex-wrap items-center gap-2 mb-4 bg-gray-50/50 p-1.5 rounded-xl border-[1.5px] border-gray-100">
-            <button data-pengajuan-filter="all" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#FFDDAF] text-[#444] border-[1.5px] border-[#444] shadow-sm">Semua <span class="ml-1 opacity-60">0</span></button>
-            <button data-pengajuan-filter="incoming" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Menunggu <span class="ml-1 opacity-60">0</span></button>
-            <button data-pengajuan-filter="ongoing" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Aktif <span class="ml-1 opacity-60">0</span></button>
-            <button data-pengajuan-filter="history" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100">Riwayat <span class="ml-1 opacity-60">0</span></button>
+        <div class="flex flex-wrap gap-2 mb-6">
+            @foreach([
+                ['key'=>'all','label'=>'Semua'],
+                ['key'=>'incoming','label'=>'Menunggu'],
+                ['key'=>'ongoing','label'=>'Aktif'],
+                ['key'=>'history','label'=>'Riwayat'],
+            ] as $i => $f)
+            <button data-pengajuan-filter="{{ $f['key'] }}"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs border-[1.5px] transition-all duration-200 cursor-pointer
+                           {{ $i===0 ? 'bg-[#FFDDAF] border-[#444] text-[#444] font-bold' : 'bg-white border-gray-200 text-gray-400 font-medium hover:border-gray-400' }}">
+                {{ $f['label'] }}
+                <span class="bg-white/60 px-1.5 py-0.5 rounded-full text-[10px] font-bold">0</span>
+            </button>
+            @endforeach
         </div>
 
         <div id="pengajuan-list" class="space-y-3"></div>
