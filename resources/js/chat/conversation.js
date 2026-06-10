@@ -53,7 +53,7 @@ export async function openConversation(id, pushState = true) {
     await markAsRead(id);
     await loadMessages(id);
     subscribeToConversation(id);
-    if (!conv?.is_blocked_by_me) document.getElementById('messageInput')?.focus();
+    if (!conv?.is_blocked_by_me && window.innerWidth >= 768) document.getElementById('messageInput')?.focus();
 }
 
 export function closeActiveConversation(pushState = true) {

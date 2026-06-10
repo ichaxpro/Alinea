@@ -6,7 +6,7 @@ import { renderSidebar } from './sidebar.js';
 
 export function openNewChatModal() {
     document.getElementById('newChatModal')?.classList.remove('hidden');
-    document.getElementById('newChatSearch')?.focus();
+    if (window.innerWidth >= 768) document.getElementById('newChatSearch')?.focus();
     document.getElementById('newChatResults').innerHTML = '';
     document.getElementById('newChatEmpty')?.classList.add('hidden');
 }

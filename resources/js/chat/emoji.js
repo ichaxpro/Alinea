@@ -10,7 +10,7 @@ export function buildEmojiPicker() {
         btn.onclick = () => {
             const input = document.getElementById('messageInput');
             input.value += e;
-            input.focus();
+            if (window.innerWidth >= 768) input.focus();
             toggleEmoji(false);
         };
         picker.appendChild(btn);
