@@ -17,7 +17,7 @@ export async function loadMessages(conversationId, isLoadMore = false) {
         if (!res.ok) return;
 
         const data     = await res.json();
-        state.cursor   = data.links?.next || null;
+        state.cursor   = data.next_page_url || null;
         const messages = (data.data || []).reverse();
 
         state.currentMessages = isLoadMore
