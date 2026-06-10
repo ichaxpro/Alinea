@@ -74,8 +74,14 @@
                                     Laporkan unggahan
                                 </button>
                                 <button class="w-full px-4 py-2.5 text-left text-sm text-[#222] hover:bg-gray-100 transition-colors flex items-center gap-2 border-t border-gray-100" data-unfollow-btn data-user-id="{{ $post['user_id'] }}">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line></svg>
-                                    Berhenti mengikuti
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        @if(isset($post['is_following']) && $post['is_following'])
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="8" x2="23" y2="13"></line><line x1="23" y1="8" x2="18" y2="13"></line>
+                                        @else
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line>
+                                        @endif
+                                    </svg>
+                                    <span class="btn-text">{{ (isset($post['is_following']) && $post['is_following']) ? 'Berhenti mengikuti' : 'Ikuti' }}</span>
                                 </button>
                             @endif
                         </div>
@@ -109,7 +115,7 @@
                                 @if($isImage)
                                     <img src="{{ $attachment['url'] }}" alt="Attached Media" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
                                 @elseif($isVideo)
-                                    <video src="{{ $attachment['url'] }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" preload="metadata"></video>
+                                    <video src="{{ $attachment['url'] }}#t=0.1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 bg-black" preload="metadata" playsinline></video>
                                     <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition-colors pointer-events-none">
                                         <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-transform">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#444" stroke="#444" stroke-width="2" stroke-linejoin="round" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -132,7 +138,7 @@
                          data-media-url="{{ $post['media_url'] }}"
                          data-media-type="{{ $post['media_type'] }}">
                         @if($post['media_type'] === 'video' || str_starts_with($post['media_type'], 'video/'))
-                            <video src="{{ $post['media_url'] }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"></video>
+                            <video src="{{ $post['media_url'] }}#t=0.1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 bg-black" preload="metadata" playsinline></video>
                             <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition-colors pointer-events-none">
                                 <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-transform">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="#444" stroke="#444" stroke-width="2" stroke-linejoin="round" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>

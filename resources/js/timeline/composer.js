@@ -12,7 +12,7 @@ function renderSelectedMediaPreview(files) {
         const isImage = file.type.startsWith('image/');
         const mediaHtml = isImage
             ? `<img src="${url}" class="w-full h-full object-cover rounded-xl" alt="Preview">`
-            : `<video src="${url}" class="w-full h-full object-cover rounded-xl" muted></video>`;
+            : `<video src="${url}" class="w-full h-full object-cover rounded-xl bg-gray-200" autoplay loop muted playsinline></video>`;
 
         return `
             <div class="relative w-24 h-24 flex-shrink-0 group">

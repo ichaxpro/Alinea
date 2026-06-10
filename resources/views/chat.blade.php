@@ -345,6 +345,19 @@ window.authUser = {
     #chatContainer.conversation-open ~ #mobile-bottom-nav {
         display: none !important;
     }
+
+    /* ── Hide Top Navbar on Mobile ──────────────────── */
+    @media (max-width: 767px) {
+        #main-navbar {
+            display: none !important;
+        }
+        #chatContainer {
+            padding-top: 0 !important;
+        }
+        #mobile-bottom-nav {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    }
 </style>
 
 </head>

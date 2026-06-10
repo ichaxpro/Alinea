@@ -12,7 +12,7 @@ export function buildAttachmentGallery(attachments, options = {}) {
 
     const nonImageHtml = otherItems.map(item => {
         if (item.type === 'video') {
-            return '<video src="' + item.url + '" data-media-url="' + item.url + '" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>';
+            return '<video src="' + item.url + '#t=0.1" preload="metadata" data-media-url="' + item.url + '" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity bg-black" controls playsinline></video>';
         }
 
         return '<div class="mt-3 text-sm"><a href="' + item.url + '" class="underline">' + escapeHtml(item.original_name || 'Unduh file') + '</a></div>';

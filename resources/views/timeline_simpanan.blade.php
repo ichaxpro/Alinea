@@ -88,7 +88,7 @@
                                 @if($attachment['type'] === 'image')
                                 <img src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="image" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />
                                 @elseif($attachment['type'] === 'video')
-                                <video src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" controls></video>
+                                <video src="{{ $attachment['url'] }}#t=0.1" preload="metadata" data-media-url="{{ $attachment['url'] }}" data-media-type="video" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity bg-black" controls playsinline></video>
                                 @endif
                             @endforeach
                         </div>
