@@ -54,7 +54,7 @@
 
           <div class="flex items-center justify-between gap-4">
             <a href="{{ route('login') }}" class="text-sm font-bold text-[#353337] no-underline hover:underline">Kembali Login</a>
-            <button type="button" onclick="goToVerify()" class="px-8 cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-3.5 text-[15px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337]">
+            <button type="button" id="btn-kirim-kode" onclick="goToVerify()" class="px-8 cursor-pointer rounded-[20px] border-2 border-[#353337] bg-[#F8DBB5] p-3.5 text-[15px] font-extrabold text-[#353337] shadow-[4px_4px_0px_#353337] transition-all duration-100 hover:bg-[#F0D0A5] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_#353337] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_#353337]">
               Kirim Kode
             </button>
           </div>
@@ -70,6 +70,11 @@
             <label for="code" class="mb-2 block text-[13px] font-bold text-[#555358]">Masukkan Kode Verifikasi</label>
             <input type="text" id="code" maxlength="6" placeholder="******" 
               class="w-full text-center tracking-[0.5em] font-mono rounded-xl border-[1.5px] border-[#4D4B50] bg-[#EDF3FC] px-4 py-[14px] text-[20px] font-bold text-[#353337] outline-none transition-all duration-200 focus:border-2 focus:border-[#3B82F6]" />
+            <div class="mt-3 flex justify-end">
+              <button type="button" id="resend-btn" onclick="resendCode()" disabled class="text-[13px] font-bold text-[#3B82F6] disabled:text-[#8AA4BC] hover:underline disabled:no-underline transition-colors">
+                Kirim ulang kode (60s)
+              </button>
+            </div>
           </div>
 
           <div class="flex items-center justify-between gap-4">
@@ -112,6 +117,61 @@
 
   <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    let resendTimer = null;
+    let countdown = 60;
+
+    function startResendTimer() {
+      const btn = document.getElementById('resend-btn');
+      countdown = 60;
+      btn.disabled = true;
+      btn.innerText = `Kirim ulang kode (${countdown}s)`;
+
+      if (resendTimer) clearInterval(resendTimer);
+      resendTimer = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          btn.innerText = `Kirim ulang kode (${countdown}s)`;
+        } else {
+          clearInterval(resendTimer);
+          btn.disabled = false;
+          btn.innerText = "Kirim ulang kode";
+        }
+      }, 1000);
+    }
+
+    async function resendCode() {
+      const emailInput = document.getElementById('email').value;
+      if (!emailInput) return;
+
+      try {
+        startResendTimer();
+        
+        const response = await fetch('/lupa_akun/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({ email: emailInput })
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.message || "Gagal mengirim ulang kode verifikasi.");
+          clearInterval(resendTimer);
+          const btn = document.getElementById('resend-btn');
+          btn.disabled = false;
+          btn.innerText = "Kirim ulang kode";
+        }
+      } catch (error) {
+        alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+        clearInterval(resendTimer);
+        const btn = document.getElementById('resend-btn');
+        btn.disabled = false;
+        btn.innerText = "Kirim ulang kode";
+      }
+    }
 
     async function goToVerify() {
       const emailInput = document.getElementById('email').value;
@@ -119,6 +179,11 @@
         alert("Silakan masukkan email Anda terlebih dahulu.");
         return;
       }
+      
+      const btnKirim = document.getElementById('btn-kirim-kode');
+      const originalText = btnKirim.innerText;
+      btnKirim.disabled = true;
+      btnKirim.innerText = "Mengirim...";
       
       try {
         const response = await fetch('/lupa_akun/send-code', {
@@ -134,14 +199,24 @@
         
         if (!response.ok) {
           alert(data.message || "Gagal mengirim kode verifikasi.");
+          btnKirim.disabled = false;
+          btnKirim.innerText = originalText;
           return;
         }
+
+        btnKirim.disabled = false;
+        btnKirim.innerText = originalText;
 
         document.getElementById('display-email').innerText = emailInput;
         document.getElementById('step-email').classList.add('hidden');
         document.getElementById('step-verify').classList.remove('hidden');
+        
+        startResendTimer();
       } catch (error) {
         alert("Terjadi kesalahan sistem. Silakan coba lagi.");
+        const btnKirim = document.getElementById('btn-kirim-kode');
+        btnKirim.disabled = false;
+        btnKirim.innerText = "Kirim Kode";
       }
     }
 

@@ -110,6 +110,23 @@ class ReportsTable
                             ->send();
                     })
                     ->visible(fn (Report $record) => !$record->reportedUser->is_banned),
+                    
+                Action::make('tolak_laporan')
+                    ->label('Tolak Laporan')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Tolak Laporan?')
+                    ->modalDescription('Laporan ini akan ditandai sebagai dismissed dan diabaikan.')
+                    ->action(function (Report $record) {
+                        $record->update(['status' => 'dismissed']);
+                        
+                        Notification::make()
+                            ->title('Laporan Ditolak')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Report $record) => $record->status === 'pending'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

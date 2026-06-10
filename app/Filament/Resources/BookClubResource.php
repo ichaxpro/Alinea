@@ -38,6 +38,13 @@ class BookClubResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $recordTitleAttribute = 'nama_klub';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['nama_klub', 'deskripsi'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

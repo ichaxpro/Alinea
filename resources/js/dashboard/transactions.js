@@ -67,12 +67,17 @@ export function renderTransactions() {
     const urgency = s==='on_loan' && daysLeft<=3 && daysLeft>0 ? `<span class="text-xs text-amber-500 font-medium">⚠ ${daysLeft} hari lagi</span>` : '';
     const overdueDay = s==='overdue' ? `<span class="text-xs text-red-500 font-medium">Terlambat ${Math.abs(daysLeft)} hari</span>` : '';
 
+    const coverUrl = tx.buku.foto_sampul ? (tx.buku.foto_sampul.startsWith('http') ? tx.buku.foto_sampul : '/storage/' + tx.buku.foto_sampul) : null;
+    const coverHtml = coverUrl
+      ? `<img src="${coverUrl}" alt="" class="w-14 h-20 rounded-lg border-[1.5px] border-[#444] object-cover flex-shrink-0 bg-gray-100" />`
+      : `<div class="w-14 h-20 rounded-lg bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
+          <span class="text-lg font-black text-[#444]/60">${getInitial(tx.buku.judul)}</span>
+        </div>`;
+
     return `
     <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:shadow-md transition-shadow duration-200">
       <div class="flex items-start gap-4">
-        <div class="w-14 h-20 rounded-lg bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
-          <span class="text-lg font-black text-[#444]/60">${getInitial(tx.buku.judul)}</span>
-        </div>
+        ${coverHtml}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <h3 class="font-bold text-[15px] text-[#444] truncate">${tx.buku.judul}</h3>

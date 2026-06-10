@@ -35,6 +35,13 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'username', 'email'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -154,6 +161,22 @@ class UserResource extends Resource
                             ->send();
                     })
                     ->visible(fn (User $record) => $record->is_banned),
+                Action::make('blokir')
+                    ->label('Blokir')
+                    ->icon('heroicon-o-no-symbol')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Blokir Pengguna?')
+                    ->modalDescription('Pengguna ini akan diblokir dan tidak dapat mengirim pesan, memposting, atau berinteraksi.')
+                    ->action(function (User $record) {
+                        $record->update(['is_banned' => true]);
+                        
+                        Notification::make()
+                            ->title('Pengguna Berhasil Diblokir')
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (User $record) => !$record->is_banned && $record->id !== auth()->id()),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

@@ -8,8 +8,10 @@ export default defineConfig({
             input: [
                 'resources/css/app.css', 
                 'resources/css/explore.css',
+                'resources/css/welcome.css',
                 'resources/js/app.js', 
                 'resources/js/explore.js',
+                'resources/js/welcome.js',
                 'resources/js/global-search.js', 
                 'resources/js/timeline.js', 
                 'resources/js/klub.js', 

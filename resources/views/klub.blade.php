@@ -15,6 +15,18 @@
     @vite(['resources/css/app.css', 'resources/js/klub.js'])
 
     <style>
+        /* ── Skeleton shimmer ── */
+        @keyframes shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 800px 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 12px;
+        }
+
         /* ── Mobile Filter Bottom Sheet ── */
         #mobile-filter-dialog {
             display: none !important;
@@ -88,7 +100,7 @@
         window.__CURRENT_USER__    = @json($currentUser);
     </script>
     <main class="pt-14 flex-1">
-        <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
+        <div class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8 min-h-[60vh]">
 
             <div class="mb-8">
                 <h1 class="text-2xl md:text-3xl font-black text-text tracking-[-0.02em] mb-2">
@@ -166,6 +178,25 @@
 
             {{-- Club cards grid — max ~336px per card to match Figma --}}
             <div id="klub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
+                @for ($i = 0; $i < 6; $i++)
+                <article class="bg-white border-[1.5px] border-[#e8e8e8] rounded-[1.25rem] p-4 sm:p-5 flex flex-col w-full h-full">
+                    <div class="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-[1.5px] border-[#e8e8e8] flex-shrink-0 skeleton"></div>
+                        <div class="min-w-0 pt-0.5 sm:pt-1 w-full">
+                            <div class="h-5 sm:h-6 skeleton w-3/4 mb-2 rounded"></div>
+                            <div class="h-4 skeleton w-1/3 mb-2 rounded"></div>
+                            <div class="h-6 skeleton w-20 rounded-full mt-2"></div>
+                        </div>
+                    </div>
+                    <div class="h-3 skeleton w-full mb-2 rounded"></div>
+                    <div class="h-3 skeleton w-5/6 mb-2 rounded"></div>
+                    <div class="h-3 skeleton w-4/6 mb-4 rounded"></div>
+                    <div class="flex items-center justify-between pt-3 sm:pt-4 mt-auto border-t-[1.5px] border-gray-200">
+                        <div class="h-8 skeleton w-24 rounded-full"></div>
+                        <div class="h-4 skeleton w-20 rounded"></div>
+                    </div>
+                </article>
+                @endfor
             </div>
 
             {{-- Pagination --}}

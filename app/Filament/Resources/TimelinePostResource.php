@@ -24,8 +24,11 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Notifications\PostHidden;
 
 class TimelinePostResource extends Resource
 {
@@ -38,6 +41,16 @@ class TimelinePostResource extends Resource
     protected static ?string $navigationLabel = 'Timeline Posts';
 
     protected static ?int $navigationSort = 1;
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -109,8 +122,7 @@ class TimelinePostResource extends Resource
                 ImageColumn::make('media')
                     ->disk('public')
                     ->label('Media')
-                    ->square()
-                    ->defaultImageUrl(url('/images/no-image.png')),
+                    ->square(),
                 TextColumn::make('author.name')
                     ->searchable()
                     ->sortable()
@@ -121,9 +133,9 @@ class TimelinePostResource extends Resource
                     ->label('Buku Dibahas')
                     ->toggleable(),
                 TextColumn::make('pesan')
-                    ->limit(50)
+                    ->formatStateUsing(fn (string $state): string => \Illuminate\Support\Str::limit(strip_tags($state), 40))
                     ->label('Pesan')
-                    ->html(),
+                    ->searchable(),
                 TextColumn::make('tag')
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
@@ -159,11 +171,29 @@ class TimelinePostResource extends Resource
                         'rekomendasi' => 'Rekomendasi',
                         'kutipan' => 'Kutipan',
                     ]),
+                \Filament\Tables\Filters\TernaryFilter::make('has_media')
+                    ->label('Media Lampiran')
+                    ->placeholder('Semua Post')
+                    ->trueLabel('Hanya dengan Media')
+                    ->falseLabel('Tanpa Media')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('media'),
+                        false: fn (Builder $query) => $query->whereNull('media'),
+                        blank: fn (Builder $query) => $query,
+                    ),
                 TrashedFilter::make(),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make()
+                    ->label('Sembunyikan')
+                    ->icon('heroicon-o-eye-slash')
+                    ->modalHeading('Sembunyikan Post Ini?')
+                    ->modalDescription('Post ini akan disembunyikan dari timeline pengguna (Soft Delete).')
+                    ->successNotificationTitle('Post berhasil disembunyikan')
+                    ->after(function (TimelinePost $record) {
+                        $record->author->notify(new PostHidden());
+                    }),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
             ])
@@ -185,8 +215,6 @@ class TimelinePostResource extends Resource
     {
         return [
             'index' => Pages\ListTimelinePosts::route('/'),
-            'create' => Pages\CreateTimelinePost::route('/create'),
-            'edit' => Pages\EditTimelinePost::route('/{record}/edit'),
         ];
     }
 

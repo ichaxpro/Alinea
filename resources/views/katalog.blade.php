@@ -24,7 +24,7 @@
             'rating_count' => (int) ($b->rating_count ?? 0),
             'sinopsis' => $b->sinopsis,
             'genres' => $b->genres ?? [],
-            'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : (str_starts_with($b->cover_url, '/') ? asset(ltrim($b->cover_url, '/')) : asset('storage/' . $b->cover_url))) : '',
+            'cover' => $b->cover_url ? (str_starts_with($b->cover_url, 'http') ? $b->cover_url : asset('storage/' . $b->cover_url)) : '',
             'gradient_from' => $b->gradient_from,
             'gradient_to' => $b->gradient_to,
         ])->values()) !!};
@@ -113,7 +113,7 @@
     <x-navbar></x-navbar>
 
     <main class="pt-14">
-        <div class="max-w-275 mx-auto px-4 sm:px-6 py-8">
+        <div class="max-w-275 mx-auto px-4 sm:px-6 py-8 min-h-[60vh]">
 
             {{-- ═══════ HERO HEADING ═══════ --}}
             <div class="mb-8">
@@ -201,7 +201,7 @@
             {{-- ═══════ RESULT INFO BAR ═══════ --}}
             <div class="flex items-center justify-between mb-6">
                 <p class="text-[0.78rem] text-text/40" id="ulasan-result-info">
-                    Menampilkan <strong class="text-text/70" id="ulasan-result-count">0</strong> Buku
+                    Menampilkan <strong class="text-text/70" id="ulasan-result-count">...</strong> Buku
                 </p>
                 {{-- Active filter chips --}}
                 <div class="flex items-center gap-2 flex-wrap" id="ulasan-active-filters"></div>
@@ -210,6 +210,17 @@
             {{-- ═══════ BOOK GRID ═══════ --}}
             <div id="ulasan-grid"
                  class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
+                 @for ($i = 0; $i < 8; $i++)
+                 <div class="card-animate bg-white border-[1.5px] border-[#e8e8e8] rounded-2xl overflow-hidden flex flex-col">
+                   <div class="w-full aspect-[2/3] skeleton"></div>
+                   <div class="p-3 md:p-5 flex flex-col flex-1 gap-2 mt-1">
+                     <div class="h-4 md:h-5 skeleton w-3/4 mb-1 rounded"></div>
+                     <div class="h-3 skeleton w-1/2 mb-3 rounded"></div>
+                     <div class="hidden md:block h-3 skeleton w-full mb-1 mt-auto rounded"></div>
+                     <div class="hidden md:block h-3 skeleton w-5/6 rounded"></div>
+                   </div>
+                 </div>
+                 @endfor
             </div>
 
             {{-- ═══════ EMPTY STATE ═══════ --}}

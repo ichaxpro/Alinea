@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\KlubController;
+use App\Http\Controllers\TimelineKomunitasController;
 use App\Http\Controllers\BookController;
 use App\Models\FeaturedBook;
 use App\Http\Controllers\Api\PersonalBookController;
@@ -49,22 +50,25 @@ Route::get('/pinjam', function () {
 })->name('pinjam');
 
 use App\Http\Controllers\TimelineController;
+use App\Http\Controllers\TimelinePostController;
+use App\Http\Controllers\TimelineCommentController;
+use App\Http\Controllers\TimelineInteractionController;
 
 Route::get('/timeline_home', [TimelineController::class, 'index'])->name('timeline_home');
 Route::get('/timeline_simpanan', [TimelineController::class, 'simpanan'])->name('timeline_simpanan');
 Route::get('/timeline/posts/{post}', [TimelineController::class, 'show'])->name('timeline.post');
-Route::post('/timeline_home/posts', [TimelineController::class, 'store'])->name('timeline_home.store');
-Route::delete('/timeline/posts/{post}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
-Route::post('/timeline/posts/{post}/bookmark', [TimelineController::class, 'toggleBookmark'])->name('timeline.bookmark');
-Route::post('/timeline/posts/{post}/report', [TimelineController::class, 'reportPost'])->name('timeline.report');
-Route::post('/timeline_home/posts/{post}/like', [TimelineController::class, 'toggleLike'])->name('timeline_home.like');
-Route::get('/timeline_home/posts/{post}/comments', [TimelineController::class, 'comments'])->name('timeline_home.comments');
-Route::post('/timeline_home/posts/{post}/comments', [TimelineController::class, 'storeComment'])->name('timeline_home.comments.store');
-Route::post('/timeline_home/comments/{comment}/like', [TimelineController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
+Route::post('/timeline_home/posts', [TimelinePostController::class, 'store'])->name('timeline_home.store');
+Route::delete('/timeline/posts/{post}', [TimelinePostController::class, 'destroy'])->name('timeline.destroy');
+Route::post('/timeline/posts/{post}/bookmark', [TimelineInteractionController::class, 'toggleBookmark'])->name('timeline.bookmark');
+Route::post('/timeline/posts/{post}/report', [TimelinePostController::class, 'reportPost'])->name('timeline.report');
+Route::post('/timeline_home/posts/{post}/like', [TimelineInteractionController::class, 'toggleLike'])->name('timeline_home.like');
+Route::get('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'index'])->name('timeline_home.comments');
+Route::post('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'store'])->name('timeline_home.comments.store');
+Route::post('/timeline_home/comments/{comment}/like', [TimelineInteractionController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
 
 
-Route::get('/timeline_komunitas', [KlubController::class, 'timelineKomunitas'])->name('timeline_komunitas');
-Route::post('/timeline_komunitas/posts', [KlubController::class, 'storeTimelinePost'])->name('timeline_posts.store');
+Route::get('/timeline_komunitas', [TimelineKomunitasController::class, 'timelineKomunitas'])->name('timeline_komunitas');
+Route::post('/timeline_komunitas/posts', [TimelineKomunitasController::class, 'storeTimelinePost'])->name('timeline_posts.store');
 
 Route::get('/klub', [KlubController::class, 'index'])->name('klub');
 
@@ -121,7 +125,10 @@ Route::get('/timeline_notifikasi', function () {
     $notifications = $user->notifications;
     $user->unreadNotifications->markAsRead();
 
-    return view('timeline_notifikasi', compact('notifications'));
+    $userIds = $notifications->map(fn($n) => $n->data['user_id'] ?? null)->filter()->unique();
+    $notificationUsers = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
+
+    return view('timeline_notifikasi', compact('notifications', 'notificationUsers'));
 })->name('timeline_notifikasi');
 
 Route::get('/lupa_akun', function () {
@@ -159,8 +166,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/transactions/{transaction}/status', [TransactionController::class, 'updateStatus']);
     Route::patch('/transactions/{transaction}/request-return', [TransactionController::class, 'requestReturn']);
     Route::patch('/transactions/{transaction}/accept-return', [TransactionController::class, 'acceptReturn']);
-    Route::get('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'timelineComments'])->name('timeline_posts.comments.index');
-    Route::post('/timeline_komunitas/posts/{post}/comments', [KlubController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
+    Route::get('/timeline_komunitas/posts/{post}/comments', [TimelineKomunitasController::class, 'timelineComments'])->name('timeline_posts.comments.index');
+    Route::post('/timeline_komunitas/posts/{post}/comments', [TimelineKomunitasController::class, 'storeTimelineComment'])->name('timeline_posts.comments.store');
 
     // Profile edit
     Route::get('/timeline_profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

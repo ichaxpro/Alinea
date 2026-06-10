@@ -8,7 +8,7 @@ export async function loadPengajuan() {
     const data = await apiCall('GET', '/transactions/incoming');
     state.pengajuanPinjam = data.map(tx => ({
         id: tx.id,
-        buku: { judul: tx.book.judul, penulis: tx.book.penulis },
+        buku: { judul: tx.book.judul, penulis: tx.book.penulis, foto_sampul: tx.book.cover_url },
         peminjam: { id: tx.borrower.id, nama: tx.borrower.name, kota: tx.borrower.kota },
         tanggal_pinjam: tx.tanggal_pinjam_rencana,
         tanggal_kembali_rencana: tx.tanggal_kembali_rencana,
@@ -42,9 +42,9 @@ export function renderPengajuan() {
       if (countEl) countEl.textContent = counts[f];
 
       if (f === state.pengajuanFilter) {
-          btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-[#FFDDAF] text-[#444] border-[1.5px] border-[#444] shadow-sm cursor-pointer";
+          btn.className = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs border-[1.5px] transition-all duration-200 cursor-pointer bg-[#FFDDAF] border-[#444] text-[#444] font-bold";
       } else {
-          btn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-500 hover:bg-gray-100 border-[1.5px] border-transparent cursor-pointer";
+          btn.className = "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs border-[1.5px] transition-all duration-200 cursor-pointer bg-white border-gray-200 text-gray-400 font-medium hover:border-gray-400";
       }
 
       if (!btn.dataset.hasListener) {
@@ -93,12 +93,17 @@ export function renderPengajuan() {
       `;
     }
 
+    const coverUrl = p.buku.foto_sampul ? (p.buku.foto_sampul.startsWith('http') ? p.buku.foto_sampul : '/storage/' + p.buku.foto_sampul) : null;
+    const coverHtml = coverUrl
+      ? `<img src="${coverUrl}" alt="" class="w-14 h-20 rounded-lg border-[1.5px] border-[#444] object-cover flex-shrink-0 bg-gray-100" />`
+      : `<div class="w-14 h-20 rounded-lg bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
+          <span class="text-lg font-black text-[#444]/60">${getInitial(p.buku.judul)}</span>
+        </div>`;
+
     return `
     <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-5 hover:shadow-md transition-shadow duration-200">
       <div class="flex flex-col sm:flex-row sm:items-start gap-4">
-        <div class="w-14 h-20 rounded-lg bg-gradient-to-br from-[#FFDDAF] to-[#C7E7FF] border-[1.5px] border-[#444] flex items-center justify-center flex-shrink-0">
-          <span class="text-lg font-black text-[#444]/60">${getInitial(p.buku.judul)}</span>
-        </div>
+        ${coverHtml}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <h3 class="font-bold text-[15px] text-[#444] truncate">${p.buku.judul}</h3>
