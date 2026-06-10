@@ -4,7 +4,7 @@ export function initSearch() {
     const sidebarSearchInput = document.getElementById('sidebar-search-input');
     const sidebarSearchDropdown = document.getElementById('sidebar-search-dropdown');
     const mobileSearchDropdown = document.getElementById('mobile-search-dropdown');
-    const mobileSearchTrigger = document.getElementById('mobile-search-trigger');
+    const mobileSearchTrigger = document.getElementById('mobile-top-search-btn');
     const mobileSearchOverlay = document.getElementById('mobile-search-overlay');
     const mobileSearchClose = document.getElementById('mobile-search-close');
     const mobileSearchBack = document.getElementById('mobile-search-back');
@@ -122,7 +122,9 @@ export function initSearch() {
     }
 
     if (mobileSearchTrigger && mobileSearchOverlay) {
-        mobileSearchTrigger.addEventListener('click', () => {
+        mobileSearchTrigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (mobileSearchInput) {
                 mobileSearchInput.value = mobileSearchQuery;
                 setTimeout(() => mobileSearchInput.focus(), 100);

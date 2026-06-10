@@ -80,7 +80,7 @@
 
     {{-- CONTENT SECTIONS --}}
     <main class="py-12 bg-white min-h-screen">
-        
+
         {{-- Section 1: Populer --}}
         @if($popularBooks->isNotEmpty())
         <div class="mb-10 carousel-container relative group px-6 lg:px-8 max-w-[1400px] mx-auto">
@@ -103,6 +103,31 @@
             </div>
         </div>
         @endif
+        
+        {{-- Section 0: Buku Tersimpan (Only for logged-in users) --}}
+        @auth
+        @if(isset($savedBooks) && $savedBooks->isNotEmpty())
+        <div class="mb-10 carousel-container relative group px-6 lg:px-8 max-w-[1400px] mx-auto">
+            <div class="flex items-end justify-between mb-4">
+                <h2 class="text-xl md:text-2xl font-black text-[#444]">Buku Tersimpan</h2>
+                <div class="flex gap-2">
+                    <button onclick="scrollRow('saved-row', 'left')" class="carousel-btn w-8 h-8 rounded-full border-[1.5px] border-[#444] flex items-center justify-center bg-white text-[#444] hover:bg-[#FFDDAF] transition-colors shadow-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button onclick="scrollRow('saved-row', 'right')" class="carousel-btn w-8 h-8 rounded-full border-[1.5px] border-[#444] flex items-center justify-center bg-white text-[#444] hover:bg-[#FFDDAF] transition-colors shadow-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="saved-row" class="flex overflow-x-auto gap-4 md:gap-5 pb-8 pt-2 scrollbar-hide snap-x snap-mandatory scroll-smooth -mx-6 px-6 lg:-mx-8 lg:px-8 scroll-pl-6 lg:scroll-pl-8">
+                @foreach($savedBooks as $book)
+                    <x-book-card :book="$book" />
+                @endforeach
+            </div>
+        </div>
+        @endif
+        @endauth
 
         {{-- Section 2: Genre Based --}}
         @foreach($genreRecommendations as $genre => $books)

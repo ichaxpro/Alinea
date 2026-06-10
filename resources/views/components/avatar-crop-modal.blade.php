@@ -3,13 +3,16 @@
         .crop-viewport {
             position: relative;
             width: 100%;
-            height: 320px;
+            aspect-ratio: 5 / 4;
             overflow: hidden;
             background: #111;
             border-radius: 12px;
             cursor: grab;
             touch-action: none;
             user-select: none;
+            isolation: isolate;
+            transform: translateZ(0);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
         }
         .crop-viewport:active { cursor: grabbing; }
         .crop-viewport img {

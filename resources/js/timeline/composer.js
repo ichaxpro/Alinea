@@ -142,7 +142,8 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
     if (composerBody) {
         const update = () => {
             composerBody.style.height = 'auto';
-            composerBody.style.height = composerBody.scrollHeight + 'px';
+            const borderHeight = composerBody.offsetHeight - composerBody.clientHeight;
+            composerBody.style.height = (composerBody.scrollHeight + borderHeight) + 'px';
 
             const len = composerBody.value.length;
             const over = len >= MAX_CHARS;
