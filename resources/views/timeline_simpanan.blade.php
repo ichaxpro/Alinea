@@ -22,17 +22,13 @@
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 
-    {{-- ========== NAVBAR (fixed, hides when scrolled away from top) ========== --}}
     <x-navbar></x-navbar>
 
-    {{-- ========== PAGE LAYOUT (3-column: left | center | right) ========== --}}
     <div class="min-h-screen pt-16">
         <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6 max-md:pb-24">
 
-            {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
             <x-timeline-sidebar />
 
-            {{-- ===== CENTER — FEED COLUMN ===== --}}
             <main class="flex-1 min-w-0 flex flex-col gap-4">
 
                 <div class="border-[1.5px] border-[#444] bg-[#FFDDAF] px-5 py-2.5 mb-4 rounded-full flex items-center justify-center">
@@ -79,7 +75,7 @@
                         @endif
                         
                         {{-- Body --}}
-                        <p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
+                        <p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4 whitespace-pre-wrap">{{ $post['body'] }}</p>
 
                         {{-- Attachments --}}
                         @if(!empty($post['attachments']))
@@ -159,7 +155,6 @@
                 </div>
             </main>
 
-            {{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
             <x-timeline-sidebar-right
                 searchPlaceholder="Cari buku atau pengguna..."
                 trendingTitle="Populer Minggu Ini"
@@ -169,7 +164,6 @@
         </div>
     </div>
 
-    {{-- ===== MOBILE SEARCH (full-page, like Twitter) ===== --}}
     <div id="mobile-search-overlay" class="hidden fixed inset-0 z-50 bg-white flex-col md:hidden">
         <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <button id="mobile-search-back" class="w-8 h-8 flex items-center justify-center -ml-1 cursor-pointer text-[#444] hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
@@ -207,10 +201,8 @@
         </div>
     </div>
 
-    {{-- ===== MOBILE BOTTOM NAV ===== --}}
     <x-timeline-bottom-nav active="profil" />
 
-    {{-- ========== BACK TO TOP ========== --}}
     <button id="back-to-top" aria-label="Kembali ke atas"
             class="fixed bottom-7 max-sm:bottom-20 right-7 z-50 w-12 h-12 rounded-full bg-[#444] text-white
                    flex items-center justify-center border-2 border-[#FFDDAF]

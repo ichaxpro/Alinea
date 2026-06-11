@@ -34,8 +34,12 @@ export function renderCommentItem(comment) {
                 '<a href="' + (comment.profile_url || '#') + '" class="whitespace-nowrap hover:underline cursor-pointer">' + escapeHtml(comment.handle || '@pengguna') + '</a>' +
                 '<span class="whitespace-nowrap">•</span>' +
                 '<span class="whitespace-nowrap" title="' + escapeHtml(comment.absolute_time || '') + '">' + escapeHtml(comment.time || 'Baru saja') + '</span>' +
+                (document.querySelector('meta[name="user-id"]')?.content == comment.user_id ? 
+                    '<span class="whitespace-nowrap">•</span>' +
+                    '<button type="button" data-comment-delete data-comment-id="' + escapeHtml(comment.id) + '" class="whitespace-nowrap hover:underline text-red-500 cursor-pointer">Hapus</button>' 
+                : '') +
             '</div>' +
-            '<p class="text-sm text-gray-600 leading-relaxed break-words">' + escapeHtml(comment.body || '') + '</p>' +
+            '<p class="text-sm text-gray-600 leading-relaxed break-words whitespace-pre-wrap">' + escapeHtml(comment.body || '') + '</p>' +
             renderCommentMediaHtml(comment) +
             renderCommentActionsHtml(comment) +
         '</div>' +

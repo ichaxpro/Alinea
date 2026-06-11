@@ -54,7 +54,6 @@
   <x-navbar></x-navbar>
 
   <main>
-    {{-- ========== BOOK DETAIL SECTION ========== --}}
     <section class="relative pt-24 md:pt-36 pb-10 overflow-hidden" id="bookDetail">
       <!-- Blurred Backdrop Cover -->
       <div id="detailBackdrop" class="absolute inset-0 -z-10 bg-cover bg-center filter blur-3xl opacity-15 scale-110 pointer-events-none"></div>
@@ -113,7 +112,6 @@
       </div>
     </section>
 
-    {{-- ========== RATING BREAKDOWN ========== --}}
     <section class="pb-10" id="ratingBreakdown">
       <div class="max-w-[1080px] mx-auto px-5 lg:px-10">
         <div class="bg-[#FBFBFB] rounded-[20px] p-8">
@@ -128,7 +126,6 @@
       </div>
     </section>
 
-    {{-- ========== REVIEWS LIST ========== --}}
     <section class="py-10 lg:py-[60px] bg-[#FBFBFB]" id="reviewsSection">
       <div class="max-w-[1080px] mx-auto px-5 lg:px-10">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
@@ -159,7 +156,6 @@
       </div>
     </section>
 
-    {{-- ========== REVIEW MODAL ========== --}}
     <div class="review-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="reviewModalOverlay">
       <div class="review-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[520px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="reviewModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="reviewModalClose" aria-label="Tutup">&times;</button>
@@ -191,7 +187,6 @@
       </div>
     </div>
 
-    {{-- ========== OWNERS MODAL ========== --}}
     <div class="owners-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="ownersModalOverlay">
       <div class="owners-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[600px] max-h-[90vh] overflow-visible relative translate-y-5 transition-transform duration-300 mx-4" id="ownersModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="ownersModalClose" aria-label="Tutup">&times;</button>
@@ -268,7 +263,6 @@
       </div>
     </div>
 
-    {{-- ========== PINJAM MODAL ========== --}}
     <div class="pinjam-modal-overlay fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center opacity-0 invisible transition-all duration-300" id="pinjamModalOverlay">
       <div class="pinjam-modal bg-white rounded-[20px] p-8 md:p-10 w-full max-w-[800px] max-h-[90vh] overflow-y-auto relative translate-y-5 transition-transform duration-300 mx-4" id="pinjamModal">
         <button class="absolute top-4 right-5 text-2xl text-[#444444]/40 leading-none transition-colors duration-200 hover:text-[#444444]" id="pinjamModalClose" aria-label="Tutup">&times;</button>
@@ -309,7 +303,6 @@
       </div>
     </div>
 
-    {{-- ========== SIMILAR BOOKS ========== --}}
     <section class="py-10 md:py-[60px] bg-white" id="similarBooks">
       <div class="max-w-[1080px] mx-auto px-5 lg:px-10">
         <h2 class="text-xl font-extrabold mb-7">Buku Serupa</h2>
@@ -324,7 +317,6 @@
 
   <div class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2" id="toastContainer"></div>
 
-  {{-- ========== STICKY BOTTOM BAR (MOBILE ONLY) ========== --}}
   <div id="mobileStickyBar" class="sm:hidden fixed bottom-0 left-0 right-0 z-[150] bg-white/80 backdrop-blur-xl border-t-[1.5px] border-text p-4 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.1)] translate-y-full transition-transform duration-300">
       <div class="flex items-center gap-3 min-w-0">
           <div id="stickyBookCover" class="w-10 h-14 rounded bg-gray-100 overflow-hidden shrink-0 border border-gray-200 aspect-[2/3]"></div>

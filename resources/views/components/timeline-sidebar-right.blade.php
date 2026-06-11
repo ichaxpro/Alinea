@@ -4,7 +4,6 @@
     'trendingItems'     => [],
 ])
 
-{{-- ===== RIGHT SIDEBAR — floating sticky card ===== --}}
 <aside class="hidden xl:flex flex-col gap-4 w-[280px] flex-shrink-0 sticky top-6">
 
     {{-- Search --}}

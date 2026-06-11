@@ -63,10 +63,8 @@
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased flex flex-col">
 
-    {{-- ========== NAVBAR ========== --}}
     <x-navbar></x-navbar>
 
-    {{-- ========== MAIN CONTENT ========== --}}
     @php
         // ── Fallback dummy data — HAPUS blok ini setelah controller siap ──
         $clubs = $clubs ?? collect([
@@ -207,7 +205,6 @@
 
 <x-footer/>
 
-    {{-- ========== CLUB DETAIL MODAL ========== --}}
     <div id="klub-modal" class="fixed inset-0 z-[100] hidden">
         {{-- Backdrop --}}
         <div id="klub-modal-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
@@ -363,7 +360,6 @@
         </div>
     </div>
 
-    {{-- ========== MOBILE FILTER BOTTOM SHEET ========== --}}
     <dialog id="mobile-filter-dialog" class="fixed inset-0 m-auto z-[250] w-[calc(100%-2.5rem)] max-w-sm bg-white border-[1.5px] border-[#444] rounded-[24px] shadow-2xl p-6 outline-none backdrop:bg-black/50 backdrop:backdrop-blur-sm overflow-visible">
         <div class="relative flex items-center justify-center border-b border-gray-100 pb-4 mb-5">
             <h3 class="font-extrabold text-lg text-[#444]">Filter & Urutkan</h3>

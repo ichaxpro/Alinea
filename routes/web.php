@@ -64,6 +64,7 @@ Route::post('/timeline/posts/{post}/report', [TimelinePostController::class, 're
 Route::post('/timeline_home/posts/{post}/like', [TimelineInteractionController::class, 'toggleLike'])->name('timeline_home.like');
 Route::get('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'index'])->name('timeline_home.comments');
 Route::post('/timeline_home/posts/{post}/comments', [TimelineCommentController::class, 'store'])->name('timeline_home.comments.store');
+Route::delete('/timeline_home/comments/{comment}', [TimelineCommentController::class, 'destroy'])->name('timeline_home.comments.destroy');
 Route::post('/timeline_home/comments/{comment}/like', [TimelineInteractionController::class, 'toggleCommentLike'])->name('timeline_home.comments.like');
 
 
@@ -94,9 +95,7 @@ Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
 
-Route::get('/katalog', function() {
-    return view('katalog', ['featuredBooks' => FeaturedBook::all()]);
-})->name('katalog');
+Route::get('/katalog', [\App\Http\Controllers\KatalogController::class, 'index'])->name('katalog');
 
 Route::get('/detail-buku/{param}', [BookController::class, 'detail'])->name('detail_buku');
 

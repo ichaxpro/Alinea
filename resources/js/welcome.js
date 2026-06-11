@@ -1,6 +1,4 @@
-/* =========================================================
                SCROLL PROGRESS BAR
-             ========================================================= */
             const progressBar = document.getElementById('scroll-progress');
             window.addEventListener('scroll', () => {
                 const scrollTop = window.scrollY;
@@ -9,9 +7,7 @@
                 if (progressBar) progressBar.style.width = progress + '%';
             }, { passive: true });
 
-            /* =========================================================
                SMOOTH SCROLL
-             ========================================================= */
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
@@ -25,9 +21,7 @@
                 });
             });
 
-            /* =========================================================
                SCROLL REVEAL (IntersectionObserver)
-            ========================================================= */
             const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -41,9 +35,7 @@
                 revealObserver.observe(el);
             });
 
-            /* =========================================================
                TYPEWRITER EFFECT
-            ========================================================= */
             const phrases = [
                 'Pinjam. Baca. Bagikan.',
                 'Temukan Buku Favoritmu.',
@@ -84,9 +76,7 @@
             }
             setTimeout(typeWriter, 800);
 
-            /* =========================================================
                ANIMATED COUNTERS
-            ========================================================= */
             function animateCounter(el) {
                 const target = parseInt(el.dataset.count);
                 const suffix = el.dataset.suffix || '';
@@ -111,9 +101,7 @@
 
             document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
 
-            /* =========================================================
                TAG PILLS TOGGLE
-            ========================================================= */
             document.querySelectorAll('.tag-pill').forEach(pill => {
                 pill.addEventListener('click', () => {
                     document.querySelectorAll('.tag-pill').forEach(p => p.classList.remove('active'));
@@ -121,9 +109,7 @@
                 });
             });
 
-            /* =========================================================
                PARALLAX BLOBS
-            ========================================================= */
             const blobs = document.querySelectorAll('.parallax-blob');
             window.addEventListener('mousemove', (e) => {
                 const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
@@ -135,9 +121,7 @@
                 });
             }, { passive: true });
 
-            /* =========================================================
                PARTICLE CANVAS
-            ========================================================= */
             const canvas = document.getElementById('particle-canvas');
             if (canvas) {
                 const ctx = canvas.getContext('2d');
@@ -191,9 +175,7 @@
                 drawParticles();
             }
 
-            /* =========================================================
                REVIEW CARD TILT EFFECT (mouse parallax)
-            ========================================================= */
             document.querySelectorAll('.review-card').forEach(card => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
@@ -210,9 +192,7 @@
                 });
             });
 
-            /* =========================================================
                NAVBAR SCROLL SHRINK
-            ========================================================= */
             const navbar = document.querySelector('nav');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 60) {

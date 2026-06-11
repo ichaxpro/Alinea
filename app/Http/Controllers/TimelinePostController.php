@@ -2,36 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTimelinePostRequest;
 use App\Models\TimelinePost;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
-use App\Services\TimelineFormatterService;
+use App\Http\Resources\TimelinePostResource;
 
 class TimelinePostController extends Controller
 {
-    public function __construct(
-        protected TimelineFormatterService $timelineFormatterService
-    ) {}
 
-    public function store(Request $request)
+    public function store(StoreTimelinePostRequest $request)
     {
-        $currentUser = Auth::user();
-        if (!$currentUser) {
-            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
-        }
-
-        $validated = $request->validate([
-            'judul_buku_dibahas' => ['nullable', 'string', 'max:120'],
-            'pesan' => ['required', 'string', 'max:500'],
-            'tag' => ['nullable', 'string', 'max:30'],
-            'media' => ['nullable', 'array', 'max:4'],
-            'media.*' => ['file', 'max:102400'], // max 100MB per file
-        ]);
+        $validated = $request->validated();
 
         $files = $request->file('media', []);
-        if ($files instanceof \Illuminate\Http\UploadedFile) {
+        if ($files instanceof UploadedFile) {
             $files = [$files];
         }
 
@@ -42,7 +29,7 @@ class TimelinePostController extends Controller
             $path = $file->store('timeline_media', 'public');
             $attachments[] = [
                 'path' => $path,
-                'type' => $this->timelineFormatterService->detectMediaType($file->getMimeType()),
+                'type' => \Illuminate\Support\Str::before($file->getMimeType(), '/'),
                 'original_name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
                 'sort_order' => $index,
@@ -50,8 +37,8 @@ class TimelinePostController extends Controller
         }
 
         $post = TimelinePost::create([
-            'id_user' => $currentUser->id,
-            'id_klub' => null, // Global post
+            'id_user' => auth()->id(),
+            'id_klub' => null,
             'judul_buku_dibahas' => $validated['judul_buku_dibahas'] ?? null,
             'pesan' => $validated['pesan'],
             'tag' => $validated['tag'] ?? 'Post',
@@ -75,19 +62,13 @@ class TimelinePostController extends Controller
 
         return response()->json([
             'message' => 'Postingan berhasil diunggah.',
-            'post' => $this->timelineFormatterService->timelinePostPayload($post, $currentUser),
+            'post' => (new TimelinePostResource($post->load(['club', 'author', 'attachments'])))->resolve(),
         ], 201);
     }
 
     public function destroy(TimelinePost $post)
     {
-        $currentUser = Auth::user();
-        if (!$currentUser) {
-            return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
-        }
-
-        // Only allow owner or admin to delete
-        if ($post->id_user !== $currentUser->id && $currentUser->role !== 'admin') {
+        if ($post->id_user !== auth()->id() && auth()->user()->role !== 'admin') {
             return response()->json(['message' => 'Anda tidak berhak menghapus unggahan ini.'], 403);
         }
 

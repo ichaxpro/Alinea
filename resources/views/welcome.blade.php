@@ -19,7 +19,6 @@
         <!-- Scroll Progress Bar -->
         <div id="scroll-progress"></div>
 
-        <!-- =================== NAVBAR =================== -->
         <x-navbar></x-navbar>
 
         <x-welcome.hero />
@@ -27,7 +26,6 @@
         <x-welcome.community />
         <x-welcome.reviews />
 
-        <!-- =================== FOOTER =================== -->
         <x-footer/>
     </body>
 </html>

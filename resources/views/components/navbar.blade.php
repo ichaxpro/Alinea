@@ -1,4 +1,3 @@
-<!-- =================== NAVBAR =================== -->
 <meta name="user-auth" content="{{ Auth::check() ? 'true' : 'false' }}">
 <meta name="google-books-key" content="{{ config('services.google_books.key') }}">
         <nav id="main-navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm transition-transform duration-300 ease-in-out">
