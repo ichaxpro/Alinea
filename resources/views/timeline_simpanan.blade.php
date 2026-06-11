@@ -79,7 +79,7 @@
 
                         {{-- Attachments --}}
                         @if(!empty($post['attachments']))
-                        <div class="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4">
+                        <div class="grid grid-cols-2 gap-2 mb-4">
                             @foreach($post['attachments'] as $attachment)
                                 @if($attachment['type'] === 'image')
                                 <img src="{{ $attachment['url'] }}" data-media-url="{{ $attachment['url'] }}" data-media-type="image" class="w-full h-40 object-cover rounded-xl border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity" alt="Attachment" />

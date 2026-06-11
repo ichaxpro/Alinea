@@ -81,7 +81,7 @@ class TimelinePostController extends Controller
 
     public function reportPost(Request $request, TimelinePost $post)
     {
-        $currentUser = Auth::user();
+        $currentUser = auth()->user();
         if (!$currentUser) {
             return response()->json(['message' => 'Silakan login terlebih dahulu.'], 401);
         }

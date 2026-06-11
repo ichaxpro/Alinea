@@ -68,7 +68,7 @@
             <td align="center" style="padding: 40px 0;">
                 <div class="container">
                     <div class="header">
-                        <img src="{{ $message->embed(public_path('images/alinealogo.svg')) }}" alt="Alinea Logo" style="height: 40px; width: auto;">
+                        <img src="{{ $message->embed(public_path('images/alinealogo.png')) }}" alt="Alinea Logo" style="height: 40px; width: auto;">
                     </div>
                     <div class="content">
                         <p style="font-size: 18px; font-weight: 600;">Halo,</p>

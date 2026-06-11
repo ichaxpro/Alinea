@@ -102,52 +102,51 @@
 
                 <!-- Media Content -->
                 @if(!empty($post['attachments']))
-                    <div class="grid {{ count($post['attachments']) === 1 ? 'grid-cols-1' : (count($post['attachments']) === 2 ? 'grid-cols-2' : (count($post['attachments']) === 3 ? 'grid-cols-2' : 'grid-cols-2')) }} gap-2 mb-4">
+                    <div class="flex flex-col gap-2 mb-4">
                         @foreach($post['attachments'] as $index => $attachment)
                             @php
                                 $isImage = $attachment['type'] === 'image' || str_starts_with($attachment['type'], 'image/');
                                 $isVideo = $attachment['type'] === 'video' || str_starts_with($attachment['type'], 'video/');
-                                $isThreeItemsAndFirst = (count($post['attachments']) === 3 && $index === 0);
                             @endphp
-                            <div class="relative w-full overflow-hidden rounded-2xl border-[1.5px] border-[#444] cursor-pointer group {{ $isThreeItemsAndFirst ? 'col-span-2 aspect-[21/9]' : (count($post['attachments']) === 1 ? 'aspect-video' : 'aspect-square') }}" 
+                            <div class="relative w-full overflow-hidden rounded-2xl border-[1.5px] border-[#444] cursor-pointer group bg-gray-50 flex items-center justify-center" 
                                  data-media-url="{{ $attachment['url'] }}" 
                                  data-media-type="{{ $attachment['type'] }}">
                                 @if($isImage)
-                                    <img src="{{ $attachment['url'] }}" alt="Attached Media" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
+                                    <img src="{{ $attachment['url'] }}" alt="Attached Media" class="w-auto h-auto max-h-[350px] max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]" loading="lazy">
                                 @elseif($isVideo)
-                                    <video src="{{ $attachment['url'] }}#t=0.1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 bg-black" preload="metadata" playsinline></video>
-                                    <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition-colors pointer-events-none">
+                                    <video src="{{ $attachment['url'] }}#t=0.1" class="w-auto h-auto max-h-[350px] max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02] bg-black" preload="metadata" playsinline></video>
+                                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                         <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-transform">
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#444" stroke="#444" stroke-width="2" stroke-linejoin="round" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                                         </div>
                                     </div>
                                 @else
-                                    <div class="w-full h-full bg-gray-100 flex items-center justify-center p-4">
+                                    <div class="w-full aspect-video bg-gray-100 flex items-center justify-center p-4">
                                         <div class="text-center">
                                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto text-gray-400 mb-2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
                                             <span class="text-xs text-gray-500 font-medium truncate block max-w-full">{{ $attachment['original_name'] }}</span>
                                         </div>
                                     </div>
                                 @endif
-                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
                             </div>
                         @endforeach
                     </div>
                 @elseif($post['media'])
-                    <div class="relative w-full aspect-video overflow-hidden rounded-2xl border-[1.5px] border-[#444] mb-4 cursor-pointer group"
+                    <div class="relative w-full overflow-hidden rounded-2xl border-[1.5px] border-[#444] mb-4 cursor-pointer group bg-gray-50 flex items-center justify-center"
                          data-media-url="{{ $post['media_url'] }}"
                          data-media-type="{{ $post['media_type'] }}">
                         @if($post['media_type'] === 'video' || str_starts_with($post['media_type'], 'video/'))
-                            <video src="{{ $post['media_url'] }}#t=0.1" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 bg-black" preload="metadata" playsinline></video>
-                            <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition-colors pointer-events-none">
+                            <video src="{{ $post['media_url'] }}#t=0.1" class="w-auto h-auto max-h-[350px] max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02] bg-black" preload="metadata" playsinline></video>
+                            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                                 <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-lg group-hover:scale-110 transition-transform">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="#444" stroke="#444" stroke-width="2" stroke-linejoin="round" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                                 </div>
                             </div>
                         @else
-                            <img src="{{ $post['media_url'] }}" alt="Post Media" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">
+                            <img src="{{ $post['media_url'] }}" alt="Post Media" class="w-auto h-auto max-h-[350px] max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]" loading="lazy">
                         @endif
-                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
                     </div>
                 @endif
 

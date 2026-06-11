@@ -168,24 +168,14 @@
         </svg>
     </button>
 
-    <script>
-        async function handleReportUserProfile(userId, name) {
-            const reason = prompt(`Laporkan ${name}?\nTuliskan alasanmu (opsional):`);
-            if (reason === null) return;
+    <x-report-user-modal />
 
-            try {
-                const res = await fetch(`/api/users/${userId}/report`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ reason })
-                });
-                alert(res.ok ? 'Laporan telah dikirim. Terima kasih.' : 'Gagal mengirim laporan. Coba lagi.');
-            } catch {
-                alert('Terjadi kesalahan. Coba lagi.');
+    <script>
+        function handleReportUserProfile(userId, name) {
+            if (window.openReportUserModal) {
+                window.openReportUserModal(userId, name);
+            } else {
+                alert('Fungsi laporan belum dimuat sepenuhnya.');
             }
         }
 
