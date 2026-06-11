@@ -713,5 +713,6 @@ window.authUser = {
 </aside>
 
 <x-timeline-bottom-nav active="pesan" />
+<x-report-user-modal />
 </body>
 </html>

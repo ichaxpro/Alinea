@@ -54,7 +54,7 @@
 
         {{-- Media --}}
         @if(!empty($post['attachments']))
-        <div class="grid grid-cols-2 max-sm:grid-cols-1 gap-2 mb-4">
+        <div class="grid grid-cols-2 gap-2 mb-4">
             @foreach($post['attachments'] as $attachment)
                 @php $attachmentUrl = $attachment['url'] ?? ($attachment['src'] ?? null); @endphp
                 @if(($attachment['type'] ?? '') === 'image')

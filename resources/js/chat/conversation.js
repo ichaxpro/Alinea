@@ -76,18 +76,11 @@ export function closeActiveConversation(pushState = true) {
 
 export async function handleReportUser() {
     if (!state.currentOtherUser) return;
-    const reason = prompt(`Laporkan ${state.currentOtherUser.name}?\nTuliskan alasanmu (opsional):`);
-    if (reason === null) return;
-
-    try {
-        const res = await fetch(`/api/users/${state.currentOtherUser.id}/report`, {
-            method:  'POST',
-            headers: apiHeaders(),
-            body:    JSON.stringify({ reason }),
-        });
-        alert(res.ok ? 'Laporan telah dikirim. Terima kasih.' : 'Gagal mengirim laporan. Coba lagi.');
-    } catch {
-        alert('Terjadi kesalahan. Coba lagi.');
+    
+    if (window.openReportUserModal) {
+        window.openReportUserModal(state.currentOtherUser.id, state.currentOtherUser.name);
+    } else {
+        alert('Fungsi laporan belum dimuat sepenuhnya.');
     }
 }
 

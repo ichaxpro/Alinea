@@ -43,7 +43,7 @@ class AchievementSeeder extends Seeder
                 'title' => 'Rajin Membaca',
                 'description' => 'Menambahkan 10 buku ke dalam riwayat bacaan pribadi.',
                 'icon' => 'badge_(2).png',
-                'criteria_type' => 'personal_book_count',
+                'criteria_type' => 'reading_history_count',
                 'criteria_value' => 10,
             ],
             [
