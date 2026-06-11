@@ -36,9 +36,13 @@ class TimelinePostResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string | \UnitEnum | null $navigationGroup = 'Konten';
 
-    protected static ?string $navigationLabel = 'Timeline Posts';
+    protected static ?string $navigationLabel = 'Post Timeline';
+
+    protected static ?string $modelLabel = 'Post Timeline';
+
+    protected static ?string $pluralModelLabel = 'Post Timeline';
 
     protected static ?int $navigationSort = 1;
 
@@ -126,7 +130,7 @@ class TimelinePostResource extends Resource
                 TextColumn::make('author.name')
                     ->searchable()
                     ->sortable()
-                    ->label('Author'),
+                    ->label('Penulis'),
                 TextColumn::make('judul_buku_dibahas')
                     ->searchable()
                     ->limit(30)

@@ -32,7 +32,13 @@ class UserResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'User Management';
+    protected static string | \UnitEnum | null $navigationGroup = 'Manajemen Pengguna';
+
+    protected static ?string $navigationLabel = 'Pengguna';
+
+    protected static ?string $modelLabel = 'Pengguna';
+
+    protected static ?string $pluralModelLabel = 'Pengguna';
 
     protected static ?int $navigationSort = 1;
 
@@ -124,15 +130,19 @@ class UserResource extends Resource
                     ->circular()
                     ->label('Foto'),
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('username')
+                    ->label('Username')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('email')
+                    ->label('Email')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('role')
+                    ->label('Jabatan')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'danger',
@@ -140,6 +150,7 @@ class UserResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('kota')
+                    ->label('Kota')
                     ->searchable()
                     ->toggleable(),
                 IconColumn::make('is_banned')
@@ -148,6 +159,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(),

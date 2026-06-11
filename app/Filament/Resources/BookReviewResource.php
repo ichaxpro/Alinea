@@ -36,11 +36,13 @@ class BookReviewResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string | \UnitEnum | null $navigationGroup = 'Konten';
 
-    protected static ?string $navigationLabel = 'Book Reviews';
+    protected static ?string $navigationLabel = 'Review Buku';
 
-    protected static ?string $modelLabel = 'Review';
+    protected static ?string $modelLabel = 'Review Buku';
+
+    protected static ?string $pluralModelLabel = 'Review Buku';
 
     protected static ?int $navigationSort = 4;
 
@@ -89,12 +91,12 @@ class BookReviewResource extends Resource
                 TextColumn::make('user.name')
                     ->searchable()
                     ->sortable()
-                    ->label('User'),
+                    ->label('Pengguna'),
                 TextColumn::make('book_title')
                     ->searchable(query: function ($query, $search) {
                         $query->where('book_identifier', 'like', "%{$search}%");
                     })
-                    ->label('Book'),
+                    ->label('Buku'),
                 TextColumn::make('book_identifier_type')
                     ->badge()
                     ->label('Tipe'),
@@ -107,11 +109,11 @@ class BookReviewResource extends Resource
                     ->label('Ulasan'),
                 TextColumn::make('helpful')
                     ->sortable()
-                    ->label('Membatu'),
+                    ->label('Membantu'),
                 TextColumn::make('created_at')
                     ->dateTime('d M Y H:i')
                     ->sortable()
-                    ->label('Dibuat'),
+                    ->label('Dibuat Pada'),
             ])
             ->filters([
                 SelectFilter::make('rating')

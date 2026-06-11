@@ -17,20 +17,20 @@ class StatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Users', User::count())
-                ->description('Registered accounts')
+            Stat::make('Total Pengguna', User::count())
+                ->description('Akun terdaftar')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
-            Stat::make('Pending User Reports', Report::where('status', 'pending')->count())
-                ->description('Action required')
+            Stat::make('Laporan Pengguna Tertunda', Report::where('status', 'pending')->count())
+                ->description('Perlu tindakan')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),
-            Stat::make('Pending Post Reports', ReportPost::where('status', 'pending')->count())
-                ->description('Action required')
+            Stat::make('Laporan Post Tertunda', ReportPost::where('status', 'pending')->count())
+                ->description('Perlu tindakan')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
-            Stat::make('Timeline Posts', TimelinePost::count())
-                ->description('Total posts across the platform')
+            Stat::make('Post Timeline', TimelinePost::count())
+                ->description('Total post di seluruh platform')
                 ->descriptionIcon('heroicon-m-chat-bubble-bottom-center-text')
                 ->color('info'),
         ];

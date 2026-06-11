@@ -28,11 +28,13 @@ class FeaturedBookResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-book-open';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string | \UnitEnum | null $navigationGroup = 'Konten';
 
-    protected static ?string $navigationLabel = 'Featured Books';
+    protected static ?string $navigationLabel = 'Buku Pilihan';
 
-    protected static ?string $modelLabel = 'Featured Book';
+    protected static ?string $modelLabel = 'Buku Pilihan';
+
+    protected static ?string $pluralModelLabel = 'Buku Pilihan';
 
     protected static ?int $navigationSort = 3;
 
@@ -129,7 +131,7 @@ class FeaturedBookResource extends Resource
             ->columns([
                 ImageColumn::make('cover_url')
                     ->disk('public')
-                    ->label('Cover')
+                    ->label('Sampul')
                     ->width(50)
                     ->height(70),
                 TextColumn::make('judul')
