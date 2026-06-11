@@ -111,6 +111,8 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
                     bindRemoveButtons();
                 }
 
+                if (typeof update === 'function') update();
+
                 if (validFiles.length > 0) {
                     showToast(`${validFiles.length} file ditambahkan.`);
                 } else if (!hasError) {
@@ -154,7 +156,9 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
             }
 
             if (kirimBtn) {
-                const disabled = over || !composerBody.value.trim();
+                const hasText = !!composerBody.value.trim();
+                const hasMedia = selectedMediaFiles && selectedMediaFiles.length > 0;
+                const disabled = over || (!hasText && !hasMedia);
                 kirimBtn.disabled = disabled;
                 kirimBtn.classList.toggle('opacity-40', disabled);
                 kirimBtn.classList.toggle('cursor-not-allowed', disabled);
@@ -228,7 +232,10 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
     if (kirimBtn) {
         kirimBtn.addEventListener('click', async () => {
             const len = composerBody?.value.length ?? 0;
-            if (!composerBody?.value.trim() || len >= MAX_CHARS) return;
+            const hasText = !!composerBody?.value.trim();
+            const hasMedia = selectedMediaFiles.length > 0;
+            
+            if ((!hasText && !hasMedia) || len >= MAX_CHARS) return;
 
             const bodyText = composerBody.value;
             const activeTagBtn = Array.from(document.querySelectorAll('[data-composer-tag]')).find(b => b.classList.contains('bg-[#FFDDAF]'));
@@ -249,7 +256,9 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
                 return;
             }
 
+            const originalText = kirimBtn.textContent;
             kirimBtn.disabled = true;
+            kirimBtn.textContent = 'Mengunggah...';
 
             try {
                 let response;
@@ -361,6 +370,7 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
                 showToast(error.message || 'Gagal mengirim postingan.');
             } finally {
                 kirimBtn.disabled = false;
+                kirimBtn.textContent = originalText;
             }
         });
     }

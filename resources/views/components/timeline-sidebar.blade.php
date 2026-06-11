@@ -1,4 +1,3 @@
-{{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
 <aside class="hidden lg:block w-50 shrink-0 sticky top-6">
     <div class="bg-white border-[1.5px] border-[#444] rounded-2xl p-4 flex flex-col gap-1">
         @php

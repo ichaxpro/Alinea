@@ -368,7 +368,6 @@ window.authUser = {
 
 <main id="chatContainer" class="flex-1 flex pt-16 overflow-hidden">
 
-{{-- ═══════════════ SIDEBAR ═══════════════ --}}
 <aside class="w-[340px] bg-white border-r flex flex-col">
 
     {{-- Header --}}
@@ -416,7 +415,6 @@ window.authUser = {
 
 </aside>
 
-{{-- ═══════════════ CHAT AREA ═══════════════ --}}
 <section class="flex-1 flex flex-col bg-[#fafafa] overflow-hidden">
 
     {{-- Empty state --}}
@@ -566,7 +564,6 @@ window.authUser = {
     <p id="mediaModalCaption" class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-xs truncate max-w-xs text-center"></p>
 </div>
 
-{{-- ═══════════════ NEW CHAT MODAL ═══════════════ --}}
 <div id="newChatModal"
     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
 
@@ -610,7 +607,6 @@ window.authUser = {
     </div>
 </div>
 
-{{-- ═══════════════ USER DETAIL PANEL ═══════════════ --}}
 <div id="userDetailOverlay"
     class="fixed inset-0 z-40"
     style="background: rgba(0,0,0,0.18); backdrop-filter: blur(1.5px);"></div>

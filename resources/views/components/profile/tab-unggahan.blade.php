@@ -50,7 +50,7 @@
         </div>
         @endif
 
-        <p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4">{{ $post['body'] }}</p>
+        <p class="text-sm max-sm:text-xs text-gray-600 leading-relaxed mb-4 whitespace-pre-wrap">{{ $post['body'] }}</p>
 
         {{-- Media --}}
         @if(!empty($post['attachments']))

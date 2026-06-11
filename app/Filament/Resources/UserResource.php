@@ -50,7 +50,7 @@ class UserResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return false;
+        return true;
     }
 
     public static function form(Schema $schema): Schema
@@ -61,20 +61,24 @@ class UserResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(),
                         TextInput::make('username')
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->disabled(),
                         TextInput::make('email')
                             ->email()
                             ->required()
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->disabled(),
                         TextInput::make('password')
                             ->password()
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(),
                         Select::make('role')
                             ->options([
                                 'user' => 'User',
@@ -90,18 +94,23 @@ class UserResource extends Resource
                             ->image()
                             ->directory('foto_profil')
                             ->disk('public')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(),
                         TextInput::make('kota')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(),
                         TextInput::make('no_telp')
                             ->tel()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(),
                         Textarea::make('deskripsi')
                             ->rows(3)
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(),
                         TagsInput::make('preferred_genres')
                             ->placeholder('Tambah genre')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->disabled(),
                     ])->columns(2),
             ]);
     }
@@ -189,6 +198,7 @@ class UserResource extends Resource
                     })
                     ->visible(fn (User $record) => !$record->is_banned && $record->id !== auth()->id()),
                 ViewAction::make(),
+                \Filament\Actions\EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([

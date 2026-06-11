@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\TrendingService;
-use App\Services\TimelineFormatterService;
+use App\Http\Resources\TimelinePostResource;
 
 class TimelineController extends Controller
 {
     public function __construct(
-        protected TrendingService $trendingService,
-        protected TimelineFormatterService $timelineFormatterService
+        protected TrendingService $trendingService
     ) {}
 
     public function index(Request $request)
@@ -43,8 +42,7 @@ class TimelineController extends Controller
             $query->whereIn('id_user', $followingIds);
         }
 
-        $posts = $query->get()
-            ->map(fn ($post) => $this->timelineFormatterService->timelinePostPayload($post, $currentUser));
+        $posts = TimelinePostResource::collection($query->get())->resolve();
 
         $trendingItems = collect($this->trendingService->getWeeklyTrending())
             ->map(fn ($item) => [
@@ -66,7 +64,7 @@ class TimelineController extends Controller
         $post->load(['author', 'attachments', 'likes', 'club']);
         $post->loadCount('comments');
 
-        $formattedPost = $this->timelineFormatterService->timelinePostPayload($post, $currentUser);
+        $formattedPost = (new TimelinePostResource($post))->resolve();
 
         $trendingItems = collect($this->trendingService->getWeeklyTrending())
             ->map(fn ($item) => [
@@ -97,8 +95,7 @@ class TimelineController extends Controller
             })
             ->orderByDesc('created_at');
 
-        $posts = $query->get()
-            ->map(fn ($post) => $this->timelineFormatterService->timelinePostPayload($post, $currentUser));
+        $posts = TimelinePostResource::collection($query->get())->resolve();
 
         $trendingItems = collect($this->trendingService->getWeeklyTrending())
             ->map(fn ($item) => [

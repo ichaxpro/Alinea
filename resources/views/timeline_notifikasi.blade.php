@@ -16,17 +16,13 @@
 
 <body class="bg-gray-100 text-[#444] font-[Poppins,sans-serif] min-h-screen antialiased">
 
-    {{-- ========== NAVBAR ========== --}}
     <x-navbar></x-navbar>
 
-    {{-- ========== PAGE LAYOUT ========== --}}
     <div class="min-h-screen pt-16">
         <div class="flex items-start gap-6 max-w-300 mx-auto px-4 py-6 max-md:pb-24">
 
-            {{-- ===== LEFT SIDEBAR — floating sticky card ===== --}}
             <x-timeline-sidebar />
 
-            {{-- ===== MAIN CONTENT ===== --}}
             <main class="bg-white border-[1.5px] border-[#444] rounded-2xl overflow-hidden flex flex-col flex-1">
                 
                 {{-- Header Halaman Notifikasi --}}
@@ -115,7 +111,6 @@
         </div>
     </div>
 
-    {{-- ===== MOBILE SEARCH (full-page, like Twitter) ===== --}}
     <div id="mobile-search-overlay" class="hidden fixed inset-0 z-50 bg-white flex-col md:hidden">
         <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <button id="mobile-search-back" class="w-8 h-8 flex items-center justify-center -ml-1 cursor-pointer text-[#444] hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
@@ -176,7 +171,6 @@
         </div>
     </div>
 
-    {{-- ===== MOBILE BOTTOM NAV ===== --}}
     <x-timeline-bottom-nav active="notifikasi" />
 
 </body>

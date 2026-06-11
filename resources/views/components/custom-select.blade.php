@@ -5,11 +5,18 @@
     'multiple' => false,
     'placeholder' => 'Pilih opsi',
     'class' => '',
-    'title' => '', // For the header inside the dropdown, like "FILTER STATUS"
+    'title' => '',
     'columns' => 1,
     'align' => 'left',
     'direction' => 'down',
+    'selected' => [],
 ])
+
+@php
+    if (!is_array($selected)) {
+        $selected = [$selected];
+    }
+@endphp
 
 <div class="relative custom-select-container inline-block w-full sm:w-auto" id="{{ $id }}-container" data-multiple="{{ $multiple ? 'true' : 'false' }}">
     {{-- Trigger Button with Grid Trick for Intrinsic Width --}}
@@ -72,14 +79,14 @@
                 <label class="custom-select-option px-4 py-2 text-sm hover:bg-gray-50 transition-colors cursor-pointer flex items-start gap-2">
                     @if($multiple)
                         <div class="mt-0.5 relative flex items-center justify-center w-4 h-4 border-2 border-gray-300 rounded focus-within:border-[#444] bg-white transition-colors">
-                            <input type="checkbox" name="{{ $name ?: $id }}[]" value="{{ $value }}" data-label="{{ $label }}" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full m-0">
+                            <input type="checkbox" name="{{ $name ?: $id }}[]" value="{{ $value }}" data-label="{{ $label }}" class="peer absolute inset-0 opacity-0 cursor-pointer w-full h-full m-0" {{ in_array($value, $selected) ? 'checked' : '' }}>
                             <svg class="peer-checked:opacity-100 opacity-0 pointer-events-none text-[#444]" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
                             </svg>
                         </div>
                         <span class="flex-1 text-gray-600 peer-checked:font-bold peer-checked:text-[#444] leading-tight select-none">{{ $label }}</span>
                     @else
-                        <input type="radio" name="{{ $name ?: $id }}_radio" value="{{ $value }}" data-label="{{ $label }}" class="hidden">
+                        <input type="radio" name="{{ $name ?: $id }}_radio" value="{{ $value }}" data-label="{{ $label }}" class="hidden" {{ in_array((string)$value, $selected, true) ? 'checked' : '' }}>
                         <span class="flex-1 text-gray-600">{{ $label }}</span>
                     @endif
                 </label>
@@ -88,12 +95,12 @@
     </div>
 
     {{-- Hidden Select for JS Compatibility --}}
-    <select id="{{ $id }}" name="{{ $name ?: $id }}" {!! $multiple ? 'multiple' : '' !!} class="hidden">
+    <select id="{{ $id }}" name="{{ $name ?: $id }}{{ $multiple ? '[]' : '' }}" {!! $multiple ? 'multiple' : '' !!} class="hidden">
         @if(!$multiple && $placeholder)
             <option value="">{{ $placeholder }}</option>
         @endif
         @foreach($options as $value => $label)
-            <option value="{{ $value }}">{{ $label }}</option>
+            <option value="{{ $value }}" {{ in_array((string)$value, $selected, true) ? 'selected' : '' }}>{{ $label }}</option>
         @endforeach
     </select>
 </div>

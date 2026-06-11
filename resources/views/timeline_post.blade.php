@@ -262,7 +262,6 @@
     </div>
     
     <x-timeline-bottom-nav active="" />
-    {{-- ========== REPORT POST MODAL ========== --}}
     <div id="report-post-modal" class="fixed inset-0 z-[100] hidden">
         {{-- Backdrop --}}
         <div id="report-post-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
