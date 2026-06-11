@@ -1,6 +1,7 @@
 import { escapeHtml } from './helpers.js';
 import { showToast } from './toast.js';
 import { createPostElement, bindMediaGalleries, bindPostActions } from './posts.js';
+import browserImageCompression from 'browser-image-compression';
 
 function renderSelectedMediaPreview(files) {
     if (!files || !files.length) {
@@ -270,7 +271,7 @@ export function initComposer({ feedPanel, csrfToken, currentUserName, currentUse
                     fd.append('tag', activeTag);
 
                     for (const file of selectedMediaFiles) {
-                        if (file.type.startsWith('image/') && typeof browserImageCompression !== 'undefined') {
+                        if (file.type.startsWith('image/')) {
                             const options = {
                                 maxSizeMB: 1,
                                 maxWidthOrHeight: 1920,

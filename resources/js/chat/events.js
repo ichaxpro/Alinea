@@ -38,9 +38,58 @@ export function bindEvents() {
     });
 
     document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const modal = document.getElementById('mediaModal');
+        const isOpen = modal && modal.classList.contains('open');
+
         if (e.key === 'Escape') {
             if (state.userDetailOpen) closeUserDetailPanel();
-            else closeMediaModal();
+            else if (isOpen) closeMediaModal();
+            return;
+        }
+
+        if (isOpen) {
+            const activeVideo = document.getElementById('mediaModalContent')?.querySelector('video');
+            if (activeVideo) {
+                if (e.key === ' ' || e.code === 'Space') {
+                    e.preventDefault();
+                    activeVideo.paused ? activeVideo.play() : activeVideo.pause();
+                    return;
+                }
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    activeVideo.currentTime = Math.max(0, activeVideo.currentTime - 5);
+                    return;
+                }
+                if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    activeVideo.currentTime = Math.min(activeVideo.duration, activeVideo.currentTime + 5);
+                    return;
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeVideo.volume = Math.min(1, activeVideo.volume + 0.1);
+                    return;
+                }
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeVideo.volume = Math.max(0, activeVideo.volume - 0.1);
+                    return;
+                }
+                if (e.key.toLowerCase() === 'm') {
+                    e.preventDefault();
+                    activeVideo.muted = !activeVideo.muted;
+                    return;
+                }
+                if (e.key.toLowerCase() === 'f') {
+                    e.preventDefault();
+                    if (document.fullscreenElement) document.exitFullscreen();
+                    else if (activeVideo.requestFullscreen) activeVideo.requestFullscreen();
+                    else if (activeVideo.webkitRequestFullscreen) activeVideo.webkitRequestFullscreen();
+                    return;
+                }
+            }
         }
     });
 

@@ -1,3 +1,5 @@
+import browserImageCompression from 'browser-image-compression';
+
 export function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text || '';
@@ -37,33 +39,17 @@ export function svgSingleTick() {
             </svg>`;
 }
 
-export function compressImage(file) {
-    return new Promise((resolve) => {
-        const MAX_DIM = 1280;
-        const QUALITY = 0.80;
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            let { width, height } = img;
-            if (width > MAX_DIM || height > MAX_DIM) {
-                if (width >= height) {
-                    height = Math.round(height * MAX_DIM / width);
-                    width  = MAX_DIM;
-                } else {
-                    width  = Math.round(width * MAX_DIM / height);
-                    height = MAX_DIM;
-                }
-            }
-            const canvas  = document.createElement('canvas');
-            canvas.width  = width;
-            canvas.height = height;
-            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            canvas.toBlob(blob => resolve(blob || file), 'image/jpeg', QUALITY);
-        };
-
-        img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
-        img.src = url;
-    });
+export async function compressImage(file) {
+    const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1280,
+        useWebWorker: true,
+        initialQuality: 0.8
+    };
+    try {
+        return await browserImageCompression(file, options);
+    } catch (error) {
+        console.warn('Image compression failed, returning original file', error);
+        return file;
+    }
 }

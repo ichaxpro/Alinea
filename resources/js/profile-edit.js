@@ -1,12 +1,11 @@
 import "./custom-select";
+import browserImageCompression from 'browser-image-compression';
+
 document.addEventListener('DOMContentLoaded', () => {
     const csrfToken        = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
     const GOOGLE_BOOKS_KEY = document.querySelector('meta[name="google-books-key"]')?.content || '';
 
-    // ─────────────────────────────────────────────
-    // TOAST
-    // ─────────────────────────────────────────────
     function showToast(msg) {
         let el = document.getElementById('toast-msg');
         if (!el) {
@@ -26,9 +25,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2500);
     }
 
-    // ─────────────────────────────────────────────
-    // FILTER RIWAYAT (existing list)
-    // ─────────────────────────────────────────────
+    const fotoProfilInput = document.getElementById('foto_profil');
+    if (fotoProfilInput) {
+        fotoProfilInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            
+            try {
+                const options = { maxSizeMB: 1, maxWidthOrHeight: 1280, useWebWorker: true };
+                const compressedFile = await browserImageCompression(file, options);
+                
+                // Swap the original file with the compressed one
+                const dt = new DataTransfer();
+                dt.items.add(new File([compressedFile], file.name, { type: compressedFile.type }));
+                e.target.files = dt.files;
+            } catch (err) {
+                console.warn('Profile picture compression failed', err);
+            }
+        });
+    }
+
     const riwayatSearchInput  = document.getElementById('riwayat-search-input');
     const riwayatSearchClear  = document.getElementById('riwayat-search-clear');
     const riwayatFilterStatus = document.getElementById('riwayat-filter-status');
@@ -74,9 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     riwayatFilterStatus?.addEventListener('change', applyRiwayatFilter);
     applyRiwayatFilter();
 
-    // ─────────────────────────────────────────────
-    // BOOK SEARCH (Google Books API) → ADD TO RIWAYAT
-    // ─────────────────────────────────────────────
     const bookApiSearch   = document.getElementById('book-api-search');
     const bookDropdown    = document.getElementById('book-search-dropdown');
     const bookSpinner     = document.getElementById('book-search-spinner');
@@ -305,9 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ─────────────────────────────────────────────
-    // CHANGE STATUS
-    // ─────────────────────────────────────────────
     document.querySelectorAll('[data-change-status]').forEach(sel => {
         sel.addEventListener('change', async () => {
             try {
@@ -330,9 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ─────────────────────────────────────────────
-    // DELETE BOOK
-    // ─────────────────────────────────────────────
     document.querySelectorAll('[data-delete-book]').forEach(btn => {
         btn.addEventListener('click', async () => {
             if (!confirm('Hapus buku dari riwayat baca?')) return;
