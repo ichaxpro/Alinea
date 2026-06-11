@@ -6,6 +6,8 @@ use App\Models\TimelinePost;
 use App\Models\TimelineComment;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreTimelineCommentRequest;
 use App\Http\Resources\TimelineCommentResource;
@@ -59,7 +61,7 @@ class TimelineCommentController extends Controller
             $path = $file->store('timeline_media', 'public');
             $attachments[] = [
                 'path' => $path,
-                'type' => \Illuminate\Support\Str::before($file->getMimeType(), '/'),
+                'type' => Str::before($file->getMimeType(), '/'),
                 'original_name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
                 'sort_order' => $index,

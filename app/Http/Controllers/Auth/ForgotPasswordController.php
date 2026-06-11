@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\File;
 use App\Models\User;
 use App\Mail\ResetPasswordCode;
 use Carbon\Carbon;
@@ -39,7 +40,7 @@ class ForgotPasswordController extends Controller
         Mail::to($email)->send(new ResetPasswordCode($code));
 
         // Tulis OTP ke file log terpisah agar mudah untuk demonstrasi
-        \Illuminate\Support\Facades\File::append(
+        File::append(
             storage_path('logs/otp.log'), 
             "[" . now()->format('Y-m-d H:i:s') . "] Email: {$email} | Kode OTP: {$code}\n"
         );

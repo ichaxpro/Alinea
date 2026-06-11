@@ -189,7 +189,7 @@ class TimelineKomunitasController extends Controller
         ]);
 
         $files = $request->file('media', []);
-        if ($files instanceof \Illuminate\Http\UploadedFile) {
+        if ($files instanceof UploadedFile) {
             $files = [$files];
         }
 
