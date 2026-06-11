@@ -88,9 +88,15 @@
                             @endif
                         </div>
                         <div class="flex flex-col gap-1.5 items-center sm:items-start w-full sm:w-auto">
-                            <input type="file" name="foto_profil" accept="image/*" 
-                                   class="text-xs file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-2 file:border-[#444] file:text-xs file:font-bold file:bg-[#C7E7FF] file:text-[#444] hover:file:bg-[#b0dcff] file:cursor-pointer max-w-full">
-                            <p class="text-xs text-gray-400">Klik "Simpan" setelah memilih file.</p>
+                            <div class="flex items-center gap-2">
+                                <label for="foto_profil" class="py-1.5 px-3.5 rounded-full border-2 border-[#444] text-xs font-bold bg-[#C7E7FF] text-[#444] hover:bg-[#b0dcff] cursor-pointer transition-colors inline-block text-center">
+                                    Pilih File
+                                </label>
+                                <span id="file-name-display" class="text-xs text-gray-500 truncate max-w-[150px]">Tidak ada file dipilih</span>
+                            </div>
+                            <input type="file" name="foto_profil" id="foto_profil" accept="image/*" class="hidden" 
+                                   onchange="document.getElementById('file-name-display').textContent = this.files[0] ? this.files[0].name : 'Tidak ada file dipilih'">
+                            <p class="text-xs text-gray-400 mt-0.5">Klik "Simpan" setelah memilih file.</p>
                         </div>
                     </div>
                 </div>

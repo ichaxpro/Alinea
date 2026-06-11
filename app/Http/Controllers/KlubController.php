@@ -230,11 +230,11 @@ class KlubController extends Controller
         $isAdmin = $myRow && in_array($myRow->role_di_klub, ['admin', 'moderator']);
 
         if (!$isOwner && !$isAdmin) {
-            return response()->json(['message' => 'Hanya owner atau admin yang bisa kick member.'], 403);
+            return response()->json(['message' => 'Hanya owner atau admin yang bisa mengeluarkan member.'], 403);
         } 
 
         if ((int) ($club->id_owner ?? 0) === (int) $userId) {
-            return response()->json(['message' => 'Owner tidak bisa di-kick dari klub.'], 422);
+            return response()->json(['message' => 'Owner tidak bisa dikeluarkan dari klub.'], 422);
         }
 
         if (!$isOwner && $isAdmin) {
@@ -244,7 +244,7 @@ class KlubController extends Controller
                 ->first();
             
             if ($targetRow && in_array($targetRow->role_di_klub, ['admin', 'moderator'])) {
-                return response()->json(['message' => 'Admin tidak bisa kick admin lain.'], 403);
+                return response()->json(['message' => 'Admin tidak bisa mengeluarkan admin lain.'], 403);
             }
         }
 

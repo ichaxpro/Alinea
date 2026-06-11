@@ -27,10 +27,10 @@ export function buildMemberRow(m, club) {
             menuItems += `<button data-role-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}" data-role="owner"
                 class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-gray-100 transition-colors whitespace-nowrap">Transfer Kepemilikan</button>`;
             menuItems += `<button data-kick-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}"
-                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Kick</button>`;
+                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Keluarkan</button>`;
         } else if (iAmAdmin && m.role !== 'admin' && m.role !== 'moderator') {
             menuItems += `<button data-kick-btn data-club="${club.id}" data-user="${m.id}" data-name="${m.name}"
-                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Kick</button>`;
+                class="w-full text-left text-xs px-3 py-3 sm:py-1.5 hover:bg-red-50 text-red-500 transition-colors whitespace-nowrap">Keluarkan</button>`;
         }
 
         if (menuItems) {
