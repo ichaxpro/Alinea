@@ -1,58 +1,193 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/images/alinealogo.svg" alt="Alinea Logo" width="300" />
 </p>
 
-## About Laravel
+# Alinea
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+*[English Version Below](#english-version)*
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Alinea adalah aplikasi web dinamis dan modern yang dibangun untuk para penggemar buku. Aplikasi ini berfungsi sebagai platform komprehensif di mana pengguna dapat menemukan buku, membaca dan menulis ulasan, serta berinteraksi dengan komunitas secara real-time.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Fitur Utama
 
-## Learning Laravel
+*   **Katalog & Pencarian Buku:** Jelajahi perpustakaan buku yang luas dengan fitur pencarian dan filter dinamis (berdasarkan genre, rating, dll.) yang ditenagai oleh AJAX tanpa perlu memuat ulang halaman.
+*   **Obrolan Komunitas Real-time:** Sistem pesan global atau privat yang didukung oleh WebSockets (Laravel Echo/Reverb) yang memungkinkan komunikasi instan antar pengguna.
+*   **Ulasan & Rating Interaktif:** Pengguna dapat memberikan rating pada buku, meninggalkan ulasan terperinci, serta memberikan upvote/downvote pada umpan balik komunitas yang bermanfaat.
+*   **Dasbor Admin Filament:** Back-office yang kuat dan aman bagi administrator untuk mengelola pengguna, data buku, dan konten platform dengan mudah.
+*   **Autentikasi Aman:** Registrasi pengguna penuh, login, dan reset kata sandi aman berbasis email dengan desain templat email yang cantik.
+*   **Komponen UI Dinamis:** Dibangun menggunakan komponen Laravel Blade yang modular dan ditata dengan Tailwind CSS modern.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Teknologi yang Digunakan
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+*   **Backend:** Laravel 11 (PHP)
+*   **Frontend:** Blade Templates, JavaScript (Vanilla/Fetch API untuk AJAX), Tailwind CSS
+*   **Panel Admin:** Filament V3
+*   **Infrastruktur Real-time:** Laravel Reverb & Laravel Echo
+*   **Database:** MySQL
+*   **Asset Bundling:** Vite
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Panduan Instalasi Lokal
 
-## Agentic Development
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal Anda.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Persyaratan
+*   PHP 8.2+
+*   Composer
+*   Node.js & npm
+*   Database MySQL
 
-```bash
-composer require laravel/boost --dev
+### Instalasi
 
-php artisan boost:install
-```
+1. **Clone repositori:**
+   ```bash
+   git clone https://github.com/ichaxpro/Alinea.git
+   cd Alinea
+   ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. **Instal dependensi PHP:**
+   ```bash
+   composer install
+   ```
 
-## Contributing
+3. **Instal dependensi frontend:**
+   ```bash
+   npm install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Pengaturan Lingkungan (Environment):**
+   * Duplikat file `.env.example` dan ubah namanya menjadi `.env`.
+   * Perbarui kolom `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` agar sesuai dengan konfigurasi database lokal Anda.
 
-## Code of Conduct
+5. **Buat Application Key:**
+   ```bash
+   php artisan key:generate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Jalankan Migrasi Database:**
+   ```bash
+   php artisan migrate
+   ```
 
-## Security Vulnerabilities
+7. **Kompilasi Aset Frontend:**
+   ```bash
+   npm run dev
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+8. **Jalankan Server Pengembangan:**
+   ```bash
+   php artisan serve
+   ```
 
-## License
+9. **(Opsional) Jalankan Server WebSocket untuk Obrolan:**
+   ```bash
+   php artisan reverb:start
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Aplikasi sekarang dapat diakses di `http://127.0.0.1:8000`.
+
+## Sorotan Struktur Proyek
+
+*   **`app/Http/Controllers/`**: Logika inti untuk merender aplikasi web.
+*   **`app/Http/Controllers/Api/`**: Endpoint ringan yang dirancang khusus untuk mengembalikan respons JSON dari permintaan AJAX di latar belakang (contoh: pencarian otomatis, fitur obrolan).
+*   **`app/Filament/`**: File konfigurasi untuk dasbor Admin.
+*   **`resources/views/`**: Templat HTML Blade dan komponen frontend.
+*   **`routes/`**: Dibagi menjadi `web.php` untuk navigasi peramban, `api.php` untuk panggilan AJAX, dan `channels.php` untuk penyiaran pesan WebSocket secara real-time.
+
+---
+*jujur cpk*
+
+<br><br>
+
+---
+
+<h1 id="english-version">Alinea (English Version)</h1>
+
+Alinea is a modern, dynamic web application built for book enthusiasts. It serves as a comprehensive platform where users can discover books, read and write reviews, and interact with the community in real-time.
+
+## Key Features
+
+*   **Book Catalog & Search:** Explore a vast library of books with dynamic AJAX-powered search and filtering (by genre, rating, etc.) without page reloads.
+*   **Real-time Community Chat:** A global or private messaging system powered by WebSockets (Laravel Echo/Reverb) allowing instant communication between users.
+*   **Interactive Reviews & Ratings:** Users can rate books, leave detailed reviews, and upvote/downvote helpful community feedback.
+*   **Filament Admin Dashboard:** A powerful, secure back-office for administrators to easily manage users, book data, and platform content.
+*   **Secure Authentication:** Full user registration, login, and secure email-based password resets with custom, beautifully designed email templates.
+*   **Dynamic UI Components:** Built using reusable Laravel Blade components and stylized with modern Tailwind CSS.
+
+## Technology Stack
+
+*   **Backend:** Laravel 11 (PHP)
+*   **Frontend:** Blade Templates, JavaScript (Vanilla/Fetch API for AJAX), Tailwind CSS
+*   **Admin Panel:** Filament V3
+*   **Real-time Infrastructure:** Laravel Reverb & Laravel Echo
+*   **Database:** MySQL
+*   **Asset Bundling:** Vite
+
+## Local Development Setup
+
+Follow these steps to get the project up and running on your local machine.
+
+### Prerequisites
+*   PHP 8.2+
+*   Composer
+*   Node.js & npm
+*   MySQL Database
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/ichaxpro/Alinea.git
+   cd Alinea
+   ```
+
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Install frontend dependencies:**
+   ```bash
+   npm install
+   ```
+
+4. **Environment Setup:**
+   * Duplicate the `.env.example` file and rename it to `.env`.
+   * Update the `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` fields to match your local database configuration.
+
+5. **Generate Application Key:**
+   ```bash
+   php artisan key:generate
+   ```
+
+6. **Run Database Migrations:**
+   ```bash
+   php artisan migrate
+   ```
+
+7. **Compile Frontend Assets:**
+   ```bash
+   npm run dev
+   ```
+
+8. **Start the Development Server:**
+   ```bash
+   php artisan serve
+   ```
+
+9. **(Optional) Start the WebSocket Server for Chat:**
+   ```bash
+   php artisan reverb:start
+   ```
+
+The application will now be available at `http://127.0.0.1:8000`.
+
+## Project Structure Highlights
+
+*   **`app/Http/Controllers/`**: Core logic for the web application.
+*   **`app/Http/Controllers/Api/`**: Lightweight endpoints specifically designed to return JSON responses for background AJAX requests (e.g., search autocomplete, chat).
+*   **`app/Filament/`**: Configuration and resource files for the Admin dashboard.
+*   **`resources/views/`**: Blade HTML templates and reusable frontend components.
+*   **`routes/`**: Divided into `web.php` for browser navigation, `api.php` for AJAX calls, and `channels.php` for real-time WebSocket broadcasting.
+
+---
+*want to sleep*

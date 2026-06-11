@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class icon-bookmark extends Component
+class CropModal extends Component
 {
     /**
      * Create a new component instance.
@@ -21,6 +21,6 @@ class icon-bookmark extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.icon-bookmark');
+        return view('components.crop-modal');
     }
 }
