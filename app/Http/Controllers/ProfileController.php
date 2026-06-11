@@ -179,12 +179,18 @@ class ProfileController extends Controller
         if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
 
         $data = $request->validate([
+            'foto_profil' => 'nullable|image|max:2048',
             'name' => 'sometimes|string|max:255',
             'username' => 'sometimes|string|max:50|unique:users,username,' . $user->id,
             'deskripsi' => 'nullable|string|max:500',
             'kota' => 'nullable|string|max:100',
             'no_telp' => 'nullable|string|max:20',
         ]);
+
+        if ($request->hasFile('foto_profil')) {
+            $path = $request->file('foto_profil')->store('avatars', 'public');
+            $data['foto_profil'] = $path;
+        }
 
         $user->update($data);
         return redirect()->route('timeline_profile')->with('success', 'Profil berhasil diperbarui.');

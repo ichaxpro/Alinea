@@ -18,7 +18,7 @@
                            class="w-full border-[1.5px] border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#444] transition-colors" />
                 </div>
                 <div>
-                    <label for="prof-email" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Email</label>
+                    <label for="prof-email" class="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Surel</label>
                     <input type="email" id="prof-email" disabled
                            class="w-full border-[1.5px] border-gray-100 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-400 cursor-not-allowed" />
                 </div>

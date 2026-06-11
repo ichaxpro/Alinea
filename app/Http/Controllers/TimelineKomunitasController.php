@@ -49,7 +49,7 @@ class TimelineKomunitasController extends Controller
             $trendingItems = $popularClubs->map(function ($club) {
                 return [
                     $club->nama_klub,
-                    $club->new_members_count . ' Member Baru',
+                    $club->new_members_count . ' Anggota Baru',
                 ];
             })->all();
 

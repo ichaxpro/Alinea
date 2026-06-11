@@ -33,7 +33,7 @@
                 {{-- Section Title (sticky with bg mask so posts slide behind it) --}}
                 <div class="sticky top-0 z-30 -mt-6 pt-6 pb-2 mb-1 bg-gray-100 flex items-center gap-2">
                     <div class="flex-1 py-2.5 text-sm font-bold text-[#444] bg-[#FFDDAF] border-[1.5px] border-[#444] rounded-full text-center">
-                        Timeline Komunitas
+                        Diskusi Komunitas
                     </div>
 
                     {{-- Filter Dropdown --}}

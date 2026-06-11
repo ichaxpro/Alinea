@@ -111,7 +111,7 @@ export function kickMember(clubId, userId, userName) {
 
     if (!isOwner && !isAdmin) return;
 
-    if (!confirm(`Kick "${userName}" dari klub ini?`)) return;
+    if (!confirm(`Keluarkan "${userName}" dari klub ini?`)) return;
 
     const modal = document.getElementById('klub-modal');
 
@@ -128,7 +128,7 @@ export function kickMember(clubId, userId, userName) {
     .then(async (res) => {
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            throw new Error(err.message || 'Gagal kick member');
+            throw new Error(err.message || 'Gagal mengeluarkan member');
         }
         return res.json();
     })
@@ -139,7 +139,7 @@ export function kickMember(clubId, userId, userName) {
             openModal(updatedClub);
         }
     })
-    .catch((err) => alert(err.message || 'Gagal kick member.'));
+    .catch((err) => alert(err.message || 'Gagal mengeluarkan member.'));
 }
 
 export function updateMemberRole(clubId, userId, userName, newRole) {
