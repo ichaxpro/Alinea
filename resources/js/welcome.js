@@ -1,4 +1,4 @@
-               SCROLL PROGRESS BAR
+            // SCROLL PROGRESS BAR
             const progressBar = document.getElementById('scroll-progress');
             window.addEventListener('scroll', () => {
                 const scrollTop = window.scrollY;
@@ -6,8 +6,7 @@
                 const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
                 if (progressBar) progressBar.style.width = progress + '%';
             }, { passive: true });
-
-               SMOOTH SCROLL
+            // SMOOTH SCROLL
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     const href = this.getAttribute('href');
@@ -20,8 +19,7 @@
                     }
                 });
             });
-
-               SCROLL REVEAL (IntersectionObserver)
+            // SCROLL REVEAL (IntersectionObserver)
             const revealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -34,8 +32,7 @@
             document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
                 revealObserver.observe(el);
             });
-
-               TYPEWRITER EFFECT
+            // TYPEWRITER EFFECT
             const phrases = [
                 'Pinjam. Baca. Bagikan.',
                 'Temukan Buku Favoritmu.',
@@ -75,8 +72,7 @@
                 }
             }
             setTimeout(typeWriter, 800);
-
-               ANIMATED COUNTERS
+            // ANIMATED COUNTERS
             function animateCounter(el) {
                 const target = parseInt(el.dataset.count);
                 const suffix = el.dataset.suffix || '';
@@ -100,16 +96,14 @@
             }, { threshold: 0.5 });
 
             document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
-
-               TAG PILLS TOGGLE
+            // TAG PILLS TOGGLE
             document.querySelectorAll('.tag-pill').forEach(pill => {
                 pill.addEventListener('click', () => {
                     document.querySelectorAll('.tag-pill').forEach(p => p.classList.remove('active'));
                     pill.classList.add('active');
                 });
             });
-
-               PARALLAX BLOBS
+            // PARALLAX BLOBS
             const blobs = document.querySelectorAll('.parallax-blob');
             window.addEventListener('mousemove', (e) => {
                 const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
@@ -120,8 +114,7 @@
                     blob.style.transform = `translate(${dx * speed * 80}px, ${dy * speed * 80}px)`;
                 });
             }, { passive: true });
-
-               PARTICLE CANVAS
+            // PARTICLE CANVAS
             const canvas = document.getElementById('particle-canvas');
             if (canvas) {
                 const ctx = canvas.getContext('2d');
@@ -174,8 +167,7 @@
                 }
                 drawParticles();
             }
-
-               REVIEW CARD TILT EFFECT (mouse parallax)
+            // REVIEW CARD TILT EFFECT (mouse parallax)
             document.querySelectorAll('.review-card').forEach(card => {
                 card.addEventListener('mousemove', (e) => {
                     const rect = card.getBoundingClientRect();
@@ -191,8 +183,7 @@
                     card.style.zIndex = '1';
                 });
             });
-
-               NAVBAR SCROLL SHRINK
+            // NAVBAR SCROLL SHRINK
             const navbar = document.querySelector('nav');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 60) {
