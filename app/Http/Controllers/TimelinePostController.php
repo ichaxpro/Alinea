@@ -6,8 +6,10 @@ use App\Http\Requests\StoreTimelinePostRequest;
 use App\Models\TimelinePost;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use App\Http\Resources\TimelinePostResource;
 
 class TimelinePostController extends Controller
@@ -29,7 +31,7 @@ class TimelinePostController extends Controller
             $path = $file->store('timeline_media', 'public');
             $attachments[] = [
                 'path' => $path,
-                'type' => \Illuminate\Support\Str::before($file->getMimeType(), '/'),
+                'type' => Str::before($file->getMimeType(), '/'),
                 'original_name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
                 'sort_order' => $index,
@@ -55,7 +57,7 @@ class TimelinePostController extends Controller
         $post->load(['author', 'attachments', 'likes']);
 
         if (!empty($validated['judul_buku_dibahas'])) {
-            $now = Carbon::now();
+            $now = Carbon::now('Asia/Jakarta');
             $startOfWeek = $now->copy()->startOfWeek();
             Cache::forget("trending_weekly_{$startOfWeek->year}_W{$startOfWeek->weekOfYear}");
         }
@@ -70,6 +72,11 @@ class TimelinePostController extends Controller
     {
         if ($post->id_user !== auth()->id() && auth()->user()->role !== 'admin') {
             return response()->json(['message' => 'Anda tidak berhak menghapus unggahan ini.'], 403);
+        }
+        if (!empty($post->judul_buku_dibahas) && is_null($post->id_klub)) {
+            $now = Carbon::now('Asia/Jakarta');
+            $startOfWeek = $now->copy()->startOfWeek();
+            Cache::forget("trending_weekly_{$startOfWeek->year}_W{$startOfWeek->weekOfYear}");
         }
 
         $post->delete();

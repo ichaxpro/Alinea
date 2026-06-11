@@ -16,6 +16,8 @@ class LatestReports extends TableWidget
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 'full';
 
+    protected static ?string $heading = 'Laporan Terbaru';
+
     public function table(Table $table): Table
     {
         return $table
@@ -24,13 +26,14 @@ class LatestReports extends TableWidget
             )
             ->columns([
                 TextColumn::make('reporter.name')
-                    ->label('Reporter'),
+                    ->label('Pelapor'),
                 TextColumn::make('reportedUser.name')
-                    ->label('Reported User'),
+                    ->label('Dilaporkan'),
                 TextColumn::make('reason')
-                    ->label('Reason')
+                    ->label('Alasan')
                     ->limit(50),
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',

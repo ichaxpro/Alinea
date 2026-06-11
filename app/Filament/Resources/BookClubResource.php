@@ -38,7 +38,7 @@ class BookClubResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string | \UnitEnum | null $navigationGroup = 'Konten';
 
     protected static ?string $navigationLabel = 'Klub';
 
@@ -138,7 +138,7 @@ class BookClubResource extends Resource
                 TextColumn::make('owner.name')
                     ->searchable()
                     ->sortable()
-                    ->label('Owner'),
+                    ->label('Pemilik'),
                 TextColumn::make('member_count')
                     ->sortable()
                     ->label('Anggota'),

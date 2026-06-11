@@ -10,6 +10,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -89,7 +90,7 @@ class ChatController extends Controller
 
             $convId = $this->buildConversationId($authId, $partnerId);
 
-            $block = \Illuminate\Support\Facades\DB::table('blocks')
+            $block = DB::table('blocks')
                 ->where(function($q) use ($authId, $partnerId) {
                     $q->where('user_id', $authId)->where('blocked_user_id', $partnerId);
                 })->orWhere(function($q) use ($authId, $partnerId) {
@@ -223,7 +224,7 @@ class ChatController extends Controller
         $authId     = Auth::id();
         $receiverId = $authId === $userA ? $userB : $userA;
 
-        $isBlocked = \Illuminate\Support\Facades\DB::table('blocks')
+        $isBlocked = DB::table('blocks')
             ->where(function($q) use ($authId, $receiverId) {
                 $q->where('user_id', $authId)->where('blocked_user_id', $receiverId);
             })->orWhere(function($q) use ($authId, $receiverId) {

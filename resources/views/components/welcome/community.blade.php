@@ -40,8 +40,8 @@
 
                             <!-- Tab bar -->
                             <div class="flex bg-white border-[1.5px] border-[#444] rounded-full overflow-hidden mb-3">
-                                <div class="flex-1 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">For You</div>
-                                <div class="flex-1 py-2 text-xs text-gray-400 rounded-full text-center">Following</div>
+                                <div class="flex-1 py-2 text-xs font-bold text-[#444] bg-[#FFDDAF] rounded-full text-center">Untukmu</div>
+                                <div class="flex-1 py-2 text-xs text-gray-400 rounded-full text-center">Mengikuti</div>
                             </div>
 
                             <!-- Composer hint -->

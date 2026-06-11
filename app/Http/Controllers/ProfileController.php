@@ -8,6 +8,7 @@ use App\Models\TimelinePost;
 use App\Models\User;
 use App\Services\AchievementService;
 use App\Services\TrendingService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
@@ -151,11 +152,11 @@ class ProfileController extends Controller
         $isBlockedByMe = false;
         $hasBlockedMe = false;
         if ($currentUser && !$isOwnProfile) {
-            $isBlockedByMe = \Illuminate\Support\Facades\DB::table('blocks')
+            $isBlockedByMe = DB::table('blocks')
                 ->where('user_id', $currentUser->id)
                 ->where('blocked_user_id', $user->id)
                 ->exists();
-            $hasBlockedMe = \Illuminate\Support\Facades\DB::table('blocks')
+            $hasBlockedMe = DB::table('blocks')
                 ->where('user_id', $user->id)
                 ->where('blocked_user_id', $currentUser->id)
                 ->exists();
