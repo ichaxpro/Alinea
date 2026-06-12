@@ -83,6 +83,7 @@ export function openMediaModal(url, type, name = '') {
         video.src = url;
         video.controls = true;
         video.autoplay = true;
+        video.className = 'outline-none rounded-lg shadow-2xl';
         content.appendChild(video);
     }
 

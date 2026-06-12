@@ -62,9 +62,11 @@ function updateLightbox() {
     const item = timelineGallery[timelineGalleryIndex];
 
     if (item.type === 'video') {
-        lightboxContent.innerHTML = `<video src="${item.url}" controls autoplay class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain bg-black"></video>`;
+        lightboxContent.innerHTML = `<video src="${item.url}" controls autoplay class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain bg-black outline-none"></video>`;
     } else {
         lightboxContent.innerHTML = `<img src="${item.url}" class="max-w-full max-h-[85vh] rounded-xl shadow-2xl object-contain" />`;
+        lightbox.tabIndex = -1;
+        setTimeout(() => lightbox.focus(), 50);
     }
 
     if (timelineGallery.length > 1) {
@@ -104,7 +106,7 @@ lightbox?.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('hidden')) return;
     
-    // Ignore keydown if user is typing in an input/textarea (though unlikely in lightbox)
+    // Ignore keydown if user is typing in an input/textarea
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     if (e.key === 'Escape') {
