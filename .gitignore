@@ -28,3 +28,9 @@ Thumbs.db
 /storage/app/public/avatars
 /docs/
 .opencode/
+
+# Playwright
+/playwright-report/
+/test-results/
+/blob-report/
+/e2e/.auth/
