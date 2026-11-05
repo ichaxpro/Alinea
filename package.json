@@ -4,13 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite",
-        "test:e2e": "playwright test",
-        "test:e2e:ui": "playwright test --ui",
-        "test:e2e:report": "playwright show-report"
+        "dev": "vite"
     },
     "devDependencies": {
-        "@playwright/test": "^1.56.1",
         "@tailwindcss/vite": "^4.0.0",
         "axios": ">=1.11.0 <=1.14.0",
         "concurrently": "^9.2.1",
