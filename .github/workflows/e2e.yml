@@ -1,0 +1,139 @@
+name: E2E Tests (Playwright)
+
+on:
+  push:
+    branches:
+      - e2e-testing          # otomatis setiap push ke branch ini
+  pull_request:
+    branches:
+      - e2e-testing          # otomatis saat ada PR ke branch ini
+  workflow_dispatch:         # trigger manual dari GitHub UI
+    inputs:
+      environment:
+        description: 'Target environment (ci / staging)'
+        required: false
+        default: 'ci'
+
+jobs:
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # ── MySQL service container ──────────────────────────────────
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: alinea_test
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_USER: alinea
+          MYSQL_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────
+      - name: Checkout kode
+        uses: actions/checkout@v4
+        with:
+          ref: e2e-testing
+
+      # ── 2. Setup PHP ──────────────────────────────────────────
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, mbstring, xml, curl, zip, bcmath, tokenizer
+          coverage: none
+
+      # ── 3. Setup Node.js ──────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 4. Cache Composer ─────────────────────────────────────
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # ── 5. Install Composer ───────────────────────────────────
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # ── 6. Install NPM ────────────────────────────────────────
+      - name: Install NPM dependencies
+        run: npm ci
+
+      # ── 7. Install Playwright browsers ───────────────────────
+      - name: Install Playwright browsers (Chromium)
+        run: npx playwright install chromium --with-deps
+
+      # ── 8. Setup environment ──────────────────────────────────
+      - name: Setup .env
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
+          sed -i 's/# DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+          sed -i 's/# DB_PORT=3306/DB_PORT=3306/' .env
+          sed -i 's/# DB_DATABASE=laravel/DB_DATABASE=alinea_test/' .env
+          sed -i 's/# DB_USERNAME=root/DB_USERNAME=alinea/' .env
+          sed -i 's/# DB_PASSWORD=/DB_PASSWORD=secret/' .env
+          php artisan key:generate
+
+      # ── 9. Migrasi & Seeder ───────────────────────────────────
+      - name: Jalankan migrasi & E2eSeeder
+        run: php artisan migrate:fresh --seed --seeder=E2eSeeder --force
+
+      # ── 10. Build assets ──────────────────────────────────────
+      - name: Build Vite assets
+        run: npm run build
+
+      # ── 11. Start server ──────────────────────────────────────
+      - name: Start PHP artisan serve
+        run: php artisan serve --host=0.0.0.0 --port=8000 &
+        env:
+          APP_ENV: testing
+
+      - name: Tunggu server siap
+        run: |
+          for i in {1..15}; do
+            curl -s http://localhost:8000 > /dev/null && echo "Server siap!" && break
+            echo "Menunggu server... ($i/15)"
+            sleep 2
+          done
+
+      # ── 12. Jalankan Playwright ───────────────────────────────
+      - name: Jalankan Playwright E2E tests
+        run: npm run test:e2e
+        env:
+          PW_BASE_URL: http://localhost:8000
+          CI: true
+
+      # ── 13. Upload HTML report (selalu, termasuk saat gagal) ──
+      - name: Upload Playwright HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: playwright-report/
+          retention-days: 30
+
+      # ── 14. Upload screenshots & videos saat gagal ────────────
+      - name: Upload test results (screenshots & videos)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ github.run_number }}
+          path: test-results/
+          retention-days: 7
