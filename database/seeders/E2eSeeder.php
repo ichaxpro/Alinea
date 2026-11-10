@@ -61,11 +61,13 @@ class E2eSeeder extends Seeder
                 'judul'   => 'Laskar Pelangi',
             ],
             [
-                'penulis'      => 'Andrea Hirata',
-                'kondisi'      => 'baik',
-                'is_available' => true,
-                'status'       => 'tersedia',
-                'deskripsi'    => 'Novel inspiratif dari Belitung.',
+                'penulis'        => 'Andrea Hirata',
+                'kategori'       => 'Fiksi',
+                'tahun_terbit'   => 2005,
+                'jumlah_halaman' => 529,
+                'is_available'   => true,
+                'status'         => 'tersedia',
+                'reading_status' => null,
             ]
         );
 
